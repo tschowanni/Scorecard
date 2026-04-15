@@ -1,0 +1,2671 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <meta name="theme-color" content="#FAFAF7" />
+  <title>Turnierkarte Pur — Live &amp; Karte</title>
+  <style>
+    /* ---------- Reset & base ---------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.35;
+      color: #1A1A1A;
+      background: #FAFAF7;
+      -webkit-text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button { font: inherit; color: inherit; cursor: pointer; }
+    input, select { font: inherit; color: inherit; }
+    h1, h2, h3, h4 { margin: 0; font-weight: 600; }
+    ul, ol { margin: 0; padding: 0; list-style: none; }
+
+    /* ---------- App shell ---------- */
+    #app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      min-height: 100dvh;
+      max-width: 720px;
+      margin: 0 auto;
+      background: #FAFAF7;
+    }
+    #topbar {
+      flex: 0 0 auto;
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid #D8D6CF;
+      background: #FAFAF7;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #topbar .app-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: #1A1A1A;
+    }
+    #topbar .storage-warn {
+      font-size: 11px;
+      color: #B23A3A;
+      margin-left: 8px;
+    }
+    #main {
+      flex: 1 1 auto;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .screen {
+      display: none;
+      flex: 1 1 auto;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .screen.is-active { display: flex; }
+
+    /* ---------- Bottom navigation ---------- */
+    #bottomnav {
+      flex: 0 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid #D8D6CF;
+      background: #FAFAF7;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    #bottomnav button {
+      min-height: 56px;
+      background: none;
+      border: 0;
+      border-right: 1px solid #D8D6CF;
+      padding: 6px 4px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      color: #5A5A5A;
+      font-size: 12px;
+    }
+    #bottomnav button:last-child { border-right: 0; }
+    #bottomnav button .nav-icon {
+      font-size: 18px;
+      line-height: 1;
+    }
+    #bottomnav button.is-active {
+      color: #2F6B3A;
+      font-weight: 600;
+    }
+    #bottomnav button.is-disabled {
+      color: #BBBBBB;
+      opacity: 0.55;
+    }
+
+    /* ---------- Buttons ---------- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      padding: 8px 14px;
+      border: 1px solid #D8D6CF;
+      border-radius: 6px;
+      background: #FFFFFF;
+      color: #1A1A1A;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .btn:disabled, .btn.is-disabled {
+      color: #BBBBBB;
+      background: #F2F1ED;
+      border-color: #E2E0D9;
+      cursor: not-allowed;
+    }
+    .btn-primary {
+      background: #2F6B3A;
+      border-color: #2F6B3A;
+      color: #FFFFFF;
+    }
+    .btn-primary:disabled, .btn-primary.is-disabled {
+      background: #C7D5C9;
+      border-color: #C7D5C9;
+      color: #FFFFFF;
+    }
+    .btn-danger {
+      background: #FFFFFF;
+      border-color: #B23A3A;
+      color: #B23A3A;
+    }
+    .btn-block {
+      width: 100%;
+    }
+    .btn-large {
+      min-height: 56px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    /* ---------- Generic blocks ---------- */
+    .scroll-area {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .padded { padding: 12px 14px; }
+    .stack > * + * { margin-top: 12px; }
+    .label {
+      display: block;
+      font-size: 12px;
+      color: #5A5A5A;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .info-line {
+      font-size: 12px;
+      color: #5A5A5A;
+    }
+    .divider {
+      height: 1px;
+      background: #D8D6CF;
+      margin: 14px 0;
+    }
+    .warn-text {
+      color: #B23A3A;
+      font-size: 12px;
+    }
+    .empty-state {
+      padding: 24px 12px;
+      text-align: center;
+      color: #5A5A5A;
+      font-size: 13px;
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #5A5A5A;
+      margin: 8px 0 6px;
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .row.between { justify-content: space-between; }
+    .grow { flex: 1 1 auto; }
+
+    /* ---------- Setup screen ---------- */
+    #screen-setup .course-card {
+      border: 1px solid #D8D6CF;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #FFFFFF;
+    }
+    #screen-setup .course-card .course-name {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    #screen-setup .course-card .course-meta {
+      font-size: 12px;
+      color: #5A5A5A;
+      margin-top: 2px;
+    }
+    .tee-palette {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .tee-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #D8D6CF;
+      background: #FFFFFF;
+      font-size: 13px;
+      min-height: 36px;
+    }
+    .tee-pill .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 1px solid #888;
+    }
+    .tee-pill.is-selected {
+      border-color: #2F6B3A;
+      background: #EAF1EB;
+      color: #2F6B3A;
+      font-weight: 600;
+    }
+    .tee-dot-white  { background: #FFFFFF; }
+    .tee-dot-yellow { background: #F2C500; border-color: #C7A200; }
+    .tee-dot-blue   { background: #2A6FBA; border-color: #1F4F85; }
+    .tee-dot-red    { background: #C13A3A; border-color: #8E2B2B; }
+    .tee-dot-black  { background: #1A1A1A; border-color: #000000; }
+
+    .player-row {
+      border: 1px solid #D8D6CF;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #FFFFFF;
+    }
+    .player-row.has-error { border-color: #B23A3A; }
+    .player-row .top-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .player-row .name {
+      font-weight: 600;
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .player-row .icon-btn {
+      background: none;
+      border: 0;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #5A5A5A;
+      font-size: 18px;
+    }
+    .player-row .icon-btn.danger { color: #B23A3A; }
+    .player-row .row-meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .stepper {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #D8D6CF;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #FFFFFF;
+    }
+    .stepper button {
+      width: 36px;
+      height: 36px;
+      border: 0;
+      background: #FFFFFF;
+      font-size: 18px;
+      color: #1A1A1A;
+    }
+    .stepper button:disabled { color: #C7C7C7; }
+    .stepper .value {
+      min-width: 44px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      padding: 0 4px;
+    }
+    .err-mark {
+      color: #B23A3A;
+      font-size: 14px;
+      margin-left: 4px;
+    }
+
+    .accordion {
+      border: 1px solid #D8D6CF;
+      border-radius: 8px;
+      background: #FFFFFF;
+      overflow: hidden;
+    }
+    .accordion summary {
+      padding: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .accordion summary::-webkit-details-marker { display: none; }
+    .accordion summary::after {
+      content: "▾";
+      font-size: 12px;
+      color: #5A5A5A;
+    }
+    .accordion[open] summary::after { content: "▴"; }
+    .accordion .accordion-body {
+      padding: 0 12px 12px;
+      border-top: 1px solid #D8D6CF;
+    }
+
+    /* ---------- Play screen ---------- */
+    .play-header {
+      flex: 0 0 auto;
+      border-bottom: 1px solid #D8D6CF;
+      background: #FAFAF7;
+      padding: 8px 14px 0;
+    }
+    .status-line {
+      font-size: 12px;
+      color: #5A5A5A;
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+    .segment {
+      display: inline-flex;
+      margin: 8px 0;
+      border: 1px solid #D8D6CF;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #FFFFFF;
+    }
+    .segment button {
+      min-width: 96px;
+      min-height: 36px;
+      padding: 6px 16px;
+      background: transparent;
+      border: 0;
+      color: #5A5A5A;
+      font-weight: 500;
+      font-size: 14px;
+      transition: opacity 100ms linear;
+    }
+    .segment button.is-active {
+      background: #2F6B3A;
+      color: #FFFFFF;
+      font-weight: 600;
+    }
+
+    .play-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .play-pane {
+      display: none;
+      flex: 1 1 auto;
+      min-height: 0;
+      flex-direction: column;
+      opacity: 1;
+      transition: opacity 100ms linear;
+    }
+    .play-pane.is-active { display: flex; }
+
+    /* Live pane */
+    .hole-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid #D8D6CF;
+      background: #FFFFFF;
+    }
+    .hole-header .hole-num {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .hole-header .hole-meta {
+      font-size: 13px;
+      color: #5A5A5A;
+      display: flex;
+      gap: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+    .player-blocks {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 10px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .player-block {
+      border: 1px solid #D8D6CF;
+      border-radius: 10px;
+      background: #FFFFFF;
+      padding: 10px 12px;
+    }
+    .player-block .pb-row1 {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .player-block .pb-name {
+      font-weight: 600;
+      font-size: 16px;
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .player-block .pb-hcp {
+      color: #5A5A5A;
+      font-size: 12px;
+    }
+    .player-block .pb-slash {
+      color: #444444;
+      font-size: 22px;
+      letter-spacing: 1px;
+      margin-left: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+    .player-block .pb-row2 {
+      display: grid;
+      grid-template-columns: 56px 1fr 56px;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .player-block .stroke-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 8px;
+      border: 1px solid #D8D6CF;
+      background: #FFFFFF;
+      font-size: 28px;
+      font-weight: 600;
+      color: #1A1A1A;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .player-block .stroke-btn:disabled { color: #C7C7C7; background: #F4F2EC; }
+    .player-block .stroke-value {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: #1A1A1A;
+    }
+    .player-block .stroke-value.is-empty { color: #BBBBBB; font-weight: 400; }
+    .player-block .pb-row3 {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #5A5A5A;
+      font-variant-numeric: tabular-nums;
+    }
+    .player-block .pb-row3 strong { color: #1A1A1A; font-weight: 600; }
+
+    .hole-nav {
+      flex: 0 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 8px 14px 12px;
+      border-top: 1px solid #D8D6CF;
+      background: #FAFAF7;
+    }
+    .hole-nav .btn { min-height: 56px; font-size: 15px; font-weight: 600; }
+
+    /* Card pane */
+    .card-pane .card-mini-header {
+      padding: 8px 14px;
+      font-size: 12px;
+      color: #5A5A5A;
+      border-bottom: 1px solid #D8D6CF;
+      background: #FFFFFF;
+    }
+    .card-mini-header .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .card-mini-header .legend .dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      border: 1px solid #888;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 3px;
+    }
+    .scorecard-wrap {
+      flex: 1 1 auto;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      background: #FFFFFF;
+    }
+    table.scorecard {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: max-content;
+      font-variant-numeric: tabular-nums;
+      font-size: 13px;
+    }
+    table.scorecard th,
+    table.scorecard td {
+      border-right: 1px solid #E2E0D9;
+      border-bottom: 1px solid #E2E0D9;
+      padding: 4px 6px;
+      text-align: center;
+      vertical-align: middle;
+      background: #FFFFFF;
+      min-width: 36px;
+      height: 28px;
+      position: relative;
+    }
+    table.scorecard th.label-col,
+    table.scorecard td.label-col {
+      text-align: left;
+      min-width: 78px;
+      max-width: 110px;
+      padding: 4px 8px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    table.scorecard thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #F4F2EC;
+      font-weight: 600;
+      color: #1A1A1A;
+    }
+    table.scorecard tbody th.label-col,
+    table.scorecard tbody td.label-col {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background: #F4F2EC;
+    }
+    table.scorecard thead th.corner-cell {
+      left: 0;
+      z-index: 3;
+      background: #ECEAE3;
+    }
+    table.scorecard td.summary-col,
+    table.scorecard th.summary-col {
+      background: #F4F2EC;
+      font-weight: 600;
+    }
+    table.scorecard tr.row-par td,
+    table.scorecard tr.row-si td {
+      color: #5A5A5A;
+      background: #FBFAF6;
+    }
+    table.scorecard tr.row-par th.label-col,
+    table.scorecard tr.row-si th.label-col {
+      background: #F0EEE7;
+    }
+    table.scorecard tr.row-par td.summary-col,
+    table.scorecard tr.row-si td.summary-col {
+      background: #ECEAE3;
+    }
+    table.scorecard tr.row-stbl td {
+      color: #5A5A5A;
+      font-size: 11px;
+      height: 22px;
+    }
+    table.scorecard td.active-hole-mark {
+      box-shadow: inset 3px 0 0 0 #2F6B3A;
+    }
+    table.scorecard thead th.active-hole-mark {
+      box-shadow: inset 3px 0 0 0 #2F6B3A;
+    }
+    .stroke-cell .stroke-num {
+      font-weight: 600;
+    }
+    .stroke-cell .stroke-num.is-empty {
+      color: #BBBBBB;
+      font-weight: 400;
+    }
+    .stroke-cell .stroke-slash {
+      position: absolute;
+      top: 1px;
+      right: 3px;
+      font-size: 9px;
+      color: #444444;
+      letter-spacing: 0.5px;
+      pointer-events: none;
+    }
+
+    /* ---------- Results screen ---------- */
+    .ranking-card {
+      border: 1px solid #D8D6CF;
+      border-radius: 10px;
+      background: #FFFFFF;
+      padding: 12px;
+    }
+    .ranking-card.is-leader {
+      border-left: 4px solid #2F6B3A;
+    }
+    .ranking-card .rc-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .ranking-card .rc-rank {
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .ranking-card .rc-stbl {
+      font-size: 18px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .ranking-card .rc-name {
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .ranking-card .rc-hcp {
+      font-size: 12px;
+      color: #5A5A5A;
+    }
+    .ranking-card .rc-stats {
+      display: flex;
+      gap: 14px;
+      font-size: 13px;
+      color: #5A5A5A;
+      margin-top: 8px;
+      flex-wrap: wrap;
+      font-variant-numeric: tabular-nums;
+    }
+    .ranking-card .rc-stats strong { color: #1A1A1A; font-weight: 600; }
+    .ranking-card .rc-spark {
+      display: grid;
+      grid-template-columns: repeat(18, 1fr);
+      gap: 2px;
+      margin-top: 8px;
+    }
+    .ranking-card .rc-spark .pt {
+      font-size: 9px;
+      text-align: center;
+      padding: 2px 0;
+      background: #F4F2EC;
+      border-radius: 2px;
+      font-variant-numeric: tabular-nums;
+      color: #5A5A5A;
+    }
+    .ranking-card .rc-spark .pt.empty { color: #BBBBBB; }
+    .ranking-card .rc-spark .pt.p0 { background: #F4F2EC; }
+    .ranking-card .rc-spark .pt.p1 { background: #EAEAEA; }
+    .ranking-card .rc-spark .pt.p2 { background: #DDEAE0; color: #1A1A1A; }
+    .ranking-card .rc-spark .pt.p3 { background: #BFD9C5; color: #1A1A1A; }
+    .ranking-card .rc-spark .pt.p4,
+    .ranking-card .rc-spark .pt.p5 { background: #2F6B3A; color: #FFFFFF; }
+    .results-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    /* ---------- Data screen ---------- */
+    .data-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .data-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 1px solid #D8D6CF;
+      border-radius: 8px;
+      background: #FFFFFF;
+    }
+    .data-row .meta {
+      font-size: 12px;
+      color: #5A5A5A;
+    }
+    .data-row .name {
+      font-weight: 600;
+    }
+    .data-row .actions {
+      display: flex;
+      gap: 6px;
+    }
+    .data-row .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      border: 1px solid #D8D6CF;
+      background: #FFFFFF;
+      color: #5A5A5A;
+      font-size: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .data-row .icon-btn.danger { color: #B23A3A; border-color: #E6C5C5; }
+
+    /* ---------- Overlay (modals & sheets) ---------- */
+    #overlay-root {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+    }
+    #overlay-root.is-open { display: block; }
+    .overlay-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(20, 20, 20, 0.4);
+    }
+    .overlay-content {
+      position: absolute;
+      left: 0;
+      right: 0;
+      max-width: 720px;
+      margin: 0 auto;
+      background: #FFFFFF;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .overlay-content.sheet {
+      bottom: 0;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    .overlay-content.dialog {
+      top: 50%;
+      transform: translateY(-50%);
+      border-radius: 12px;
+      max-width: 440px;
+      margin: 0 14px;
+      left: 0; right: 0;
+    }
+    .overlay-header {
+      padding: 14px 14px 6px;
+      font-weight: 600;
+      font-size: 16px;
+      border-bottom: 1px solid #E2E0D9;
+    }
+    .overlay-body {
+      padding: 14px;
+    }
+    .overlay-actions {
+      padding: 12px 14px 16px;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      border-top: 1px solid #E2E0D9;
+    }
+    .overlay-actions .btn { min-width: 100px; }
+
+    .field {
+      display: block;
+      margin-bottom: 12px;
+    }
+    .field input[type="text"],
+    .field input[type="number"] {
+      width: 100%;
+      min-height: 44px;
+      padding: 8px 10px;
+      border: 1px solid #D8D6CF;
+      border-radius: 6px;
+      background: #FFFFFF;
+      font-size: 15px;
+    }
+
+    /* ---------- Toast ---------- */
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: 80px;
+      transform: translateX(-50%);
+      background: #1A1A1A;
+      color: #FFFFFF;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 150ms linear;
+      max-width: 80%;
+      text-align: center;
+    }
+    #toast.is-visible { opacity: 1; }
+
+    /* ---------- Misc helpers ---------- */
+    .hidden { display: none !important; }
+    .nowrap { white-space: nowrap; }
+    .small { font-size: 12px; color: #5A5A5A; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header id="topbar">
+      <span class="app-title">Turnierkarte Pur — Live &amp; Karte</span>
+      <span id="storage-warn" class="storage-warn hidden">Daten nur in dieser Sitzung</span>
+    </header>
+
+    <main id="main">
+      <section id="screen-setup" class="screen"></section>
+      <section id="screen-play" class="screen"></section>
+      <section id="screen-results" class="screen"></section>
+      <section id="screen-data" class="screen"></section>
+    </main>
+
+    <nav id="bottomnav">
+      <button data-screen="setup">
+        <span class="nav-icon" aria-hidden="true">⚙</span>
+        <span>Setup</span>
+      </button>
+      <button data-screen="play">
+        <span class="nav-icon" aria-hidden="true">⛳</span>
+        <span>Spiel</span>
+      </button>
+      <button data-screen="results">
+        <span class="nav-icon" aria-hidden="true">📊</span>
+        <span>Ergebnis</span>
+      </button>
+      <button data-screen="data">
+        <span class="nav-icon" aria-hidden="true">📁</span>
+        <span>Daten</span>
+      </button>
+    </nav>
+  </div>
+
+  <div id="overlay-root" aria-hidden="true">
+    <div class="overlay-backdrop" data-overlay-close="true"></div>
+    <div id="overlay-content" class="overlay-content"></div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+  (function () {
+    'use strict';
+
+    // ============================================================
+    // Constants & sample data
+    // ============================================================
+    const STORAGE_KEY = 'golfScorecardAppStateV1';
+    const SCHEMA_VERSION = 1;
+
+    const TEE_LABELS = {
+      white:  'Weiss',
+      yellow: 'Gelb',
+      blue:   'Blau',
+      red:    'Rot',
+      black:  'Schwarz'
+    };
+    const TEE_ORDER = ['black', 'white', 'yellow', 'blue', 'red'];
+
+    function uid(prefix) {
+      return prefix + '-' + Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
+    }
+
+    // Sample courses (V1 seed)
+    function buildSampleCourses() {
+      return [
+        {
+          id: 'course-muc-riedhof',
+          name: 'Muenchen-Riedhof',
+          country: 'DE',
+          region: 'Bayern',
+          lastUpdated: '2026-01-15',
+          tees: [
+            { colorKey: 'white',  colorLabel: 'Weiss', courseRating: 72.4, slopeRating: 134, par: 72, holeYardage: [] },
+            { colorKey: 'yellow', colorLabel: 'Gelb',  courseRating: 71.2, slopeRating: 130, par: 72, holeYardage: [] },
+            { colorKey: 'blue',   colorLabel: 'Blau',  courseRating: 73.1, slopeRating: 128, par: 72, holeYardage: [] },
+            { colorKey: 'red',    colorLabel: 'Rot',   courseRating: 72.8, slopeRating: 132, par: 72, holeYardage: [] }
+          ],
+          holes: [
+            { holeNumber: 1,  par: 4, strokeIndex: 7  },
+            { holeNumber: 2,  par: 4, strokeIndex: 11 },
+            { holeNumber: 3,  par: 3, strokeIndex: 15 },
+            { holeNumber: 4,  par: 5, strokeIndex: 3  },
+            { holeNumber: 5,  par: 4, strokeIndex: 5  },
+            { holeNumber: 6,  par: 4, strokeIndex: 13 },
+            { holeNumber: 7,  par: 3, strokeIndex: 17 },
+            { holeNumber: 8,  par: 5, strokeIndex: 1  },
+            { holeNumber: 9,  par: 4, strokeIndex: 9  },
+            { holeNumber: 10, par: 4, strokeIndex: 8  },
+            { holeNumber: 11, par: 5, strokeIndex: 4  },
+            { holeNumber: 12, par: 3, strokeIndex: 16 },
+            { holeNumber: 13, par: 4, strokeIndex: 12 },
+            { holeNumber: 14, par: 4, strokeIndex: 6  },
+            { holeNumber: 15, par: 3, strokeIndex: 18 },
+            { holeNumber: 16, par: 5, strokeIndex: 2  },
+            { holeNumber: 17, par: 4, strokeIndex: 14 },
+            { holeNumber: 18, par: 4, strokeIndex: 10 }
+          ]
+        },
+        {
+          id: 'course-pinehurst-no2',
+          name: 'Pinehurst No. 2 (Beispiel)',
+          country: 'US',
+          region: 'NC',
+          lastUpdated: '2026-01-15',
+          tees: [
+            { colorKey: 'black',  colorLabel: 'Schwarz', courseRating: 76.5, slopeRating: 138, par: 72, holeYardage: [] },
+            { colorKey: 'blue',   colorLabel: 'Blau',    courseRating: 74.1, slopeRating: 134, par: 72, holeYardage: [] },
+            { colorKey: 'white',  colorLabel: 'Weiss',   courseRating: 71.5, slopeRating: 129, par: 72, holeYardage: [] },
+            { colorKey: 'red',    colorLabel: 'Rot',     courseRating: 72.0, slopeRating: 130, par: 72, holeYardage: [] }
+          ],
+          holes: [
+            { holeNumber: 1,  par: 4, strokeIndex: 11 },
+            { holeNumber: 2,  par: 4, strokeIndex: 5  },
+            { holeNumber: 3,  par: 4, strokeIndex: 13 },
+            { holeNumber: 4,  par: 5, strokeIndex: 3  },
+            { holeNumber: 5,  par: 4, strokeIndex: 1  },
+            { holeNumber: 6,  par: 3, strokeIndex: 17 },
+            { holeNumber: 7,  par: 4, strokeIndex: 9  },
+            { holeNumber: 8,  par: 5, strokeIndex: 7  },
+            { holeNumber: 9,  par: 3, strokeIndex: 15 },
+            { holeNumber: 10, par: 5, strokeIndex: 8  },
+            { holeNumber: 11, par: 4, strokeIndex: 4  },
+            { holeNumber: 12, par: 4, strokeIndex: 6  },
+            { holeNumber: 13, par: 4, strokeIndex: 14 },
+            { holeNumber: 14, par: 4, strokeIndex: 2  },
+            { holeNumber: 15, par: 3, strokeIndex: 18 },
+            { holeNumber: 16, par: 5, strokeIndex: 10 },
+            { holeNumber: 17, par: 3, strokeIndex: 16 },
+            { holeNumber: 18, par: 4, strokeIndex: 12 }
+          ]
+        }
+      ];
+    }
+    function buildSamplePlayers() {
+      const now = new Date().toISOString();
+      return [
+        { id: 'player-mueller', name: 'Mueller',  handicapIndex: 18.4, defaultTeeColorKey: 'yellow', createdAt: now },
+        { id: 'player-schmidt', name: 'Schmidt',  handicapIndex: 28.1, defaultTeeColorKey: 'red',    createdAt: now },
+        { id: 'player-weber',   name: 'Weber',    handicapIndex:  9.2, defaultTeeColorKey: 'white',  createdAt: now }
+      ];
+    }
+    function defaultAppState() {
+      return {
+        version: SCHEMA_VERSION,
+        lastActiveRoundId: null,
+        players: buildSamplePlayers(),
+        courses: buildSampleCourses(),
+        rounds: []
+      };
+    }
+
+    // ============================================================
+    // Runtime state
+    // ============================================================
+    const state = {
+      appState: null,
+      storageAvailable: true,
+      activeScreen: 'setup',
+      segment: 'live',
+      setupDraft: null,
+      activeRound: null
+    };
+
+    // ============================================================
+    // Persistence
+    // ============================================================
+    function loadState() {
+      let raw = null;
+      try {
+        raw = localStorage.getItem(STORAGE_KEY);
+        state.storageAvailable = true;
+      } catch (e) {
+        state.storageAvailable = false;
+      }
+      if (!raw) {
+        state.appState = defaultAppState();
+        return;
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object' || parsed.version !== SCHEMA_VERSION) {
+          state.appState = defaultAppState();
+          return;
+        }
+        // sanity defaults
+        parsed.players  = Array.isArray(parsed.players)  ? parsed.players  : [];
+        parsed.courses  = Array.isArray(parsed.courses)  ? parsed.courses  : [];
+        parsed.rounds   = Array.isArray(parsed.rounds)   ? parsed.rounds   : [];
+        if (parsed.courses.length === 0) parsed.courses = buildSampleCourses();
+        state.appState = parsed;
+      } catch (e) {
+        state.appState = defaultAppState();
+      }
+    }
+    function saveState() {
+      if (!state.storageAvailable) return;
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.appState));
+      } catch (e) {
+        state.storageAvailable = false;
+        renderTopbar();
+      }
+    }
+    function exportData() {
+      const data = JSON.stringify(state.appState, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const stamp = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = 'scorecard-export-' + stamp + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+      showToast('Export gespeichert');
+    }
+    function importDataFromFile(file, onDone) {
+      const reader = new FileReader();
+      reader.onload = function () {
+        try {
+          const parsed = JSON.parse(String(reader.result));
+          if (!parsed || typeof parsed !== 'object') throw new Error('bad shape');
+          if (parsed.version !== SCHEMA_VERSION) throw new Error('bad version');
+          if (!Array.isArray(parsed.players) || !Array.isArray(parsed.courses)) throw new Error('bad arrays');
+          state.appState = {
+            version: SCHEMA_VERSION,
+            lastActiveRoundId: parsed.lastActiveRoundId || null,
+            players: parsed.players,
+            courses: parsed.courses.length ? parsed.courses : buildSampleCourses(),
+            rounds: Array.isArray(parsed.rounds) ? parsed.rounds : []
+          };
+          state.activeRound = state.appState.lastActiveRoundId
+            ? state.appState.rounds.find(function (r) { return r.id === state.appState.lastActiveRoundId; }) || null
+            : null;
+          saveState();
+          if (onDone) onDone(true);
+          showToast('Import erfolgreich');
+        } catch (err) {
+          if (onDone) onDone(false, err);
+          openDialog({
+            title: 'Import fehlgeschlagen',
+            message: 'Die Datei ist ungueltig oder entspricht nicht dem erwarteten Format (Version ' + SCHEMA_VERSION + ').',
+            confirmText: 'OK',
+            hideCancel: true
+          });
+        }
+      };
+      reader.onerror = function () {
+        openDialog({
+          title: 'Import fehlgeschlagen',
+          message: 'Datei konnte nicht gelesen werden.',
+          confirmText: 'OK',
+          hideCancel: true
+        });
+      };
+      reader.readAsText(file);
+    }
+
+    // ============================================================
+    // Calculations
+    // ============================================================
+    function calculatePlayingHandicap(handicapIndex, slopeRating, courseRating, par) {
+      const ph = Math.round(handicapIndex * (slopeRating / 113) + (courseRating - par));
+      return Math.max(0, ph);
+    }
+    function distributeStrokesPerHole(playingHandicap, holes) {
+      const result = new Array(18).fill(0);
+      if (playingHandicap <= 0) return result;
+      // Build mapping: SI rank -> hole index
+      const order = holes
+        .map(function (h, i) { return { i: i, si: h.strokeIndex }; })
+        .sort(function (a, b) { return a.si - b.si; })
+        .map(function (x) { return x.i; });
+      let remaining = playingHandicap;
+      let safety = 0;
+      while (remaining > 0 && safety < 10) {
+        for (let k = 0; k < 18 && remaining > 0; k++) {
+          result[order[k]]++;
+          remaining--;
+        }
+        safety++;
+      }
+      return result;
+    }
+    function stablefordForHole(strokes, par, given) {
+      if (!strokes || strokes <= 0) return 0;
+      const net = strokes - given;
+      const diff = net - par;
+      if (diff >= 2) return 0;
+      if (diff === 1) return 1;
+      if (diff === 0) return 2;
+      if (diff === -1) return 3;
+      if (diff === -2) return 4;
+      return 5; // diff <= -3
+    }
+    function getCourse(courseId) {
+      return state.appState.courses.find(function (c) { return c.id === courseId; }) || null;
+    }
+    function getTee(course, colorKey) {
+      if (!course) return null;
+      return course.tees.find(function (t) { return t.colorKey === colorKey; }) || course.tees[0] || null;
+    }
+    function getHole(course, holeNumber) {
+      return course.holes.find(function (h) { return h.holeNumber === holeNumber; });
+    }
+    function getStrokesForPlayerHole(round, playerIdx, holeNumber) {
+      const score = round.holeScores.find(function (s) {
+        return s.playerInRoundIdx === playerIdx && s.holeNumber === holeNumber;
+      });
+      return score ? (score.strokes || 0) : 0;
+    }
+    function setStrokesForPlayerHole(round, playerIdx, holeNumber, strokes) {
+      let score = round.holeScores.find(function (s) {
+        return s.playerInRoundIdx === playerIdx && s.holeNumber === holeNumber;
+      });
+      const course = getCourse(round.courseId);
+      const hole = getHole(course, holeNumber);
+      const pir = round.playersInRound[playerIdx];
+      const given = pir.strokesPerHole[holeNumber - 1] || 0;
+      const net = strokes > 0 ? strokes - given : 0;
+      const stbl = stablefordForHole(strokes, hole.par, given);
+      if (!score) {
+        score = {
+          playerInRoundIdx: playerIdx,
+          holeNumber: holeNumber,
+          strokes: strokes,
+          netStrokes: net,
+          stablefordPoints: stbl
+        };
+        round.holeScores.push(score);
+      } else {
+        score.strokes = strokes;
+        score.netStrokes = net;
+        score.stablefordPoints = stbl;
+      }
+    }
+    function computeTotals(round, playerIdx) {
+      const totals = {
+        grossOut: 0, grossIn: 0, grossTotal: 0,
+        netOut: 0, netIn: 0, netTotal: 0,
+        stablefordOut: 0, stablefordIn: 0, stablefordTotal: 0,
+        toParGross: 0, toParNet: 0,
+        parPlayedOut: 0, parPlayedIn: 0, parPlayedTotal: 0,
+        anyEntered: false
+      };
+      const course = getCourse(round.courseId);
+      for (let h = 1; h <= 18; h++) {
+        const strokes = getStrokesForPlayerHole(round, playerIdx, h);
+        const hole = getHole(course, h);
+        const pir = round.playersInRound[playerIdx];
+        const given = pir.strokesPerHole[h - 1] || 0;
+        if (strokes > 0) {
+          totals.anyEntered = true;
+          const net = strokes - given;
+          const stbl = stablefordForHole(strokes, hole.par, given);
+          if (h <= 9) {
+            totals.grossOut += strokes;
+            totals.netOut += net;
+            totals.stablefordOut += stbl;
+            totals.parPlayedOut += hole.par;
+          } else {
+            totals.grossIn += strokes;
+            totals.netIn += net;
+            totals.stablefordIn += stbl;
+            totals.parPlayedIn += hole.par;
+          }
+        }
+      }
+      totals.grossTotal = totals.grossOut + totals.grossIn;
+      totals.netTotal = totals.netOut + totals.netIn;
+      totals.stablefordTotal = totals.stablefordOut + totals.stablefordIn;
+      totals.parPlayedTotal = totals.parPlayedOut + totals.parPlayedIn;
+      totals.toParGross = totals.grossTotal - totals.parPlayedTotal;
+      totals.toParNet = totals.netTotal - totals.parPlayedTotal;
+      return totals;
+    }
+    function getRanking(round) {
+      const list = round.playersInRound.map(function (pir, idx) {
+        const t = computeTotals(round, idx);
+        return { idx: idx, pir: pir, totals: t };
+      });
+      list.sort(function (a, b) {
+        if (b.totals.stablefordTotal !== a.totals.stablefordTotal) {
+          return b.totals.stablefordTotal - a.totals.stablefordTotal;
+        }
+        return a.idx - b.idx;
+      });
+      let rank = 1;
+      for (let i = 0; i < list.length; i++) {
+        if (i > 0 && list[i].totals.stablefordTotal < list[i - 1].totals.stablefordTotal) {
+          rank = i + 1;
+        }
+        list[i].rank = rank;
+      }
+      return list;
+    }
+    function slashChars(n) {
+      if (n <= 0) return '';
+      if (n === 1) return '/';
+      if (n === 2) return '//';
+      return '///';
+    }
+    function formatToPar(n) {
+      if (n === 0) return 'E';
+      return (n > 0 ? '+' : '') + n;
+    }
+    function shortName(name, max) {
+      if (!name) return '';
+      if (name.length <= max) return name;
+      return name.slice(0, Math.max(1, max - 1)) + '.';
+    }
+
+    // ============================================================
+    // Setup draft helpers
+    // ============================================================
+    function newSetupDraft() {
+      const firstCourse = state.appState.courses[0] || null;
+      return {
+        courseId: firstCourse ? firstCourse.id : null,
+        teeForCourse: firstCourse ? (getTee(firstCourse, 'yellow') || firstCourse.tees[0]).colorKey : null,
+        players: []
+      };
+    }
+    function ensureSetupDraft() {
+      if (!state.setupDraft) {
+        state.setupDraft = newSetupDraft();
+      }
+      // re-validate course
+      const course = getCourse(state.setupDraft.courseId);
+      if (!course) {
+        const c = state.appState.courses[0];
+        state.setupDraft.courseId = c ? c.id : null;
+        state.setupDraft.teeForCourse = c ? c.tees[0].colorKey : null;
+        state.setupDraft.players.forEach(function (p) {
+          p.teeColorKey = state.setupDraft.teeForCourse;
+        });
+      }
+    }
+    function setupIsValid() {
+      const d = state.setupDraft;
+      if (!d || !d.courseId) return false;
+      if (d.players.length < 1 || d.players.length > 4) return false;
+      for (let i = 0; i < d.players.length; i++) {
+        const p = d.players[i];
+        if (!p.displayName || p.displayName.trim().length === 0) return false;
+        if (typeof p.handicapIndex !== 'number' || isNaN(p.handicapIndex)) return false;
+        if (!p.teeColorKey) return false;
+      }
+      return true;
+    }
+    function startRoundFromDraft() {
+      const d = state.setupDraft;
+      const course = getCourse(d.courseId);
+      const playersInRound = d.players.map(function (p) {
+        const tee = getTee(course, p.teeColorKey);
+        const ph = calculatePlayingHandicap(p.handicapIndex, tee.slopeRating, tee.courseRating, tee.par);
+        return {
+          playerId: p.playerId || null,
+          displayName: p.displayName.trim(),
+          handicapIndexAtRound: p.handicapIndex,
+          teeColorKey: p.teeColorKey,
+          playingHandicap: ph,
+          strokesPerHole: distributeStrokesPerHole(ph, course.holes)
+        };
+      });
+      const round = {
+        id: uid('round'),
+        courseId: course.id,
+        date: new Date().toISOString(),
+        playersInRound: playersInRound,
+        currentHole: 1,
+        status: 'active',
+        holeScores: []
+      };
+      state.appState.rounds.push(round);
+      state.appState.lastActiveRoundId = round.id;
+      state.activeRound = round;
+      state.setupDraft = null;
+      saveState();
+    }
+    function discardActiveRound() {
+      if (!state.activeRound) return;
+      // remove from rounds
+      const id = state.activeRound.id;
+      state.appState.rounds = state.appState.rounds.filter(function (r) { return r.id !== id; });
+      state.appState.lastActiveRoundId = null;
+      state.activeRound = null;
+      saveState();
+    }
+    function finishActiveRound() {
+      if (!state.activeRound) return;
+      state.activeRound.status = 'finished';
+      saveState();
+    }
+
+    // ============================================================
+    // Navigation
+    // ============================================================
+    function setScreen(name) {
+      // disabled tabs guard
+      if ((name === 'play' || name === 'results') && !hasActiveRound()) {
+        showToast('Bitte zuerst eine Runde im Setup starten.');
+        return;
+      }
+      state.activeScreen = name;
+      renderAll();
+    }
+    function setSegment(name) {
+      state.segment = name;
+      renderPlay();
+      renderBottomNav();
+    }
+    function hasActiveRound() {
+      return !!state.activeRound;
+    }
+
+    // ============================================================
+    // Top bar & nav rendering
+    // ============================================================
+    function renderTopbar() {
+      const w = document.getElementById('storage-warn');
+      if (state.storageAvailable) w.classList.add('hidden');
+      else w.classList.remove('hidden');
+    }
+    function renderBottomNav() {
+      const nav = document.getElementById('bottomnav');
+      const buttons = nav.querySelectorAll('button');
+      buttons.forEach(function (btn) {
+        const target = btn.getAttribute('data-screen');
+        btn.classList.remove('is-active', 'is-disabled');
+        if (target === state.activeScreen) btn.classList.add('is-active');
+        if ((target === 'play' || target === 'results') && !hasActiveRound()) {
+          btn.classList.add('is-disabled');
+        }
+      });
+    }
+
+    // ============================================================
+    // Setup screen rendering
+    // ============================================================
+    function renderSetup() {
+      ensureSetupDraft();
+      const root = document.getElementById('screen-setup');
+      root.innerHTML = '';
+      const valid = setupIsValid();
+
+      const scroll = el('div', { class: 'scroll-area' });
+      const padded = el('div', { class: 'padded stack' });
+
+      // Course section
+      const course = getCourse(state.setupDraft.courseId);
+      const courseCard = el('div', { class: 'course-card' });
+      courseCard.appendChild(el('div', { class: 'label' }, ['Platz']));
+      const courseRow = el('div', { class: 'row between' });
+      const courseInfo = el('div', {}, []);
+      courseInfo.appendChild(el('div', { class: 'course-name' }, [course ? course.name : 'Kein Platz']));
+      if (course) {
+        const meta = course.country + (course.region ? ' / ' + course.region : '');
+        courseInfo.appendChild(el('div', { class: 'course-meta' }, [meta]));
+      }
+      const changeBtn = el('button', { class: 'btn', type: 'button' }, ['Aendern']);
+      changeBtn.addEventListener('click', openCoursePicker);
+      courseRow.appendChild(courseInfo);
+      courseRow.appendChild(changeBtn);
+      courseCard.appendChild(courseRow);
+
+      // Tee selection (default tee for course; players can override)
+      if (course) {
+        const teeLabel = el('div', { class: 'label', style: 'margin-top:10px;' }, ['Standard-Abschlag (Tee)']);
+        courseCard.appendChild(teeLabel);
+        const palette = el('div', { class: 'tee-palette' });
+        course.tees.forEach(function (t) {
+          const pill = el('button', {
+            class: 'tee-pill' + (t.colorKey === state.setupDraft.teeForCourse ? ' is-selected' : ''),
+            type: 'button'
+          });
+          pill.appendChild(el('span', { class: 'dot tee-dot-' + t.colorKey }));
+          pill.appendChild(el('span', {}, [t.colorLabel]));
+          pill.addEventListener('click', function () {
+            state.setupDraft.teeForCourse = t.colorKey;
+            // also update players using prior default
+            state.setupDraft.players.forEach(function (p) {
+              if (!p._teeOverride) p.teeColorKey = t.colorKey;
+            });
+            renderSetup();
+          });
+          palette.appendChild(pill);
+        });
+        courseCard.appendChild(palette);
+        const tee = getTee(course, state.setupDraft.teeForCourse);
+        if (tee) {
+          courseCard.appendChild(el('div', { class: 'info-line', style: 'margin-top:8px;' }, [
+            'CR / SR / Par: ' + tee.courseRating.toFixed(1) + ' / ' + tee.slopeRating + ' / ' + tee.par
+          ]));
+        }
+      }
+      padded.appendChild(courseCard);
+
+      // Players section
+      padded.appendChild(el('div', { class: 'section-title' }, ['Spieler dieser Runde']));
+      const playersBox = el('div', { class: 'stack' });
+      if (state.setupDraft.players.length === 0) {
+        playersBox.appendChild(el('div', { class: 'empty-state' }, [
+          'Lege mind. einen Spieler an, um zu starten.'
+        ]));
+      } else {
+        state.setupDraft.players.forEach(function (p, idx) {
+          playersBox.appendChild(renderSetupPlayerRow(p, idx, course));
+        });
+      }
+      padded.appendChild(playersBox);
+
+      const addRow = el('div', { class: 'row', style: 'margin-top:8px;' });
+      const addBtn = el('button', { class: 'btn', type: 'button' }, ['+ Spieler hinzufuegen']);
+      addBtn.addEventListener('click', openAddPlayerSheet);
+      const lastRow = el('div', { class: 'small grow', style: 'text-align:right;' }, [
+        state.setupDraft.players.length + ' / 4 Spieler'
+      ]);
+      addRow.appendChild(addBtn);
+      addRow.appendChild(lastRow);
+      padded.appendChild(addRow);
+
+      // Data accordion
+      const accord = el('details', { class: 'accordion' });
+      const summary = el('summary', {}, ['Daten & Import / Export']);
+      const body = el('div', { class: 'accordion-body stack', style: 'padding-top:12px;' });
+      const exportBtn = el('button', { class: 'btn btn-block', type: 'button' }, ['Daten exportieren']);
+      exportBtn.addEventListener('click', exportData);
+      const importBtn = el('button', { class: 'btn btn-block', type: 'button' }, ['Daten importieren']);
+      importBtn.addEventListener('click', triggerImport);
+      const updateBtn = el('button', { class: 'btn btn-block is-disabled', type: 'button', disabled: 'disabled' }, ['Plaetze aktualisieren']);
+      const btBtn = el('button', { class: 'btn btn-block is-disabled', type: 'button', disabled: 'disabled' }, ['Geraete-Sync (Bluetooth)']);
+      body.appendChild(exportBtn);
+      body.appendChild(importBtn);
+      body.appendChild(updateBtn);
+      body.appendChild(el('div', { class: 'small' }, ['Online-Update von Plaetzen ist fuer eine spaetere Version geplant.']));
+      body.appendChild(btBtn);
+      body.appendChild(el('div', { class: 'small' }, ['Geraete-Sync ueber Bluetooth ist fuer eine spaetere Version geplant.']));
+      accord.appendChild(summary);
+      accord.appendChild(body);
+      padded.appendChild(accord);
+
+      scroll.appendChild(padded);
+      root.appendChild(scroll);
+
+      // Footer
+      const footer = el('div', { class: 'padded', style: 'border-top:1px solid #D8D6CF; background:#FAFAF7;' });
+      const startBtn = el('button', {
+        class: 'btn btn-primary btn-block btn-large' + (valid ? '' : ' is-disabled'),
+        type: 'button'
+      }, [hasActiveRound() ? 'Neue Runde starten (laufende beenden)' : 'Runde starten']);
+      if (!valid) startBtn.disabled = true;
+      startBtn.addEventListener('click', function () {
+        if (!setupIsValid()) return;
+        if (hasActiveRound()) {
+          openDialog({
+            title: 'Aktuelle Runde verwerfen?',
+            message: 'Es laeuft bereits eine Runde. Wenn du eine neue Runde startest, wird die laufende Runde verworfen.',
+            confirmText: 'Verwerfen & starten',
+            confirmKind: 'danger',
+            onConfirm: function () {
+              discardActiveRound();
+              startRoundFromDraft();
+              state.segment = 'live';
+              setScreen('play');
+            }
+          });
+        } else {
+          startRoundFromDraft();
+          state.segment = 'live';
+          setScreen('play');
+        }
+      });
+      footer.appendChild(startBtn);
+      root.appendChild(footer);
+    }
+    function renderSetupPlayerRow(p, idx, course) {
+      const errors = [];
+      if (!p.displayName || !p.displayName.trim()) errors.push('Name fehlt');
+      if (typeof p.handicapIndex !== 'number' || isNaN(p.handicapIndex)) errors.push('HCP fehlt');
+      if (!p.teeColorKey) errors.push('Tee fehlt');
+
+      const row = el('div', { class: 'player-row' + (errors.length ? ' has-error' : '') });
+
+      const top = el('div', { class: 'top-row' });
+      top.appendChild(el('div', { class: 'name' }, [p.displayName || 'Unbenannt']));
+      const editBtn = el('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Bearbeiten' }, ['✎']);
+      editBtn.addEventListener('click', function () { openEditSetupPlayerSheet(idx); });
+      top.appendChild(editBtn);
+      if (state.setupDraft.players.length > 1) {
+        const rmBtn = el('button', { class: 'icon-btn danger', type: 'button', 'aria-label': 'Entfernen' }, ['🗑']);
+        rmBtn.addEventListener('click', function () {
+          state.setupDraft.players.splice(idx, 1);
+          renderSetup();
+        });
+        top.appendChild(rmBtn);
+      }
+      row.appendChild(top);
+
+      const meta = el('div', { class: 'row-meta' });
+      // HCP stepper
+      const hcpWrap = el('div', { class: 'row', style: 'gap:6px;' });
+      hcpWrap.appendChild(el('span', { class: 'small' }, ['HCP']));
+      const hcpStepper = el('div', { class: 'stepper' });
+      const hcpMinus = el('button', { type: 'button', 'aria-label': 'HCP minus' }, ['−']);
+      const hcpVal = el('span', { class: 'value' }, [
+        (typeof p.handicapIndex === 'number' && !isNaN(p.handicapIndex)) ? p.handicapIndex.toFixed(1) : '—'
+      ]);
+      const hcpPlus = el('button', { type: 'button', 'aria-label': 'HCP plus' }, ['+']);
+      hcpMinus.addEventListener('click', function () {
+        const cur = (typeof p.handicapIndex === 'number') ? p.handicapIndex : 18.0;
+        p.handicapIndex = Math.max(-5, Math.round((cur - 0.5) * 10) / 10);
+        renderSetup();
+      });
+      hcpPlus.addEventListener('click', function () {
+        const cur = (typeof p.handicapIndex === 'number') ? p.handicapIndex : 18.0;
+        p.handicapIndex = Math.min(54, Math.round((cur + 0.5) * 10) / 10);
+        renderSetup();
+      });
+      hcpStepper.appendChild(hcpMinus);
+      hcpStepper.appendChild(hcpVal);
+      hcpStepper.appendChild(hcpPlus);
+      hcpWrap.appendChild(hcpStepper);
+      meta.appendChild(hcpWrap);
+
+      // Tee chooser
+      const teeWrap = el('div', { class: 'row', style: 'gap:6px;' });
+      teeWrap.appendChild(el('span', { class: 'small' }, ['Tee']));
+      if (course) {
+        const tpalette = el('div', { class: 'tee-palette', style: 'margin-top:0;' });
+        course.tees.forEach(function (t) {
+          const pill = el('button', {
+            class: 'tee-pill' + (t.colorKey === p.teeColorKey ? ' is-selected' : ''),
+            type: 'button'
+          });
+          pill.appendChild(el('span', { class: 'dot tee-dot-' + t.colorKey }));
+          pill.appendChild(el('span', {}, [t.colorLabel]));
+          pill.addEventListener('click', function () {
+            p.teeColorKey = t.colorKey;
+            p._teeOverride = true;
+            renderSetup();
+          });
+          tpalette.appendChild(pill);
+        });
+        teeWrap.appendChild(tpalette);
+      }
+      meta.appendChild(teeWrap);
+
+      if (errors.length) {
+        meta.appendChild(el('span', { class: 'err-mark', title: errors.join(', ') }, ['⚠ ' + errors.join(', ')]));
+      }
+
+      row.appendChild(meta);
+      return row;
+    }
+    function openCoursePicker() {
+      const content = el('div');
+      content.appendChild(el('div', { class: 'overlay-header' }, ['Platz waehlen']));
+      const body = el('div', { class: 'overlay-body stack' });
+      state.appState.courses.forEach(function (c) {
+        const item = el('button', {
+          class: 'btn btn-block',
+          type: 'button',
+          style: 'justify-content:flex-start; text-align:left;'
+        });
+        item.appendChild(el('span', {}, [c.name + ' ']));
+        item.appendChild(el('span', { class: 'small' }, [
+          '— ' + c.country + (c.region ? ' / ' + c.region : '')
+        ]));
+        item.addEventListener('click', function () {
+          state.setupDraft.courseId = c.id;
+          // reset tee to yellow if available, otherwise first
+          const newTee = getTee(c, 'yellow') || c.tees[0];
+          state.setupDraft.teeForCourse = newTee.colorKey;
+          state.setupDraft.players.forEach(function (p) {
+            if (!p._teeOverride) p.teeColorKey = newTee.colorKey;
+          });
+          closeOverlay();
+          renderSetup();
+        });
+        body.appendChild(item);
+      });
+      content.appendChild(body);
+      const actions = el('div', { class: 'overlay-actions' });
+      const cancel = el('button', { class: 'btn', type: 'button' }, ['Abbrechen']);
+      cancel.addEventListener('click', closeOverlay);
+      actions.appendChild(cancel);
+      content.appendChild(actions);
+      openSheet(content);
+    }
+    function openAddPlayerSheet() {
+      ensureSetupDraft();
+      const course = getCourse(state.setupDraft.courseId);
+      const defaultTee = state.setupDraft.teeForCourse || (course && course.tees[0].colorKey);
+      const usedIds = new Set(state.setupDraft.players.map(function (p) { return p.playerId; }).filter(Boolean));
+      const available = state.appState.players.filter(function (p) { return !usedIds.has(p.id); });
+
+      const content = el('div');
+      content.appendChild(el('div', { class: 'overlay-header' }, ['Spieler hinzufuegen']));
+      const body = el('div', { class: 'overlay-body' });
+
+      // existing players
+      if (available.length > 0) {
+        body.appendChild(el('div', { class: 'section-title' }, ['Aus Datenbank']));
+        const list = el('div', { class: 'stack' });
+        available.forEach(function (p) {
+          const btn = el('button', { class: 'btn btn-block', type: 'button', style: 'justify-content:flex-start; text-align:left;' });
+          btn.appendChild(el('span', {}, [p.name]));
+          btn.appendChild(el('span', { class: 'small' }, ['  HCP ' + p.handicapIndex.toFixed(1)]));
+          btn.addEventListener('click', function () {
+            if (state.setupDraft.players.length >= 4) {
+              showToast('Maximal 4 Spieler.');
+              return;
+            }
+            state.setupDraft.players.push({
+              tempId: uid('pir'),
+              playerId: p.id,
+              displayName: p.name,
+              handicapIndex: p.handicapIndex,
+              teeColorKey: p.defaultTeeColorKey || defaultTee,
+              _teeOverride: !!p.defaultTeeColorKey
+            });
+            closeOverlay();
+            renderSetup();
+          });
+          list.appendChild(btn);
+        });
+        body.appendChild(list);
+      }
+
+      body.appendChild(el('div', { class: 'section-title', style: 'margin-top:14px;' }, ['Neuen Spieler erstellen']));
+      const f1 = el('label', { class: 'field' });
+      f1.appendChild(el('span', { class: 'label' }, ['Name']));
+      const nameIn = el('input', { type: 'text', autocomplete: 'off' });
+      f1.appendChild(nameIn);
+      body.appendChild(f1);
+      const f2 = el('label', { class: 'field' });
+      f2.appendChild(el('span', { class: 'label' }, ['Handicap-Index']));
+      const hcpIn = el('input', { type: 'number', step: '0.1', value: '18.0' });
+      f2.appendChild(hcpIn);
+      body.appendChild(f2);
+      const f3 = el('div', { class: 'field' });
+      f3.appendChild(el('span', { class: 'label' }, ['Standard-Tee']));
+      let chosenTee = defaultTee;
+      const teePal = el('div', { class: 'tee-palette' });
+      if (course) {
+        course.tees.forEach(function (t) {
+          const pill = el('button', {
+            class: 'tee-pill' + (t.colorKey === chosenTee ? ' is-selected' : ''),
+            type: 'button'
+          });
+          pill.appendChild(el('span', { class: 'dot tee-dot-' + t.colorKey }));
+          pill.appendChild(el('span', {}, [t.colorLabel]));
+          pill.addEventListener('click', function () {
+            chosenTee = t.colorKey;
+            // re-render palette inline
+            Array.prototype.forEach.call(teePal.children, function (child, i) {
+              child.classList.toggle('is-selected', course.tees[i].colorKey === chosenTee);
+            });
+          });
+          teePal.appendChild(pill);
+        });
+      }
+      f3.appendChild(teePal);
+      body.appendChild(f3);
+
+      content.appendChild(body);
+
+      const actions = el('div', { class: 'overlay-actions' });
+      const cancel = el('button', { class: 'btn', type: 'button' }, ['Abbrechen']);
+      cancel.addEventListener('click', closeOverlay);
+      const save = el('button', { class: 'btn btn-primary', type: 'button' }, ['Hinzufuegen']);
+      save.addEventListener('click', function () {
+        const name = nameIn.value.trim();
+        const hcp = parseFloat(hcpIn.value);
+        if (!name) { showToast('Bitte Namen eingeben.'); return; }
+        if (isNaN(hcp)) { showToast('Bitte HCP eingeben.'); return; }
+        if (state.setupDraft.players.length >= 4) { showToast('Maximal 4 Spieler.'); return; }
+        // persist new player to database
+        const newPlayer = {
+          id: uid('player'),
+          name: name,
+          handicapIndex: hcp,
+          defaultTeeColorKey: chosenTee,
+          createdAt: new Date().toISOString()
+        };
+        state.appState.players.push(newPlayer);
+        state.setupDraft.players.push({
+          tempId: uid('pir'),
+          playerId: newPlayer.id,
+          displayName: name,
+          handicapIndex: hcp,
+          teeColorKey: chosenTee,
+          _teeOverride: true
+        });
+        saveState();
+        closeOverlay();
+        renderSetup();
+      });
+      actions.appendChild(cancel);
+      actions.appendChild(save);
+      content.appendChild(actions);
+      openSheet(content);
+    }
+    function openEditSetupPlayerSheet(idx) {
+      const p = state.setupDraft.players[idx];
+      const course = getCourse(state.setupDraft.courseId);
+      const content = el('div');
+      content.appendChild(el('div', { class: 'overlay-header' }, ['Spieler bearbeiten']));
+      const body = el('div', { class: 'overlay-body' });
+      const f1 = el('label', { class: 'field' });
+      f1.appendChild(el('span', { class: 'label' }, ['Name']));
+      const nameIn = el('input', { type: 'text', value: p.displayName || '' });
+      f1.appendChild(nameIn);
+      body.appendChild(f1);
+      const f2 = el('label', { class: 'field' });
+      f2.appendChild(el('span', { class: 'label' }, ['Handicap-Index']));
+      const hcpIn = el('input', { type: 'number', step: '0.1', value: String(p.handicapIndex || 18.0) });
+      f2.appendChild(hcpIn);
+      body.appendChild(f2);
+      const f3 = el('div', { class: 'field' });
+      f3.appendChild(el('span', { class: 'label' }, ['Tee']));
+      let chosen = p.teeColorKey;
+      const teePal = el('div', { class: 'tee-palette' });
+      if (course) {
+        course.tees.forEach(function (t) {
+          const pill = el('button', {
+            class: 'tee-pill' + (t.colorKey === chosen ? ' is-selected' : ''),
+            type: 'button'
+          });
+          pill.appendChild(el('span', { class: 'dot tee-dot-' + t.colorKey }));
+          pill.appendChild(el('span', {}, [t.colorLabel]));
+          pill.addEventListener('click', function () {
+            chosen = t.colorKey;
+            Array.prototype.forEach.call(teePal.children, function (c, i) {
+              c.classList.toggle('is-selected', course.tees[i].colorKey === chosen);
+            });
+          });
+          teePal.appendChild(pill);
+        });
+      }
+      f3.appendChild(teePal);
+      body.appendChild(f3);
+      content.appendChild(body);
+      const actions = el('div', { class: 'overlay-actions' });
+      const cancel = el('button', { class: 'btn', type: 'button' }, ['Abbrechen']);
+      cancel.addEventListener('click', closeOverlay);
+      const save = el('button', { class: 'btn btn-primary', type: 'button' }, ['Speichern']);
+      save.addEventListener('click', function () {
+        const name = nameIn.value.trim();
+        const hcp = parseFloat(hcpIn.value);
+        if (!name) { showToast('Bitte Namen eingeben.'); return; }
+        if (isNaN(hcp)) { showToast('Bitte HCP eingeben.'); return; }
+        p.displayName = name;
+        p.handicapIndex = hcp;
+        p.teeColorKey = chosen;
+        p._teeOverride = true;
+        // Also update underlying player record if linked
+        if (p.playerId) {
+          const rec = state.appState.players.find(function (pl) { return pl.id === p.playerId; });
+          if (rec) {
+            rec.name = name;
+            rec.handicapIndex = hcp;
+          }
+        }
+        saveState();
+        closeOverlay();
+        renderSetup();
+      });
+      actions.appendChild(cancel);
+      actions.appendChild(save);
+      content.appendChild(actions);
+      openSheet(content);
+    }
+    function triggerImport() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json,.json';
+      input.addEventListener('change', function () {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        importDataFromFile(file, function (ok) {
+          if (ok) renderAll();
+        });
+      });
+      input.click();
+    }
+
+    // ============================================================
+    // Play screen rendering
+    // ============================================================
+    function renderPlay() {
+      const root = document.getElementById('screen-play');
+      root.innerHTML = '';
+      const round = state.activeRound;
+      if (!round) {
+        const empty = el('div', { class: 'empty-state padded' }, [
+          'Es laeuft keine Runde. Wechsle zu Setup, um eine Runde zu starten.'
+        ]);
+        root.appendChild(empty);
+        return;
+      }
+      const course = getCourse(round.courseId);
+
+      // Header (status + segment)
+      const header = el('div', { class: 'play-header' });
+      const status = el('div', { class: 'status-line' });
+      status.appendChild(el('span', { class: 'nowrap' }, [course.name]));
+      status.appendChild(el('span', { class: 'nowrap' }, [formatDate(round.date)]));
+      header.appendChild(status);
+      const segWrap = el('div');
+      const seg = el('div', { class: 'segment', role: 'tablist' });
+      const segLive = el('button', {
+        class: state.segment === 'live' ? 'is-active' : '',
+        type: 'button', role: 'tab'
+      }, ['Live']);
+      const segCard = el('button', {
+        class: state.segment === 'card' ? 'is-active' : '',
+        type: 'button', role: 'tab'
+      }, ['Karte']);
+      segLive.addEventListener('click', function () { setSegment('live'); });
+      segCard.addEventListener('click', function () { setSegment('card'); });
+      seg.appendChild(segLive);
+      seg.appendChild(segCard);
+      segWrap.appendChild(seg);
+      header.appendChild(segWrap);
+      root.appendChild(header);
+
+      // Body
+      const body = el('div', { class: 'play-body' });
+      const livePane = el('div', { class: 'play-pane' + (state.segment === 'live' ? ' is-active' : '') });
+      const cardPane = el('div', { class: 'play-pane card-pane' + (state.segment === 'card' ? ' is-active' : '') });
+      renderLivePane(livePane, round, course);
+      renderCardPane(cardPane, round, course);
+      body.appendChild(livePane);
+      body.appendChild(cardPane);
+      root.appendChild(body);
+    }
+    function renderLivePane(pane, round, course) {
+      const hole = getHole(course, round.currentHole);
+      // Hole header
+      const hdr = el('div', { class: 'hole-header' });
+      hdr.appendChild(el('div', { class: 'hole-num' }, ['Loch ' + hole.holeNumber]));
+      const meta = el('div', { class: 'hole-meta' });
+      meta.appendChild(el('span', {}, ['Par ' + hole.par]));
+      meta.appendChild(el('span', {}, ['SI ' + hole.strokeIndex]));
+      hdr.appendChild(meta);
+      pane.appendChild(hdr);
+
+      // Player blocks
+      const blocks = el('div', { class: 'player-blocks' });
+      round.playersInRound.forEach(function (pir, idx) {
+        blocks.appendChild(renderPlayerBlock(round, course, hole, pir, idx));
+      });
+      pane.appendChild(blocks);
+
+      // Hole nav
+      const nav = el('div', { class: 'hole-nav' });
+      const prev = el('button', {
+        class: 'btn' + (round.currentHole === 1 ? ' is-disabled' : ''),
+        type: 'button'
+      }, ['‹ Loch ' + Math.max(1, round.currentHole - 1)]);
+      if (round.currentHole === 1) prev.disabled = true;
+      prev.addEventListener('click', function () {
+        if (round.currentHole > 1) {
+          round.currentHole--;
+          saveState();
+          renderPlay();
+        }
+      });
+      const nextLabel = round.currentHole === 18 ? 'Runde abschliessen' : ('Loch ' + (round.currentHole + 1) + ' ›');
+      const next = el('button', { class: 'btn btn-primary', type: 'button' }, [nextLabel]);
+      next.addEventListener('click', function () {
+        if (round.currentHole < 18) {
+          round.currentHole++;
+          saveState();
+          renderPlay();
+        } else {
+          openDialog({
+            title: 'Runde abschliessen?',
+            message: 'Moechtest du die Runde jetzt abschliessen und zur Ergebnisansicht wechseln?',
+            confirmText: 'Ja, abschliessen',
+            cancelText: 'Nein, weiterspielen',
+            onConfirm: function () {
+              finishActiveRound();
+              setScreen('results');
+            }
+          });
+        }
+      });
+      nav.appendChild(prev);
+      nav.appendChild(next);
+      pane.appendChild(nav);
+    }
+    function renderPlayerBlock(round, course, hole, pir, idx) {
+      const block = el('div', { class: 'player-block', 'data-player-idx': String(idx) });
+      const given = pir.strokesPerHole[hole.holeNumber - 1] || 0;
+      const strokes = getStrokesForPlayerHole(round, idx, hole.holeNumber);
+      const totals = computeTotals(round, idx);
+
+      const row1 = el('div', { class: 'pb-row1' });
+      row1.appendChild(el('span', { class: 'pb-name' }, [pir.displayName]));
+      row1.appendChild(el('span', { class: 'pb-hcp' }, ['(HCP ' + pir.handicapIndexAtRound.toFixed(1) + ', SPH ' + pir.playingHandicap + ')']));
+      const slash = slashChars(given);
+      if (slash) row1.appendChild(el('span', { class: 'pb-slash', 'aria-label': 'Vorgabeschlaege' }, [slash]));
+      block.appendChild(row1);
+
+      const row2 = el('div', { class: 'pb-row2' });
+      const minus = el('button', {
+        class: 'stroke-btn',
+        type: 'button',
+        'aria-label': 'Schlag minus'
+      }, ['−']);
+      if (strokes <= 0) minus.disabled = true;
+      minus.addEventListener('click', function () {
+        let s = strokes;
+        if (s <= 0) return;
+        s = Math.max(0, s - 1);
+        setStrokesForPlayerHole(round, idx, hole.holeNumber, s);
+        saveState();
+        renderPlay();
+      });
+      const value = el('div', {
+        class: 'stroke-value' + (strokes <= 0 ? ' is-empty' : '')
+      }, [strokes > 0 ? String(strokes) : '—']);
+      const plus = el('button', {
+        class: 'stroke-btn',
+        type: 'button',
+        'aria-label': 'Schlag plus'
+      }, ['+']);
+      if (strokes >= 15) plus.disabled = true;
+      plus.addEventListener('click', function () {
+        let s = strokes;
+        if (s <= 0) {
+          s = hole.par;
+        } else if (s < 15) {
+          s += 1;
+        } else {
+          return;
+        }
+        setStrokesForPlayerHole(round, idx, hole.holeNumber, s);
+        saveState();
+        renderPlay();
+      });
+      row2.appendChild(minus);
+      row2.appendChild(value);
+      row2.appendChild(plus);
+      block.appendChild(row2);
+
+      const row3 = el('div', { class: 'pb-row3' });
+      const stbl = strokes > 0 ? stablefordForHole(strokes, hole.par, given) : 0;
+      const net = strokes > 0 ? (strokes - given) : 0;
+      row3.appendChild(el('span', {}, ['Stbf: ', el('strong', {}, [strokes > 0 ? String(stbl) : '—'])]));
+      row3.appendChild(el('span', {}, ['Net: ', el('strong', {}, [strokes > 0 ? String(net) : '—'])]));
+      row3.appendChild(el('span', {}, ['Total: ', el('strong', {}, [String(totals.grossTotal)]), totals.anyEntered ? (' (' + formatToPar(totals.toParGross) + ')') : '']));
+      row3.appendChild(el('span', {}, ['Stbf-Gesamt: ', el('strong', {}, [String(totals.stablefordTotal)])]));
+      block.appendChild(row3);
+
+      return block;
+    }
+    function renderCardPane(pane, round, course) {
+      // Mini header
+      const mini = el('div', { class: 'card-mini-header' });
+      mini.appendChild(el('div', {}, [course.name + ' — ' + formatDate(round.date)]));
+      const legend = el('div', { class: 'legend' });
+      round.playersInRound.forEach(function (pir) {
+        const span = el('span', {});
+        span.appendChild(el('span', { class: 'dot tee-dot-' + pir.teeColorKey }));
+        span.appendChild(document.createTextNode(' ' + shortName(pir.displayName, 14) + ' (' + (TEE_LABELS[pir.teeColorKey] || pir.teeColorKey) + ')'));
+        legend.appendChild(span);
+      });
+      mini.appendChild(legend);
+      pane.appendChild(mini);
+
+      // Scrollable table
+      const wrap = el('div', { class: 'scorecard-wrap' });
+      const table = el('table', { class: 'scorecard' });
+
+      // thead
+      const thead = el('thead');
+      const trH = el('tr');
+      const corner = el('th', { class: 'label-col corner-cell' }, ['']);
+      trH.appendChild(corner);
+      for (let h = 1; h <= 9; h++) {
+        const th = el('th', { 'data-col': 'h' + h }, [String(h)]);
+        if (h === round.currentHole) th.classList.add('active-hole-mark');
+        trH.appendChild(th);
+      }
+      trH.appendChild(el('th', { class: 'summary-col' }, ['OUT']));
+      for (let h = 10; h <= 18; h++) {
+        const th = el('th', { 'data-col': 'h' + h }, [String(h)]);
+        if (h === round.currentHole) th.classList.add('active-hole-mark');
+        trH.appendChild(th);
+      }
+      trH.appendChild(el('th', { class: 'summary-col' }, ['IN']));
+      trH.appendChild(el('th', { class: 'summary-col' }, ['TOT']));
+      thead.appendChild(trH);
+      table.appendChild(thead);
+
+      // tbody
+      const tbody = el('tbody');
+
+      // Par row
+      const parRow = el('tr', { class: 'row-par' });
+      parRow.appendChild(el('th', { class: 'label-col' }, ['Par']));
+      let parOut = 0, parIn = 0;
+      for (let h = 1; h <= 9; h++) {
+        const hole = getHole(course, h);
+        parOut += hole.par;
+        parRow.appendChild(el('td', {}, [String(hole.par)]));
+      }
+      parRow.appendChild(el('td', { class: 'summary-col' }, [String(parOut)]));
+      for (let h = 10; h <= 18; h++) {
+        const hole = getHole(course, h);
+        parIn += hole.par;
+        parRow.appendChild(el('td', {}, [String(hole.par)]));
+      }
+      parRow.appendChild(el('td', { class: 'summary-col' }, [String(parIn)]));
+      parRow.appendChild(el('td', { class: 'summary-col' }, [String(parOut + parIn)]));
+      tbody.appendChild(parRow);
+
+      // SI row
+      const siRow = el('tr', { class: 'row-si' });
+      siRow.appendChild(el('th', { class: 'label-col' }, ['SI']));
+      for (let h = 1; h <= 9; h++) {
+        siRow.appendChild(el('td', {}, [String(getHole(course, h).strokeIndex)]));
+      }
+      siRow.appendChild(el('td', { class: 'summary-col' }, ['']));
+      for (let h = 10; h <= 18; h++) {
+        siRow.appendChild(el('td', {}, [String(getHole(course, h).strokeIndex)]));
+      }
+      siRow.appendChild(el('td', { class: 'summary-col' }, ['']));
+      siRow.appendChild(el('td', { class: 'summary-col' }, ['']));
+      tbody.appendChild(siRow);
+
+      // Players: brutto + stbl rows each
+      round.playersInRound.forEach(function (pir, idx) {
+        const totals = computeTotals(round, idx);
+
+        // Brutto row
+        const brRow = el('tr', { class: 'row-brutto' });
+        brRow.appendChild(el('th', { class: 'label-col', title: pir.displayName }, [shortName(pir.displayName, 12)]));
+        for (let h = 1; h <= 9; h++) {
+          brRow.appendChild(buildStrokeCell(round, course, idx, pir, h));
+        }
+        const outCell = el('td', { class: 'summary-col' }, [
+          totals.anyEntered ? String(totals.grossOut) : ''
+        ]);
+        brRow.appendChild(outCell);
+        for (let h = 10; h <= 18; h++) {
+          brRow.appendChild(buildStrokeCell(round, course, idx, pir, h));
+        }
+        brRow.appendChild(el('td', { class: 'summary-col' }, [
+          totals.anyEntered ? String(totals.grossIn) : ''
+        ]));
+        brRow.appendChild(el('td', { class: 'summary-col' }, [
+          totals.anyEntered ? String(totals.grossTotal) : ''
+        ]));
+        tbody.appendChild(brRow);
+
+        // Stableford row
+        const stRow = el('tr', { class: 'row-stbl' });
+        stRow.appendChild(el('th', { class: 'label-col' }, ['Stbf']));
+        for (let h = 1; h <= 9; h++) {
+          const s = getStrokesForPlayerHole(round, idx, h);
+          const hole = getHole(course, h);
+          const given = pir.strokesPerHole[h - 1] || 0;
+          const pts = s > 0 ? stablefordForHole(s, hole.par, given) : 0;
+          stRow.appendChild(el('td', {}, [s > 0 ? String(pts) : '']));
+        }
+        stRow.appendChild(el('td', { class: 'summary-col' }, [
+          totals.anyEntered ? String(totals.stablefordOut) : ''
+        ]));
+        for (let h = 10; h <= 18; h++) {
+          const s = getStrokesForPlayerHole(round, idx, h);
+          const hole = getHole(course, h);
+          const given = pir.strokesPerHole[h - 1] || 0;
+          const pts = s > 0 ? stablefordForHole(s, hole.par, given) : 0;
+          stRow.appendChild(el('td', {}, [s > 0 ? String(pts) : '']));
+        }
+        stRow.appendChild(el('td', { class: 'summary-col' }, [
+          totals.anyEntered ? String(totals.stablefordIn) : ''
+        ]));
+        stRow.appendChild(el('td', { class: 'summary-col' }, [
+          totals.anyEntered ? String(totals.stablefordTotal) : ''
+        ]));
+        tbody.appendChild(stRow);
+      });
+
+      table.appendChild(tbody);
+      wrap.appendChild(table);
+      pane.appendChild(wrap);
+
+      // After mounting, scroll active hole into view
+      requestAnimationFrame(function () {
+        const target = wrap.querySelector('th[data-col="h' + round.currentHole + '"]');
+        if (target) {
+          const wRect = wrap.getBoundingClientRect();
+          const tRect = target.getBoundingClientRect();
+          const offset = (tRect.left - wRect.left) - (wRect.width / 2) + (tRect.width / 2);
+          wrap.scrollLeft += offset;
+        }
+      });
+    }
+    function buildStrokeCell(round, course, idx, pir, holeNumber) {
+      const hole = getHole(course, holeNumber);
+      const given = pir.strokesPerHole[holeNumber - 1] || 0;
+      const strokes = getStrokesForPlayerHole(round, idx, holeNumber);
+      const td = el('td', { class: 'stroke-cell' });
+      const num = el('span', { class: 'stroke-num' + (strokes <= 0 ? ' is-empty' : '') }, [strokes > 0 ? String(strokes) : '—']);
+      td.appendChild(num);
+      const slash = slashChars(given);
+      if (slash) {
+        td.appendChild(el('span', { class: 'stroke-slash' }, [slash]));
+      }
+      if (holeNumber === round.currentHole) td.classList.add('active-hole-mark');
+      td.addEventListener('click', function () {
+        round.currentHole = holeNumber;
+        saveState();
+        state.segment = 'live';
+        renderPlay();
+        renderBottomNav();
+        // Scroll to player block
+        requestAnimationFrame(function () {
+          const block = document.querySelector('.player-block[data-player-idx="' + idx + '"]');
+          if (block && block.scrollIntoView) {
+            block.scrollIntoView({ block: 'center', behavior: 'auto' });
+          }
+        });
+      });
+      return td;
+    }
+
+    // ============================================================
+    // Results screen rendering
+    // ============================================================
+    function renderResults() {
+      const root = document.getElementById('screen-results');
+      root.innerHTML = '';
+      const round = state.activeRound;
+      if (!round) {
+        root.appendChild(el('div', { class: 'empty-state padded' }, [
+          'Keine aktive Runde. Starte eine Runde im Setup.'
+        ]));
+        return;
+      }
+      const course = getCourse(round.courseId);
+      const scroll = el('div', { class: 'scroll-area' });
+      const padded = el('div', { class: 'padded stack' });
+
+      const hdr = el('div', {});
+      hdr.appendChild(el('h2', { style: 'font-size:16px;' }, [
+        round.status === 'finished' ? 'Runde abgeschlossen' : 'Aktueller Stand'
+      ]));
+      hdr.appendChild(el('div', { class: 'small' }, [course.name + ' — ' + formatDate(round.date)]));
+      padded.appendChild(hdr);
+
+      const ranking = getRanking(round);
+      ranking.forEach(function (entry) {
+        padded.appendChild(renderRankingCard(entry, round, course));
+      });
+
+      const actions = el('div', { class: 'results-actions' });
+      const exportBtn = el('button', { class: 'btn', type: 'button' }, ['Exportieren']);
+      exportBtn.addEventListener('click', exportData);
+      const newRound = el('button', { class: 'btn btn-primary', type: 'button' }, ['Neue Runde']);
+      newRound.addEventListener('click', function () {
+        openDialog({
+          title: 'Neue Runde starten?',
+          message: 'Die aktuelle Runde wird beendet und entfernt. Setup-Daten der Runde werden verworfen.',
+          confirmText: 'Ja, beenden',
+          confirmKind: 'danger',
+          onConfirm: function () {
+            discardActiveRound();
+            state.setupDraft = null;
+            setScreen('setup');
+          }
+        });
+      });
+      actions.appendChild(exportBtn);
+      actions.appendChild(newRound);
+      padded.appendChild(actions);
+
+      scroll.appendChild(padded);
+      root.appendChild(scroll);
+    }
+    function renderRankingCard(entry, round, course) {
+      const card = el('div', { class: 'ranking-card' + (entry.rank === 1 ? ' is-leader' : '') });
+      const top = el('div', { class: 'rc-top' });
+      top.appendChild(el('div', { class: 'rc-rank' }, [entry.rank + '.']));
+      top.appendChild(el('div', { class: 'rc-stbl' }, [entry.totals.stablefordTotal + ' Pkt']));
+      card.appendChild(top);
+      card.appendChild(el('div', { class: 'rc-name' }, [entry.pir.displayName]));
+      card.appendChild(el('div', { class: 'rc-hcp' }, [
+        'HCP ' + entry.pir.handicapIndexAtRound.toFixed(1) +
+        ' · SPH ' + entry.pir.playingHandicap +
+        ' · ' + (TEE_LABELS[entry.pir.teeColorKey] || entry.pir.teeColorKey)
+      ]));
+      const stats = el('div', { class: 'rc-stats' });
+      stats.appendChild(el('span', {}, ['Brutto: ', el('strong', {}, [String(entry.totals.grossTotal)])]));
+      stats.appendChild(el('span', {}, ['Netto: ', el('strong', {}, [String(entry.totals.netTotal)])]));
+      stats.appendChild(el('span', {}, ['+/−: ', el('strong', {}, [
+        entry.totals.anyEntered ? formatToPar(entry.totals.toParGross) : '—'
+      ])]));
+      card.appendChild(stats);
+      // Spark
+      const spark = el('div', { class: 'rc-spark' });
+      for (let h = 1; h <= 18; h++) {
+        const s = getStrokesForPlayerHole(round, entry.idx, h);
+        const hole = getHole(course, h);
+        const given = entry.pir.strokesPerHole[h - 1] || 0;
+        const pts = s > 0 ? stablefordForHole(s, hole.par, given) : null;
+        const cls = pts === null ? 'pt empty' : ('pt p' + pts);
+        spark.appendChild(el('div', { class: cls, title: 'Loch ' + h }, [pts === null ? '·' : String(pts)]));
+      }
+      card.appendChild(spark);
+      return card;
+    }
+
+    // ============================================================
+    // Data screen rendering
+    // ============================================================
+    function renderData() {
+      const root = document.getElementById('screen-data');
+      root.innerHTML = '';
+      const scroll = el('div', { class: 'scroll-area' });
+      const padded = el('div', { class: 'padded stack' });
+
+      // Spieler section
+      padded.appendChild(el('div', { class: 'section-title' }, ['Spieler']));
+      const playerList = el('div', { class: 'data-list' });
+      if (state.appState.players.length === 0) {
+        playerList.appendChild(el('div', { class: 'empty-state' }, ['Keine Spieler vorhanden.']));
+      } else {
+        state.appState.players.forEach(function (p) {
+          const row = el('div', { class: 'data-row' });
+          const info = el('div', { class: 'grow' });
+          info.appendChild(el('div', { class: 'name' }, [p.name]));
+          info.appendChild(el('div', { class: 'meta' }, [
+            'HCP ' + p.handicapIndex.toFixed(1) +
+            (p.defaultTeeColorKey ? ' · ' + (TEE_LABELS[p.defaultTeeColorKey] || p.defaultTeeColorKey) : '')
+          ]));
+          row.appendChild(info);
+          const editBtn = el('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Bearbeiten' }, ['✎']);
+          editBtn.addEventListener('click', function () { openEditPlayerSheet(p.id); });
+          const delBtn = el('button', { class: 'icon-btn danger', type: 'button', 'aria-label': 'Loeschen' }, ['🗑']);
+          delBtn.addEventListener('click', function () {
+            openDialog({
+              title: 'Spieler loeschen?',
+              message: 'Spieler "' + p.name + '" aus der Datenbank entfernen?',
+              confirmText: 'Loeschen',
+              confirmKind: 'danger',
+              onConfirm: function () {
+                state.appState.players = state.appState.players.filter(function (x) { return x.id !== p.id; });
+                saveState();
+                renderData();
+              }
+            });
+          });
+          const actionsBox = el('div', { class: 'actions' });
+          actionsBox.appendChild(editBtn);
+          actionsBox.appendChild(delBtn);
+          row.appendChild(actionsBox);
+          playerList.appendChild(row);
+        });
+      }
+      padded.appendChild(playerList);
+      const addPBtn = el('button', { class: 'btn', type: 'button' }, ['+ Spieler']);
+      addPBtn.addEventListener('click', openNewPlayerInDatabaseSheet);
+      padded.appendChild(addPBtn);
+
+      // Plaetze section
+      padded.appendChild(el('div', { class: 'section-title', style: 'margin-top:14px;' }, ['Plaetze']));
+      const courseList = el('div', { class: 'data-list' });
+      state.appState.courses.forEach(function (c) {
+        const row = el('div', { class: 'data-row' });
+        const info = el('div', { class: 'grow' });
+        info.appendChild(el('div', { class: 'name' }, [c.name]));
+        info.appendChild(el('div', { class: 'meta' }, [
+          (c.country || '') + (c.region ? ' / ' + c.region : '') +
+          ' · ' + c.tees.length + ' Tees · 18 Loecher'
+        ]));
+        row.appendChild(info);
+        courseList.appendChild(row);
+      });
+      padded.appendChild(courseList);
+      const updBtn = el('button', { class: 'btn is-disabled', type: 'button', disabled: 'disabled' }, ['Aktualisieren']);
+      padded.appendChild(updBtn);
+      padded.appendChild(el('div', { class: 'small' }, ['Online-Update von Plaetzen ist fuer eine spaetere Version geplant.']));
+
+      // Import / Export
+      padded.appendChild(el('div', { class: 'section-title', style: 'margin-top:14px;' }, ['Import / Export']));
+      const ie = el('div', { class: 'stack' });
+      const eBtn = el('button', { class: 'btn btn-block', type: 'button' }, ['Daten exportieren']);
+      eBtn.addEventListener('click', exportData);
+      const iBtn = el('button', { class: 'btn btn-block', type: 'button' }, ['Daten importieren']);
+      iBtn.addEventListener('click', triggerImport);
+      ie.appendChild(eBtn);
+      ie.appendChild(iBtn);
+      padded.appendChild(ie);
+
+      // Bluetooth
+      padded.appendChild(el('div', { class: 'section-title', style: 'margin-top:14px;' }, ['Geraete-Sync (Bluetooth)']));
+      padded.appendChild(el('div', { class: 'small' }, ['Geplant fuer spaetere Version.']));
+
+      // Reset
+      padded.appendChild(el('div', { class: 'section-title', style: 'margin-top:14px;' }, ['Alle lokalen Daten loeschen']));
+      const resetBtn = el('button', { class: 'btn btn-danger btn-block', type: 'button' }, ['Alles loeschen']);
+      resetBtn.addEventListener('click', function () {
+        openDialog({
+          title: 'Alle Daten loeschen?',
+          message: 'Alle Spieler, Plaetze und Runden werden geloescht und durch die Standarddaten ersetzt. Diese Aktion kann nicht rueckgaengig gemacht werden.',
+          confirmText: 'Alles loeschen',
+          confirmKind: 'danger',
+          onConfirm: function () {
+            state.appState = defaultAppState();
+            state.activeRound = null;
+            state.setupDraft = null;
+            saveState();
+            setScreen('setup');
+            showToast('Daten zurueckgesetzt');
+          }
+        });
+      });
+      padded.appendChild(resetBtn);
+
+      scroll.appendChild(padded);
+      root.appendChild(scroll);
+    }
+    function openEditPlayerSheet(playerId) {
+      const p = state.appState.players.find(function (x) { return x.id === playerId; });
+      if (!p) return;
+      const content = el('div');
+      content.appendChild(el('div', { class: 'overlay-header' }, ['Spieler bearbeiten']));
+      const body = el('div', { class: 'overlay-body' });
+      const f1 = el('label', { class: 'field' });
+      f1.appendChild(el('span', { class: 'label' }, ['Name']));
+      const nameIn = el('input', { type: 'text', value: p.name });
+      f1.appendChild(nameIn);
+      body.appendChild(f1);
+      const f2 = el('label', { class: 'field' });
+      f2.appendChild(el('span', { class: 'label' }, ['Handicap-Index']));
+      const hcpIn = el('input', { type: 'number', step: '0.1', value: String(p.handicapIndex) });
+      f2.appendChild(hcpIn);
+      body.appendChild(f2);
+      const f3 = el('div', { class: 'field' });
+      f3.appendChild(el('span', { class: 'label' }, ['Standard-Tee']));
+      let chosen = p.defaultTeeColorKey || 'yellow';
+      const teePal = el('div', { class: 'tee-palette' });
+      TEE_ORDER.forEach(function (k) {
+        const pill = el('button', {
+          class: 'tee-pill' + (k === chosen ? ' is-selected' : ''),
+          type: 'button'
+        });
+        pill.appendChild(el('span', { class: 'dot tee-dot-' + k }));
+        pill.appendChild(el('span', {}, [TEE_LABELS[k]]));
+        pill.addEventListener('click', function () {
+          chosen = k;
+          Array.prototype.forEach.call(teePal.children, function (c, i) {
+            c.classList.toggle('is-selected', TEE_ORDER[i] === chosen);
+          });
+        });
+        teePal.appendChild(pill);
+      });
+      f3.appendChild(teePal);
+      body.appendChild(f3);
+      content.appendChild(body);
+      const actions = el('div', { class: 'overlay-actions' });
+      const cancel = el('button', { class: 'btn', type: 'button' }, ['Abbrechen']);
+      cancel.addEventListener('click', closeOverlay);
+      const save = el('button', { class: 'btn btn-primary', type: 'button' }, ['Speichern']);
+      save.addEventListener('click', function () {
+        const name = nameIn.value.trim();
+        const hcp = parseFloat(hcpIn.value);
+        if (!name) { showToast('Bitte Namen eingeben.'); return; }
+        if (isNaN(hcp)) { showToast('Bitte HCP eingeben.'); return; }
+        p.name = name;
+        p.handicapIndex = hcp;
+        p.defaultTeeColorKey = chosen;
+        saveState();
+        closeOverlay();
+        renderData();
+      });
+      actions.appendChild(cancel);
+      actions.appendChild(save);
+      content.appendChild(actions);
+      openSheet(content);
+    }
+    function openNewPlayerInDatabaseSheet() {
+      const content = el('div');
+      content.appendChild(el('div', { class: 'overlay-header' }, ['Neuen Spieler erstellen']));
+      const body = el('div', { class: 'overlay-body' });
+      const f1 = el('label', { class: 'field' });
+      f1.appendChild(el('span', { class: 'label' }, ['Name']));
+      const nameIn = el('input', { type: 'text' });
+      f1.appendChild(nameIn);
+      body.appendChild(f1);
+      const f2 = el('label', { class: 'field' });
+      f2.appendChild(el('span', { class: 'label' }, ['Handicap-Index']));
+      const hcpIn = el('input', { type: 'number', step: '0.1', value: '18.0' });
+      f2.appendChild(hcpIn);
+      body.appendChild(f2);
+      const f3 = el('div', { class: 'field' });
+      f3.appendChild(el('span', { class: 'label' }, ['Standard-Tee']));
+      let chosen = 'yellow';
+      const teePal = el('div', { class: 'tee-palette' });
+      TEE_ORDER.forEach(function (k) {
+        const pill = el('button', {
+          class: 'tee-pill' + (k === chosen ? ' is-selected' : ''),
+          type: 'button'
+        });
+        pill.appendChild(el('span', { class: 'dot tee-dot-' + k }));
+        pill.appendChild(el('span', {}, [TEE_LABELS[k]]));
+        pill.addEventListener('click', function () {
+          chosen = k;
+          Array.prototype.forEach.call(teePal.children, function (c, i) {
+            c.classList.toggle('is-selected', TEE_ORDER[i] === chosen);
+          });
+        });
+        teePal.appendChild(pill);
+      });
+      f3.appendChild(teePal);
+      body.appendChild(f3);
+      content.appendChild(body);
+      const actions = el('div', { class: 'overlay-actions' });
+      const cancel = el('button', { class: 'btn', type: 'button' }, ['Abbrechen']);
+      cancel.addEventListener('click', closeOverlay);
+      const save = el('button', { class: 'btn btn-primary', type: 'button' }, ['Speichern']);
+      save.addEventListener('click', function () {
+        const name = nameIn.value.trim();
+        const hcp = parseFloat(hcpIn.value);
+        if (!name) { showToast('Bitte Namen eingeben.'); return; }
+        if (isNaN(hcp)) { showToast('Bitte HCP eingeben.'); return; }
+        state.appState.players.push({
+          id: uid('player'),
+          name: name,
+          handicapIndex: hcp,
+          defaultTeeColorKey: chosen,
+          createdAt: new Date().toISOString()
+        });
+        saveState();
+        closeOverlay();
+        renderData();
+      });
+      actions.appendChild(cancel);
+      actions.appendChild(save);
+      content.appendChild(actions);
+      openSheet(content);
+    }
+
+    // ============================================================
+    // Overlay (modal & sheet)
+    // ============================================================
+    const overlayRoot = document.getElementById('overlay-root');
+    const overlayContent = document.getElementById('overlay-content');
+    function openSheet(contentNode) {
+      overlayContent.className = 'overlay-content sheet';
+      overlayContent.innerHTML = '';
+      overlayContent.appendChild(contentNode);
+      overlayRoot.classList.add('is-open');
+      overlayRoot.setAttribute('aria-hidden', 'false');
+    }
+    function openDialogContent(contentNode) {
+      overlayContent.className = 'overlay-content dialog';
+      overlayContent.innerHTML = '';
+      overlayContent.appendChild(contentNode);
+      overlayRoot.classList.add('is-open');
+      overlayRoot.setAttribute('aria-hidden', 'false');
+    }
+    function closeOverlay() {
+      overlayRoot.classList.remove('is-open');
+      overlayRoot.setAttribute('aria-hidden', 'true');
+      overlayContent.innerHTML = '';
+    }
+    function openDialog(opts) {
+      const content = el('div');
+      content.appendChild(el('div', { class: 'overlay-header' }, [opts.title || 'Bestaetigung']));
+      content.appendChild(el('div', { class: 'overlay-body' }, [
+        el('div', {}, [opts.message || ''])
+      ]));
+      const actions = el('div', { class: 'overlay-actions' });
+      if (!opts.hideCancel) {
+        const cancel = el('button', { class: 'btn', type: 'button' }, [opts.cancelText || 'Abbrechen']);
+        cancel.addEventListener('click', function () {
+          closeOverlay();
+          if (opts.onCancel) opts.onCancel();
+        });
+        actions.appendChild(cancel);
+      }
+      const confirmCls = opts.confirmKind === 'danger' ? 'btn btn-danger' : 'btn btn-primary';
+      const confirm = el('button', { class: confirmCls, type: 'button' }, [opts.confirmText || 'OK']);
+      confirm.addEventListener('click', function () {
+        closeOverlay();
+        if (opts.onConfirm) opts.onConfirm();
+      });
+      actions.appendChild(confirm);
+      content.appendChild(actions);
+      openDialogContent(content);
+    }
+
+    // ============================================================
+    // Toast
+    // ============================================================
+    let toastTimer = null;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('is-visible');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () {
+        t.classList.remove('is-visible');
+      }, 2000);
+    }
+
+    // ============================================================
+    // Helpers
+    // ============================================================
+    function el(tag, attrs, children) {
+      const node = document.createElement(tag);
+      if (attrs) {
+        for (const k in attrs) {
+          if (!Object.prototype.hasOwnProperty.call(attrs, k)) continue;
+          if (k === 'class') node.className = attrs[k];
+          else node.setAttribute(k, attrs[k]);
+        }
+      }
+      if (children) {
+        children.forEach(function (c) {
+          if (c == null || c === false) return;
+          if (typeof c === 'string' || typeof c === 'number') {
+            node.appendChild(document.createTextNode(String(c)));
+          } else {
+            node.appendChild(c);
+          }
+        });
+      }
+      return node;
+    }
+    function formatDate(iso) {
+      try {
+        const d = new Date(iso);
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yy = d.getFullYear();
+        return dd + '.' + mm + '.' + yy;
+      } catch (e) {
+        return '';
+      }
+    }
+
+    // ============================================================
+    // Master render & init
+    // ============================================================
+    function renderAll() {
+      // toggle screen visibility
+      ['setup', 'play', 'results', 'data'].forEach(function (name) {
+        const el = document.getElementById('screen-' + name);
+        el.classList.toggle('is-active', name === state.activeScreen);
+      });
+      renderTopbar();
+      renderBottomNav();
+      if (state.activeScreen === 'setup') renderSetup();
+      else if (state.activeScreen === 'play') renderPlay();
+      else if (state.activeScreen === 'results') renderResults();
+      else if (state.activeScreen === 'data') renderData();
+    }
+
+    function bindGlobalEvents() {
+      const nav = document.getElementById('bottomnav');
+      nav.querySelectorAll('button').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          const target = btn.getAttribute('data-screen');
+          setScreen(target);
+        });
+      });
+      // overlay backdrop close
+      overlayRoot.addEventListener('click', function (e) {
+        if (e.target && e.target.getAttribute('data-overlay-close') === 'true') {
+          closeOverlay();
+        }
+      });
+      // ESC closes overlay
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && overlayRoot.classList.contains('is-open')) {
+          closeOverlay();
+        }
+      });
+    }
+
+    function init() {
+      loadState();
+      // Restore active round
+      if (state.appState.lastActiveRoundId) {
+        const r = state.appState.rounds.find(function (x) { return x.id === state.appState.lastActiveRoundId; });
+        if (r) state.activeRound = r;
+      }
+      // Decide initial screen
+      if (state.activeRound && state.activeRound.status !== 'finished') {
+        state.activeScreen = 'play';
+        state.segment = 'live';
+      } else if (state.activeRound && state.activeRound.status === 'finished') {
+        state.activeScreen = 'results';
+      } else {
+        state.activeScreen = 'setup';
+        state.setupDraft = newSetupDraft();
+        // pre-add first sample player for convenience on first launch
+        if (state.appState.players.length > 0 && state.setupDraft.players.length === 0) {
+          // do not auto-add; user picks
+        }
+      }
+      bindGlobalEvents();
+      renderAll();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  })();
+  </script>
+</body>
+</html>
