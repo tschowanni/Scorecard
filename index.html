@@ -2,9 +2,12 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
-  <meta name="theme-color" content="#FAFAF7" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#2F6B3A" />
   <title>Turnierkarte Pur — Live &amp; Karte</title>
+  <!-- Inline SVG favicon (golf flag + ball on green) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%232F6B3A'/><path d='M0 50 Q16 44 32 46 Q48 48 64 50 L64 64 L0 64 Z' fill='%231F4A28'/><rect x='39' y='12' width='2.5' height='40' rx='1' fill='%23FFFFFF'/><path d='M41.5 13 L58 18 L41.5 23 Z' fill='%23DA7101'/><circle cx='20' cy='50' r='6.5' fill='%23FFFFFF'/><circle cx='18' cy='48.5' r='0.8' fill='%23BFBDB4'/><circle cx='22' cy='48.5' r='0.8' fill='%23BFBDB4'/><circle cx='20' cy='52' r='0.8' fill='%23BFBDB4'/><circle cx='17' cy='51' r='0.8' fill='%23BFBDB4'/><circle cx='23' cy='51' r='0.8' fill='%23BFBDB4'/></svg>" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%232F6B3A'/><path d='M0 50 Q16 44 32 46 Q48 48 64 50 L64 64 L0 64 Z' fill='%231F4A28'/><rect x='39' y='12' width='2.5' height='40' rx='1' fill='%23FFFFFF'/><path d='M41.5 13 L58 18 L41.5 23 Z' fill='%23DA7101'/><circle cx='20' cy='50' r='6.5' fill='%23FFFFFF'/></svg>" />
   <style>
     /* ---------- Reset & base ---------- */
     *, *::before, *::after { box-sizing: border-box; }
@@ -18,7 +21,15 @@
       -webkit-text-size-adjust: 100%;
       -webkit-tap-highlight-color: transparent;
     }
-    button { font: inherit; color: inherit; cursor: pointer; }
+    button {
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+      /* Prevent iOS double-tap zoom + accidental text selection on long-press */
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+    }
     input, select { font: inherit; color: inherit; }
     h1, h2, h3, h4 { margin: 0; font-weight: 600; }
     ul, ol { margin: 0; padding: 0; list-style: none; }
@@ -41,12 +52,28 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 8px;
+    }
+    #topbar .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    #topbar .brand-icon {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 auto;
+      display: block;
     }
     #topbar .app-title {
       font-size: 13px;
       font-weight: 600;
       letter-spacing: 0.02em;
       color: #1A1A1A;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     #topbar .storage-warn {
       font-size: 11px;
@@ -72,7 +99,7 @@
     #bottomnav {
       flex: 0 0 auto;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       border-top: 1px solid #D8D6CF;
       background: #FAFAF7;
       padding-bottom: env(safe-area-inset-bottom, 0);
@@ -82,14 +109,14 @@
       background: none;
       border: 0;
       border-right: 1px solid #D8D6CF;
-      padding: 6px 4px 8px;
+      padding: 6px 2px 8px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 2px;
       color: #5A5A5A;
-      font-size: 12px;
+      font-size: 11px;
     }
     #bottomnav button:last-child { border-right: 0; }
     #bottomnav button .nav-icon {
@@ -412,6 +439,9 @@
       padding: 10px 14px;
       border-bottom: 1px solid #D8D6CF;
       background: #FFFFFF;
+      position: sticky;
+      top: 0;
+      z-index: 5;
     }
     .hole-header .hole-num {
       font-size: 26px;
@@ -483,6 +513,11 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      touch-action: manipulation;
+    }
+    .player-block .stroke-btn:active:not(:disabled) {
+      background: #EAF1EB;
+      border-color: #2F6B3A;
     }
     .player-block .stroke-btn:disabled { color: #C7C7C7; background: #F4F2EC; }
     .player-block .stroke-value {
@@ -516,127 +551,306 @@
     .hole-nav .btn { min-height: 56px; font-size: 15px; font-weight: 600; }
 
     /* Card pane */
+    /* ---------- Tournament Scorecard (paper-style: holes = rows, players = column blocks) ---------- */
+    .card-pane { background: #FFFFFF; }
     .card-pane .card-mini-header {
-      padding: 8px 14px;
+      padding: 8px 12px 6px;
       font-size: 12px;
       color: #5A5A5A;
-      border-bottom: 1px solid #D8D6CF;
-      background: #FFFFFF;
+      border-bottom: 1px solid #BFBDB4;
+      background: #F4F2EC;
     }
-    .card-mini-header .legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 4px;
-    }
-    .card-mini-header .legend .dot {
-      width: 9px; height: 9px; border-radius: 50%;
-      border: 1px solid #888;
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 3px;
-    }
+    .card-mini-header .course-line { font-weight: 700; color: #1A1A1A; font-size: 13px; }
+    .card-mini-header .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+    .card-mini-header .legend .player-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #1A1A1A; }
+    .card-mini-header .legend .dot { width: 9px; height: 9px; border-radius: 50%; border: 1px solid #888; display: inline-block; }
+
     .scorecard-wrap {
       flex: 1 1 auto;
+      min-height: 0;
       overflow: auto;
       -webkit-overflow-scrolling: touch;
       background: #FFFFFF;
+      touch-action: pan-x pan-y pinch-zoom;
     }
     table.scorecard {
       border-collapse: separate;
       border-spacing: 0;
       width: max-content;
+      min-width: 100%;
       font-variant-numeric: tabular-nums;
-      font-size: 13px;
+      font-size: 12px;
+      color: #1A1A1A;
     }
     table.scorecard th,
     table.scorecard td {
-      border-right: 1px solid #E2E0D9;
-      border-bottom: 1px solid #E2E0D9;
-      padding: 4px 6px;
+      border-right: 1px solid #BFBDB4;
+      border-bottom: 1px solid #BFBDB4;
+      padding: 2px 3px;
       text-align: center;
       vertical-align: middle;
       background: #FFFFFF;
-      min-width: 36px;
-      height: 28px;
-      position: relative;
+      height: 26px;
+      line-height: 1.1;
     }
-    table.scorecard th.label-col,
-    table.scorecard td.label-col {
-      text-align: left;
-      min-width: 78px;
-      max-width: 110px;
-      padding: 4px 8px;
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    table.scorecard th:last-child, table.scorecard td:last-child { border-right: 0; }
+
+    /* --- Column widths (compact) --- */
+    table.scorecard .col-loch  { min-width: 34px; width: 34px; }
+    table.scorecard .col-si    { min-width: 26px; width: 26px; }
+    table.scorecard .col-par   { min-width: 26px; width: 26px; }
+    table.scorecard .col-gelb  { min-width: 38px; width: 38px; }
+    table.scorecard .col-schl  { min-width: 34px; width: 34px; }
+    table.scorecard .col-slash { min-width: 22px; width: 22px; }
+    table.scorecard .col-stbf  { min-width: 26px; width: 26px; }
+
+    /* --- Sticky top header rows --- */
     table.scorecard thead th {
       position: sticky;
-      top: 0;
       z-index: 2;
-      background: #F4F2EC;
+      background: #2F6B3A;
+      color: #FFFFFF;
+      font-weight: 700;
+      font-size: 11px;
+      border-right-color: #1F4A28;
+      border-bottom-color: #1F4A28;
+    }
+    table.scorecard thead tr.hdr-row-1 th { top: 0; height: 22px; }
+    table.scorecard thead tr.hdr-row-2 th { top: 22px; height: 20px; font-size: 10px; letter-spacing: 0.02em; }
+    table.scorecard thead th.player-header { padding: 2px 6px; white-space: nowrap; }
+    table.scorecard thead th.player-header .ph-dot {
+      width: 8px; height: 8px; margin-right: 4px; vertical-align: middle; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.6); display: inline-block;
+    }
+    table.scorecard thead th.corner-cell { background: #1F4A28; }
+
+    /* --- Sticky left columns (Loch/SI/Par/Gelb) --- */
+    table.scorecard tbody th.col-loch,
+    table.scorecard tbody td.col-si,
+    table.scorecard tbody td.col-par,
+    table.scorecard tbody td.col-gelb {
+      position: sticky;
+      z-index: 1;
       font-weight: 600;
+    }
+    table.scorecard tbody th.col-loch { left: 0; }
+    table.scorecard tbody td.col-si   { left: 34px; }
+    table.scorecard tbody td.col-par  { left: 60px; }
+    table.scorecard tbody td.col-gelb { left: 86px; }
+
+    /* Header-row-2 (data labels) sticky positions */
+    table.scorecard thead tr.hdr-row-2 th.col-loch  { left: 0;   z-index: 3; }
+    table.scorecard thead tr.hdr-row-2 th.col-si    { left: 34px; z-index: 3; }
+    table.scorecard thead tr.hdr-row-2 th.col-par   { left: 60px; z-index: 3; }
+    table.scorecard thead tr.hdr-row-2 th.col-gelb  { left: 86px; z-index: 3; }
+    /* Header-row-1 corner block spans the 4 fixed cols */
+    table.scorecard thead tr.hdr-row-1 th.hdr-fixed { left: 0; z-index: 3; }
+
+    /* --- Player block separators (thick left border starts each player, thick right ends) --- */
+    table.scorecard thead th.player-header { border-left: 2px solid #8A8878; border-right: 2px solid #8A8878; }
+    table.scorecard thead tr.hdr-row-2 th.col-schl.col-schl--first-of-player,
+    table.scorecard tbody td.col-schl.col-schl--first-of-player {
+      border-left: 2px solid #8A8878;
+    }
+    table.scorecard thead tr.hdr-row-2 th.col-stbf,
+    table.scorecard tbody td.col-stbf {
+      border-right: 2px solid #8A8878;
+    }
+
+    /* --- Alternating row colors for hole rows --- */
+    table.scorecard tr.row-hole.row-a td,
+    table.scorecard tr.row-hole.row-a th { background: #FFFFFF; }
+    table.scorecard tr.row-hole.row-b td,
+    table.scorecard tr.row-hole.row-b th { background: #F7F6EF; }
+
+    /* Left fixed cells get slightly stronger background so they remain readable when sticky */
+    table.scorecard tr.row-hole.row-a th.col-loch,
+    table.scorecard tr.row-hole.row-a td.col-si,
+    table.scorecard tr.row-hole.row-a td.col-par,
+    table.scorecard tr.row-hole.row-a td.col-gelb { background: #F4F2EC; color: #1A1A1A; }
+    table.scorecard tr.row-hole.row-b th.col-loch,
+    table.scorecard tr.row-hole.row-b td.col-si,
+    table.scorecard tr.row-hole.row-b td.col-par,
+    table.scorecard tr.row-hole.row-b td.col-gelb { background: #EDEBE2; color: #1A1A1A; }
+
+    /* SI cells slightly gray */
+    table.scorecard tbody td.col-si { color: #5A5A5A; font-size: 11px; font-weight: 500; }
+
+    /* Slash cells: sekundaer */
+    table.scorecard td.col-slash {
+      font-size: 11px;
+      color: #B23A3A;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    /* Stbf cells: klar sichtbar, etwas ruhiger */
+    table.scorecard td.col-stbf {
+      font-weight: 600;
+      font-size: 12px;
       color: #1A1A1A;
     }
-    table.scorecard tbody th.label-col,
-    table.scorecard tbody td.label-col {
-      position: sticky;
-      left: 0;
-      z-index: 1;
-      background: #F4F2EC;
+    /* Schl cells: dominant */
+    table.scorecard td.col-schl {
+      font-weight: 700;
+      font-size: 14px;
+      color: #1A1A1A;
+      cursor: pointer;
     }
-    table.scorecard thead th.corner-cell {
-      left: 0;
-      z-index: 3;
+    table.scorecard td.col-schl:hover { background: #EFF4EF; }
+    table.scorecard td.col-schl.is-empty { color: #BBBBBB; font-weight: 400; }
+
+    /* --- Summary rows: OUT / IN / TOTAL --- */
+    table.scorecard tr.row-summary td,
+    table.scorecard tr.row-summary th {
       background: #ECEAE3;
+      font-weight: 700;
+      color: #1A1A1A;
+      border-top: 2px solid #8A8878;
     }
-    table.scorecard td.summary-col,
-    table.scorecard th.summary-col {
-      background: #F4F2EC;
-      font-weight: 600;
+    table.scorecard tr.row-summary th.col-loch,
+    table.scorecard tr.row-summary td.col-si,
+    table.scorecard tr.row-summary td.col-par,
+    table.scorecard tr.row-summary td.col-gelb { background: #DCDAD0; }
+    /* TOT row extra emphasis */
+    table.scorecard tr.row-total td,
+    table.scorecard tr.row-total th {
+      background: #2F6B3A;
+      color: #FFFFFF;
+      border-top: 2px solid #1F4A28;
+      border-bottom: 2px solid #1F4A28;
+      font-weight: 800;
     }
-    table.scorecard tr.row-par td,
-    table.scorecard tr.row-si td {
-      color: #5A5A5A;
-      background: #FBFAF6;
+    table.scorecard tr.row-total th.col-loch,
+    table.scorecard tr.row-total td.col-si,
+    table.scorecard tr.row-total td.col-par,
+    table.scorecard tr.row-total td.col-gelb { background: #1F4A28; color: #FFFFFF; }
+
+    /* --- 4-player density: denser columns, shorter header text handled in JS --- */
+    table.scorecard.is-4players { font-size: 11px; }
+    table.scorecard.is-4players .col-loch  { min-width: 30px; width: 30px; }
+    table.scorecard.is-4players .col-si    { min-width: 24px; width: 24px; }
+    table.scorecard.is-4players .col-par   { min-width: 24px; width: 24px; }
+    table.scorecard.is-4players .col-gelb  { min-width: 32px; width: 32px; }
+    table.scorecard.is-4players .col-schl  { min-width: 30px; width: 30px; }
+    table.scorecard.is-4players .col-slash { min-width: 18px; width: 18px; }
+    table.scorecard.is-4players .col-stbf  { min-width: 22px; width: 22px; }
+    table.scorecard.is-4players th,
+    table.scorecard.is-4players td {
+      padding: 1px 2px;
+      height: 24px;
     }
-    table.scorecard tr.row-par th.label-col,
-    table.scorecard tr.row-si th.label-col {
-      background: #F0EEE7;
+    table.scorecard.is-4players td.col-schl { font-size: 13px; }
+    table.scorecard.is-4players td.col-stbf { font-size: 11px; }
+    table.scorecard.is-4players td.col-slash { font-size: 10px; }
+    /* Adjust sticky left column offsets for 4-player mode */
+    table.scorecard.is-4players tbody td.col-si   { left: 30px; }
+    table.scorecard.is-4players tbody td.col-par  { left: 54px; }
+    table.scorecard.is-4players tbody td.col-gelb { left: 78px; }
+    table.scorecard.is-4players thead tr.hdr-row-2 th.col-si   { left: 30px; }
+    table.scorecard.is-4players thead tr.hdr-row-2 th.col-par  { left: 54px; }
+    table.scorecard.is-4players thead tr.hdr-row-2 th.col-gelb { left: 78px; }
+
+    /* --- Print button in card mini header --- */
+    .card-mini-header .mini-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
-    table.scorecard tr.row-par td.summary-col,
-    table.scorecard tr.row-si td.summary-col {
-      background: #ECEAE3;
-    }
-    table.scorecard tr.row-stbl td {
-      color: #5A5A5A;
+    .card-mini-header .print-btn {
+      padding: 4px 10px;
+      min-height: 30px;
       font-size: 11px;
-      height: 22px;
+      border: 1px solid #D8D6CF;
+      border-radius: 6px;
+      background: #FFFFFF;
+      color: #1A1A1A;
+      cursor: pointer;
     }
-    table.scorecard td.active-hole-mark {
+
+    /* --- Print / PDF view --- */
+    @media print {
+      @page { size: A4 landscape; margin: 8mm; }
+      html, body { background: #FFFFFF; }
+      /* Hide everything except the active play screen's card pane */
+      #topbar, #bottomnav, .play-header, .play-pane:not(.is-active), .card-mini-header .print-btn,
+      .gps-row, .scroll-area > *:not(.scorecard-wrap), #overlay-root, #toast,
+      #screen-setup, #screen-results, #screen-data { display: none !important; }
+      #app { max-width: none; margin: 0; }
+      .card-pane { display: flex !important; flex-direction: column; }
+      .card-mini-header {
+        border-bottom: 1px solid #000000;
+        background: #FFFFFF;
+        padding: 4px 0 6px;
+      }
+      .card-mini-header .course-line { font-size: 14px; }
+      .scorecard-wrap {
+        overflow: visible !important;
+        background: #FFFFFF;
+      }
+      /* Neutralize sticky so nothing floats weirdly on paper */
+      table.scorecard thead th,
+      table.scorecard tbody th.col-loch,
+      table.scorecard tbody td.col-si,
+      table.scorecard tbody td.col-par,
+      table.scorecard tbody td.col-gelb {
+        position: static !important;
+        box-shadow: none !important;
+      }
+      /* Ensure table header repeats across printed pages */
+      table.scorecard { page-break-inside: auto; }
+      table.scorecard thead { display: table-header-group; }
+      table.scorecard tfoot { display: table-footer-group; }
+      table.scorecard tr { page-break-inside: avoid; page-break-after: auto; }
+      /* Sharper print lines */
+      table.scorecard th, table.scorecard td {
+        border-right: 1px solid #000000 !important;
+        border-bottom: 1px solid #000000 !important;
+        padding: 2px 3px;
+      }
+      table.scorecard thead th {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+        border-bottom: 2px solid #000000 !important;
+      }
+      table.scorecard thead th.corner-cell,
+      table.scorecard thead th.player-header {
+        background: #E8E8E8 !important;
+        color: #000000 !important;
+      }
+      /* Mute alternating row tint so print stays clean */
+      table.scorecard tr.row-hole.row-b td,
+      table.scorecard tr.row-hole.row-b th { background: #F7F7F7 !important; }
+      table.scorecard tr.row-hole.row-a td,
+      table.scorecard tr.row-hole.row-a th { background: #FFFFFF !important; }
+      table.scorecard tr.row-hole.is-active td,
+      table.scorecard tr.row-hole.is-active th { background: #FFFFFF !important; box-shadow: none !important; }
+      /* Summary: bold print */
+      table.scorecard tr.row-summary td,
+      table.scorecard tr.row-summary th {
+        background: #E0E0E0 !important; color: #000000 !important;
+        border-top: 2px solid #000000 !important;
+      }
+      table.scorecard tr.row-total td,
+      table.scorecard tr.row-total th {
+        background: #C8C8C8 !important; color: #000000 !important;
+        border-top: 2px solid #000000 !important;
+        border-bottom: 2px solid #000000 !important;
+      }
+      /* Ensure browser prints our chosen backgrounds */
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
+    }
+
+    /* --- Active hole row highlight --- */
+    table.scorecard tr.row-hole.is-active td,
+    table.scorecard tr.row-hole.is-active th { background: #EAF1EB !important; }
+    table.scorecard tr.row-hole.is-active th.col-loch {
+      background: #C9E0CD !important;
       box-shadow: inset 3px 0 0 0 #2F6B3A;
     }
-    table.scorecard thead th.active-hole-mark {
-      box-shadow: inset 3px 0 0 0 #2F6B3A;
-    }
-    .stroke-cell .stroke-num {
-      font-weight: 600;
-    }
-    .stroke-cell .stroke-num.is-empty {
-      color: #BBBBBB;
-      font-weight: 400;
-    }
-    .stroke-cell .stroke-slash {
-      position: absolute;
-      top: 1px;
-      right: 3px;
-      font-size: 9px;
-      color: #444444;
-      letter-spacing: 0.5px;
-      pointer-events: none;
-    }
+    table.scorecard tr.row-hole.is-active td.col-si,
+    table.scorecard tr.row-hole.is-active td.col-par,
+    table.scorecard tr.row-hole.is-active td.col-gelb { background: #D7E6D9 !important; }
 
     /* ---------- Results screen ---------- */
     .ranking-card {
@@ -845,12 +1059,361 @@
     .hidden { display: none !important; }
     .nowrap { white-space: nowrap; }
     .small { font-size: 12px; color: #5A5A5A; }
+
+    /* ---------- Open rounds list on Setup (v1.5) ---------- */
+    .open-rounds-block {
+      border: 1px solid #2F6B3A;
+      background: #EFF4EF;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+    .open-rounds-block .or-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #2F6B3A;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .open-round-card {
+      background: #FFFFFF;
+      border: 1px solid #D8D6CF;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-top: 6px;
+    }
+    .open-round-card .or-line1 {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      font-variant-numeric: tabular-nums;
+    }
+    .open-round-card .or-date {
+      font-weight: 700;
+      color: #1A1A1A;
+      font-size: 13px;
+    }
+    .open-round-card .or-course {
+      font-weight: 600;
+      flex: 1 1 auto;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .open-round-card .or-status {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      background: #FCE7C8;
+      color: #8B5A20;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+    }
+    .open-round-card .or-line2 {
+      font-size: 11px;
+      color: #5A5A5A;
+      margin-top: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .open-round-card .or-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .open-round-card .or-actions .btn {
+      min-height: 40px;
+      font-size: 13px;
+    }
+
+    /* ---------- History table (v1.3) ---------- */
+    .history-wrap { padding: 10px 14px 14px; }
+    .history-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+    .history-subtitle { font-size: 12px; color: #5A5A5A; margin-bottom: 10px; }
+    table.history-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #FFFFFF;
+      font-size: 13px;
+    }
+    table.history-table thead th {
+      text-align: left;
+      padding: 8px 10px;
+      background: #F4F2EC;
+      border-bottom: 1px solid #BFBDB4;
+      font-weight: 700;
+      font-size: 11px;
+      color: #5A5A5A;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    table.history-table tbody td {
+      padding: 10px;
+      border-bottom: 1px solid #D8D6CF;
+      vertical-align: top;
+    }
+    tr.history-row { cursor: pointer; }
+    tr.history-row:hover, tr.history-row:active { background: #EAF1EB; }
+    tr.history-row .h-date {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      color: #1A1A1A;
+    }
+    tr.history-row .h-time {
+      font-size: 11px;
+      color: #5A5A5A;
+      font-variant-numeric: tabular-nums;
+    }
+    tr.history-row .h-course {
+      font-weight: 600;
+      color: #1A1A1A;
+    }
+    tr.history-row .h-players {
+      font-size: 11px;
+      color: #5A5A5A;
+      margin-top: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .h-status-badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-left: 6px;
+      vertical-align: middle;
+      font-weight: 700;
+    }
+    .h-status-badge.finished { background: #DDE8DF; color: #2F6B3A; }
+    .h-status-badge.active   { background: #FCE7C8; color: #8B5A20; }
+    .history-col-actions { width: 40px; text-align: right; }
+    .history-del {
+      border: 0;
+      background: transparent;
+      color: #B23A3A;
+      padding: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .history-empty {
+      padding: 30px 20px;
+      text-align: center;
+      color: #5A5A5A;
+      font-size: 13px;
+      border: 1px dashed #D8D6CF;
+      border-radius: 8px;
+      margin-top: 8px;
+    }
+    .history-banner {
+      padding: 6px 12px;
+      background: #EFF4EF;
+      color: #2F6B3A;
+      font-size: 12px;
+      font-weight: 600;
+      border-bottom: 1px solid #D8D6CF;
+    }
+    .history-banner strong { font-weight: 700; }
+
+    /* ---------- GPS & Nearby (v1.1) ---------- */
+    .gps-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1px solid #D8D6CF;
+      border-radius: 8px;
+      background: #FFFFFF;
+      min-height: 44px;
+    }
+    .gps-row .gps-label { font-size: 12px; color: #5A5A5A; font-weight: 600; }
+    .gps-row .gps-text {
+      flex: 1 1 auto;
+      font-size: 12px;
+      color: #1A1A1A;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+    .gps-bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 18px; }
+    .gps-bars .bar {
+      width: 5px;
+      background: #C7C7C7;
+      border-radius: 1px;
+      display: inline-block;
+    }
+    .gps-bars .bar:nth-child(1) { height: 8px; }
+    .gps-bars .bar:nth-child(2) { height: 13px; }
+    .gps-bars .bar:nth-child(3) { height: 18px; }
+    .gps-bars.is-red   .bar.on { background: #B23A3A; }
+    .gps-bars.is-orange .bar.on { background: #DA7101; }
+    .gps-bars.is-green .bar.on { background: #2F6B3A; }
+    .gps-bars.is-grey  .bar    { background: #C7C7C7; }
+    .gps-bars.is-pulsing .bar { animation: gpsPulse 1.2s ease-in-out infinite; }
+    @keyframes gpsPulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+    .gps-activate-btn {
+      min-height: 36px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid #D8D6CF;
+      background: #FFFFFF;
+      font-size: 12px;
+    }
+
+    .nearby-list { display: flex; flex-direction: column; gap: 6px; }
+    .nearby-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 10px 12px;
+      border: 1px solid #D8D6CF;
+      border-radius: 8px;
+      background: #FFFFFF;
+      text-align: left;
+      width: 100%;
+    }
+    .nearby-item.is-selected {
+      border-color: #2F6B3A;
+      background: #EAF1EB;
+    }
+    .nearby-item .ni-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: baseline;
+    }
+    .nearby-item .ni-dist {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: #2F6B3A;
+      font-size: 13px;
+    }
+    .nearby-item .ni-name {
+      font-weight: 600;
+      flex: 1 1 auto;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nearby-item .ni-meta { font-size: 12px; color: #5A5A5A; }
+
+    .filter-bar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .filter-bar .filter-row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .filter-bar input[type="text"],
+    .filter-bar select {
+      width: 100%;
+      min-height: 40px;
+      padding: 6px 8px;
+      border: 1px solid #D8D6CF;
+      border-radius: 6px;
+      background: #FFFFFF;
+      font-size: 14px;
+    }
+
+    .course-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 8px 10px;
+      border: 1px solid #D8D6CF;
+      border-radius: 8px;
+      background: #FFFFFF;
+      text-align: left;
+      width: 100%;
+    }
+    .course-item.is-selected {
+      border-color: #2F6B3A;
+      background: #EAF1EB;
+    }
+    .course-item .ci-name { font-weight: 600; font-size: 14px; }
+    .course-item .ci-meta { font-size: 12px; color: #5A5A5A; }
+    .all-courses-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .layout-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .layout-pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #D8D6CF;
+      background: #FFFFFF;
+      font-size: 13px;
+      min-height: 36px;
+    }
+    .layout-pill.is-selected {
+      border-color: #2F6B3A;
+      background: #EAF1EB;
+      color: #2F6B3A;
+      font-weight: 600;
+    }
+
+    .region-group { margin-top: 8px; }
+    .region-group .rg-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #5A5A5A;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+    .region-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1px solid #D8D6CF;
+      border-radius: 8px;
+      background: #FFFFFF;
+      margin-bottom: 6px;
+    }
+    .region-row .rr-name { font-weight: 600; font-size: 14px; }
+    .region-row .rr-count { font-size: 12px; color: #5A5A5A; }
+    .region-row .btn { min-height: 36px; font-size: 13px; }
   </style>
 </head>
 <body>
   <div id="app">
     <header id="topbar">
-      <span class="app-title">Turnierkarte Pur — Live &amp; Karte</span>
+      <span class="brand">
+        <svg class="brand-icon" viewBox="0 0 64 64" aria-hidden="true">
+          <rect width="64" height="64" rx="14" fill="#2F6B3A"/>
+          <path d="M0 50 Q16 44 32 46 Q48 48 64 50 L64 64 L0 64 Z" fill="#1F4A28"/>
+          <rect x="39" y="12" width="2.5" height="40" rx="1" fill="#FFFFFF"/>
+          <path d="M41.5 13 L58 18 L41.5 23 Z" fill="#DA7101"/>
+          <circle cx="20" cy="50" r="6.5" fill="#FFFFFF"/>
+          <circle cx="18" cy="48.5" r="0.8" fill="#BFBDB4"/>
+          <circle cx="22" cy="48.5" r="0.8" fill="#BFBDB4"/>
+          <circle cx="20" cy="52" r="0.8" fill="#BFBDB4"/>
+          <circle cx="17" cy="51" r="0.8" fill="#BFBDB4"/>
+          <circle cx="23" cy="51" r="0.8" fill="#BFBDB4"/>
+        </svg>
+        <span class="app-title">Turnierkarte Pur — Live &amp; Karte</span>
+      </span>
       <span id="storage-warn" class="storage-warn hidden">Daten nur in dieser Sitzung</span>
     </header>
 
@@ -858,6 +1421,7 @@
       <section id="screen-setup" class="screen"></section>
       <section id="screen-play" class="screen"></section>
       <section id="screen-results" class="screen"></section>
+      <section id="screen-history" class="screen"></section>
       <section id="screen-data" class="screen"></section>
     </main>
 
@@ -873,6 +1437,10 @@
       <button data-screen="results">
         <span class="nav-icon" aria-hidden="true">📊</span>
         <span>Ergebnis</span>
+      </button>
+      <button data-screen="history">
+        <span class="nav-icon" aria-hidden="true">🕒</span>
+        <span>Historie</span>
       </button>
       <button data-screen="data">
         <span class="nav-icon" aria-hidden="true">📁</span>
@@ -897,6 +1465,26 @@
     // ============================================================
     const STORAGE_KEY = 'golfScorecardAppStateV1';
     const SCHEMA_VERSION = 1;
+    const COURSE_DB_SCHEMA_VERSION = 1;
+
+    // Known regions: display grouping for UI filters + region import section
+    const KNOWN_REGIONS = {
+      europe: {
+        label: 'Europa',
+        items: ['DACH', 'Spanien', 'Frankreich', 'Italien', 'Skandinavien', 'Benelux', 'Sonstige EU']
+      },
+      northAmerica: {
+        label: 'Nordamerika',
+        items: ['Florida', 'Kalifornien', 'Nevada/Las Vegas', 'Texas', 'Northeast US', 'Rest USA', 'Canada']
+      }
+    };
+    function allKnownRegionItems() {
+      const a = [];
+      Object.keys(KNOWN_REGIONS).forEach(function (k) {
+        KNOWN_REGIONS[k].items.forEach(function (r) { a.push(r); });
+      });
+      return a;
+    }
 
     const TEE_LABELS = {
       white:  'Weiss',
@@ -919,6 +1507,14 @@
           name: 'Muenchen-Riedhof',
           country: 'DE',
           region: 'Bayern',
+          regionTags: ['EU', 'DACH'],
+          location: { lat: 47.9231, lng: 11.2948 },
+          holeCount: 18,
+          layouts: [
+            { id: 'standard', name: '18 Loch', holeNumbers: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18], isDefault: true }
+          ],
+          source: 'builtin',
+          lastSyncedAt: '2026-01-15T00:00:00Z',
           lastUpdated: '2026-01-15',
           tees: [
             { colorKey: 'white',  colorLabel: 'Weiss', courseRating: 72.4, slopeRating: 134, par: 72, holeYardage: [] },
@@ -952,6 +1548,14 @@
           name: 'Pinehurst No. 2 (Beispiel)',
           country: 'US',
           region: 'NC',
+          regionTags: ['NA', 'US', 'Northeast US'],
+          location: { lat: 35.1915, lng: -79.4694 },
+          holeCount: 18,
+          layouts: [
+            { id: 'standard', name: '18 Loch', holeNumbers: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18], isDefault: true }
+          ],
+          source: 'builtin',
+          lastSyncedAt: '2026-01-15T00:00:00Z',
           lastUpdated: '2026-01-15',
           tees: [
             { colorKey: 'black',  colorLabel: 'Schwarz', courseRating: 76.5, slopeRating: 138, par: 72, holeYardage: [] },
@@ -990,13 +1594,20 @@
         { id: 'player-weber',   name: 'Weber',    handicapIndex:  9.2, defaultTeeColorKey: 'white',  createdAt: now }
       ];
     }
+    function defaultGpsState() {
+      return { status: 'idle', lastError: null, accuracy: null, lat: null, lng: null, updatedAt: null };
+    }
     function defaultAppState() {
       return {
         version: SCHEMA_VERSION,
-        lastActiveRoundId: null,
+        // Two separate layers:
+        //  - rounds[]:     finished / manually archived rounds  (roundHistory)
+        //  - openRounds[]: draft / in-progress rounds           (autosaved)
+        rounds: [],
+        openRounds: [],
         players: buildSamplePlayers(),
         courses: buildSampleCourses(),
-        rounds: []
+        gps: defaultGpsState()
       };
     }
 
@@ -1015,6 +1626,107 @@
     // ============================================================
     // Persistence
     // ============================================================
+    // Ensure every round references a still-existing course; drop orphans to
+    // avoid crashes when render accesses course.name / course.holes.
+    function sanitizeCourse(c) {
+      if (!c || typeof c !== 'object') return null;
+      if (!c.id || !c.name) return null;
+      c.tees = Array.isArray(c.tees) ? c.tees : [];
+      c.holes = Array.isArray(c.holes) ? c.holes : [];
+      if (typeof c.holeCount !== 'number' || c.holeCount <= 0) c.holeCount = c.holes.length || 18;
+      if (!Array.isArray(c.regionTags)) c.regionTags = [];
+      if (!c.location || typeof c.location !== 'object') c.location = { lat: null, lng: null };
+      if (typeof c.location.lat !== 'number') c.location.lat = null;
+      if (typeof c.location.lng !== 'number') c.location.lng = null;
+      if (!Array.isArray(c.layouts) || c.layouts.length === 0) {
+        const nums = [];
+        for (let i = 1; i <= c.holeCount; i++) nums.push(i);
+        c.layouts = [{ id: 'standard', name: c.holeCount + ' Loch', holeNumbers: nums, isDefault: true }];
+      }
+      if (!c.source) c.source = 'imported';
+      return c;
+    }
+    function sanitizeAppState(s) {
+      if (!s || typeof s !== 'object') return defaultAppState();
+      s.players = Array.isArray(s.players) ? s.players : [];
+      s.courses = Array.isArray(s.courses) ? s.courses : [];
+      s.rounds  = Array.isArray(s.rounds)  ? s.rounds  : [];
+      s.courses = s.courses.map(sanitizeCourse).filter(Boolean);
+      if (s.courses.length === 0) s.courses = buildSampleCourses();
+      const courseIds = new Set(s.courses.map(function (c) { return c.id; }));
+      s.rounds = s.rounds.filter(function (r) {
+        return r && r.courseId && courseIds.has(r.courseId) && Array.isArray(r.playersInRound);
+      });
+      // v1.5 migration: multiple open rounds.
+      // Layered model:
+      //   - rounds[]      : only finished rounds (history)
+      //   - openRounds[]  : all in-progress rounds (draft / in_progress)
+      if (!Array.isArray(s.openRounds)) s.openRounds = [];
+      // Pull over a legacy single currentRoundDraft if present.
+      if (s.currentRoundDraft && typeof s.currentRoundDraft === 'object') {
+        if (s.currentRoundDraft.status === 'finished') {
+          if (!s.rounds.some(function (r) { return r.id === s.currentRoundDraft.id; })) {
+            s.rounds.push(s.currentRoundDraft);
+          }
+        } else {
+          s.currentRoundDraft.status = 'in_progress';
+          if (!s.openRounds.some(function (r) { return r.id === s.currentRoundDraft.id; })) {
+            s.openRounds.push(s.currentRoundDraft);
+          }
+        }
+        delete s.currentRoundDraft;
+      }
+      // Any non-finished round accidentally sitting in rounds[] moves into openRounds.
+      const strays = s.rounds.filter(function (r) { return r.status !== 'finished'; });
+      s.rounds = s.rounds.filter(function (r) { return r.status === 'finished'; });
+      strays.forEach(function (r) {
+        r.status = 'in_progress';
+        if (!s.openRounds.some(function (x) { return x.id === r.id; })) s.openRounds.push(r);
+      });
+      // Legacy pointer no longer used — drop if present.
+      if ('lastActiveRoundId' in s) delete s.lastActiveRoundId;
+      // v1.1 migration: older rounds get default layout info + snapshot fields
+      function sanitizeRoundFields(r, defaultStatus) {
+        if (!r.courseLayoutId) r.courseLayoutId = 'standard';
+        if (!Array.isArray(r.holeNumbers) || r.holeNumbers.length === 0) {
+          const course = s.courses.find(function (c) { return c.id === r.courseId; });
+          const n = (course && course.holeCount) || 18;
+          const arr = [];
+          for (let i = 1; i <= n; i++) arr.push(i);
+          r.holeNumbers = arr;
+        }
+        if (!r.createdAt) r.createdAt = r.date || new Date().toISOString();
+        if (!r.updatedAt) r.updatedAt = r.createdAt;
+        if (!r.courseName) {
+          const course = s.courses.find(function (c) { return c.id === r.courseId; });
+          r.courseName = course ? course.name : 'Unbekannter Platz';
+        }
+        if (!r.courseSnapshot) {
+          const course = s.courses.find(function (c) { return c.id === r.courseId; });
+          if (course) r.courseSnapshot = JSON.parse(JSON.stringify(course));
+        }
+        if (!r.status) r.status = defaultStatus;
+        if (!Array.isArray(r.holeScores)) r.holeScores = [];
+        if (typeof r.currentHole !== 'number' || r.currentHole < 1) r.currentHole = 1;
+      }
+      s.rounds.forEach(function (r) { sanitizeRoundFields(r, 'finished'); });
+      // Sanitize & defensively filter open rounds.
+      s.openRounds = s.openRounds.filter(function (r) {
+        if (!r || !r.courseId) return false;
+        if (!Array.isArray(r.playersInRound) || r.playersInRound.length === 0) return false;
+        sanitizeRoundFields(r, 'in_progress');
+        if (r.status === 'finished') {
+          // Safety net: finished rounds must not live in openRounds
+          s.rounds.push(r);
+          return false;
+        }
+        return true;
+      });
+      if (typeof s.version !== 'number') s.version = SCHEMA_VERSION;
+      if (!s.gps || typeof s.gps !== 'object') s.gps = defaultGpsState();
+      return s;
+    }
+
     function loadState() {
       let raw = null;
       try {
@@ -1033,12 +1745,7 @@
           state.appState = defaultAppState();
           return;
         }
-        // sanity defaults
-        parsed.players  = Array.isArray(parsed.players)  ? parsed.players  : [];
-        parsed.courses  = Array.isArray(parsed.courses)  ? parsed.courses  : [];
-        parsed.rounds   = Array.isArray(parsed.rounds)   ? parsed.rounds   : [];
-        if (parsed.courses.length === 0) parsed.courses = buildSampleCourses();
-        state.appState = parsed;
+        state.appState = sanitizeAppState(parsed);
       } catch (e) {
         state.appState = defaultAppState();
       }
@@ -1052,6 +1759,206 @@
         renderTopbar();
       }
     }
+    // --- Open-round helpers (multiple in-progress rounds) ---
+    function getOpenRounds() {
+      return (state.appState && Array.isArray(state.appState.openRounds))
+        ? state.appState.openRounds : [];
+    }
+    function addOrUpdateOpenRound(round) {
+      if (!state.appState.openRounds) state.appState.openRounds = [];
+      const idx = state.appState.openRounds.findIndex(function (r) { return r.id === round.id; });
+      if (idx >= 0) state.appState.openRounds[idx] = round;
+      else state.appState.openRounds.push(round);
+    }
+    function removeOpenRound(id) {
+      if (!state.appState.openRounds) return;
+      state.appState.openRounds = state.appState.openRounds.filter(function (r) { return r.id !== id; });
+    }
+    function moveOpenRoundToHistory(id) {
+      const idx = state.appState.openRounds.findIndex(function (r) { return r.id === id; });
+      if (idx < 0) return null;
+      const round = state.appState.openRounds[idx];
+      round.status = 'finished';
+      round.updatedAt = new Date().toISOString();
+      state.appState.openRounds.splice(idx, 1);
+      state.appState.rounds.push(round);
+      saveState();
+      return round;
+    }
+
+    // Autosave of the active draft — debounced so rapid tap sequences do not
+    // hit localStorage on every click. Only touches openRounds[]; history is
+    // never modified by autosave.
+    let __autosaveTimer = null;
+    let __lastAutosaveAt = null;
+    function scheduleAutosave() {
+      const ar = state.activeRound;
+      if (!ar || ar.status === 'finished') {
+        // Viewing a history round — no draft mutation, just persist directly.
+        saveState();
+        return;
+      }
+      ar.updatedAt = new Date().toISOString();
+      addOrUpdateOpenRound(ar);
+      if (__autosaveTimer) clearTimeout(__autosaveTimer);
+      __autosaveTimer = setTimeout(function () {
+        __autosaveTimer = null;
+        saveState();
+        __lastAutosaveAt = new Date().toISOString();
+        updateAutosaveIndicator();
+      }, 600);
+    }
+    function flushAutosave() {
+      if (__autosaveTimer) {
+        clearTimeout(__autosaveTimer);
+        __autosaveTimer = null;
+        saveState();
+        __lastAutosaveAt = new Date().toISOString();
+      }
+    }
+    function updateAutosaveIndicator() {
+      const el = document.getElementById('autosave-hint');
+      if (!el) return;
+      if (__lastAutosaveAt) {
+        el.textContent = 'Automatisch gespeichert · ' + formatTime(__lastAutosaveAt);
+      }
+    }
+    // ---------- v1.1: Course DB export/import ----------
+
+    function exportCourseDatabase() {
+      const payload = {
+        schemaVersion: COURSE_DB_SCHEMA_VERSION,
+        exportedAt: new Date().toISOString(),
+        courses: state.appState.courses.map(function (c) {
+          // clone plain fields, strip runtime-only refs
+          return JSON.parse(JSON.stringify(c));
+        })
+      };
+      const data = JSON.stringify(payload, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const stamp = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = 'courses-export-' + stamp + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+      showToast('Plaetze exportiert');
+    }
+
+    // Merge incoming courses into appState. Existing ids get updated; new ids appended.
+    // If forceRegionLabel is given, imported courses receive that label in regionTags (deduped).
+    function mergeCoursesIntoAppState(incomingCourses, forceRegionLabel) {
+      const stats = { added: 0, updated: 0, skipped: 0 };
+      const byId = {};
+      state.appState.courses.forEach(function (c) { byId[c.id] = c; });
+      incomingCourses.forEach(function (raw) {
+        const c = sanitizeCourse(raw);
+        if (!c) { stats.skipped++; return; }
+        if (forceRegionLabel) {
+          if (c.regionTags.indexOf(forceRegionLabel) === -1) c.regionTags.push(forceRegionLabel);
+        }
+        if (byId[c.id]) {
+          // preserve UserDefined-only fields conservatively; merge regionTags
+          const existing = byId[c.id];
+          if (existing.source === 'UserDefined') {
+            // merge regionTags only
+            const merged = existing.regionTags.slice();
+            c.regionTags.forEach(function (r) { if (merged.indexOf(r) === -1) merged.push(r); });
+            existing.regionTags = merged;
+            stats.skipped++;
+            return;
+          }
+          // update: merge regionTags, keep others from incoming
+          const merged = (existing.regionTags || []).slice();
+          c.regionTags.forEach(function (r) { if (merged.indexOf(r) === -1) merged.push(r); });
+          c.regionTags = merged;
+          Object.keys(c).forEach(function (k) { existing[k] = c[k]; });
+          stats.updated++;
+        } else {
+          state.appState.courses.push(c);
+          byId[c.id] = c;
+          stats.added++;
+        }
+      });
+      saveState();
+      return stats;
+    }
+
+    function importCourseDatabaseFromFile(file, forceRegionLabel, onDone) {
+      const reader = new FileReader();
+      reader.onload = function () {
+        try {
+          const parsed = JSON.parse(String(reader.result));
+          if (!parsed || typeof parsed !== 'object') throw new Error('shape');
+          if (parsed.schemaVersion !== COURSE_DB_SCHEMA_VERSION) throw new Error('version');
+          if (!Array.isArray(parsed.courses)) throw new Error('courses');
+          const stats = mergeCoursesIntoAppState(parsed.courses, forceRegionLabel);
+          if (onDone) onDone(true, stats);
+          showToast(
+            (forceRegionLabel ? (forceRegionLabel + ': ') : 'Import: ') +
+            stats.added + ' neu, ' + stats.updated + ' aktualisiert, ' + stats.skipped + ' uebersprungen'
+          );
+        } catch (err) {
+          if (onDone) onDone(false, err);
+          openDialog({
+            title: 'Import fehlgeschlagen',
+            message: 'Die Course-Datei ist ungueltig oder entspricht nicht dem erwarteten Format (Version ' + COURSE_DB_SCHEMA_VERSION + ').',
+            confirmText: 'OK',
+            hideCancel: true
+          });
+        }
+      };
+      reader.onerror = function () {
+        openDialog({
+          title: 'Import fehlgeschlagen',
+          message: 'Datei konnte nicht gelesen werden.',
+          confirmText: 'OK',
+          hideCancel: true
+        });
+      };
+      reader.readAsText(file);
+    }
+
+    function triggerCourseDbImport(forceRegionLabel) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json,.json';
+      input.addEventListener('change', function () {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        importCourseDatabaseFromFile(file, forceRegionLabel || null, function (ok) {
+          if (ok) renderAll();
+        });
+      });
+      input.click();
+    }
+
+    // Kick off a GPS request; updates appState.gps and re-renders setup.
+    function activateGps() {
+      state.appState.gps.status = 'requesting';
+      state.appState.gps.lastError = null;
+      renderSetup();
+      requestCurrentPosition().then(function (pos) {
+        state.appState.gps.status = 'ok';
+        state.appState.gps.lat = pos.coords.latitude;
+        state.appState.gps.lng = pos.coords.longitude;
+        state.appState.gps.accuracy = pos.coords.accuracy;
+        state.appState.gps.updatedAt = new Date().toISOString();
+        state.appState.gps.lastError = null;
+        saveState();
+        renderSetup();
+      }).catch(function (err) {
+        state.appState.gps.status = 'error';
+        state.appState.gps.lastError = gpsErrorText(err);
+        state.appState.gps.accuracy = null;
+        saveState();
+        renderSetup();
+      });
+    }
+
     function exportData() {
       const data = JSON.stringify(state.appState, null, 2);
       const blob = new Blob([data], { type: 'application/json' });
@@ -1074,13 +1981,13 @@
           if (!parsed || typeof parsed !== 'object') throw new Error('bad shape');
           if (parsed.version !== SCHEMA_VERSION) throw new Error('bad version');
           if (!Array.isArray(parsed.players) || !Array.isArray(parsed.courses)) throw new Error('bad arrays');
-          state.appState = {
+          state.appState = sanitizeAppState({
             version: SCHEMA_VERSION,
             lastActiveRoundId: parsed.lastActiveRoundId || null,
             players: parsed.players,
             courses: parsed.courses.length ? parsed.courses : buildSampleCourses(),
             rounds: Array.isArray(parsed.rounds) ? parsed.rounds : []
-          };
+          });
           state.activeRound = state.appState.lastActiveRoundId
             ? state.appState.rounds.find(function (r) { return r.id === state.appState.lastActiveRoundId; }) || null
             : null;
@@ -1111,10 +2018,26 @@
     // ============================================================
     // Calculations
     // ============================================================
+    // Playing Handicap (WHS-inspired, rounded):
+    //   PH = round(HCI * Slope/113 + (CR - Par)), clamped at 0.
+    // Test cases (spot-verified):
+    //   (18,    113, 72, 72) -> 18
+    //   ( 0,    113, 72, 72) -> 0
+    //   (18.4,  130, 71.2, 72) -> round(21.17 - 0.8) = 20
+    //   (28.1,  132, 72.8, 72) -> round(32.83 + 0.8) = 34
+    //   (-5,    113, 72, 72) -> max(0, -5) = 0
     function calculatePlayingHandicap(handicapIndex, slopeRating, courseRating, par) {
       const ph = Math.round(handicapIndex * (slopeRating / 113) + (courseRating - par));
       return Math.max(0, ph);
     }
+    // Distribute playingHandicap strokes across 18 holes in order of lowest
+    // Stroke Index first. If PH > 18, second pass awards an additional stroke
+    // starting again at SI 1, and so on.
+    // Test cases:
+    //   PH 0  -> all zeros
+    //   PH 18 -> every hole gets exactly 1
+    //   PH 20 -> every hole gets 1, plus SI-1 and SI-2 get +1 (so 2 twice, 16 ones)
+    //   PH 36 -> every hole gets 2
     function distributeStrokesPerHole(playingHandicap, holes) {
       const result = new Array(18).fill(0);
       if (playingHandicap <= 0) return result;
@@ -1134,6 +2057,21 @@
       }
       return result;
     }
+    // Standard Stableford scoring (no modified variant):
+    //   diff = netStrokes - par
+    //   diff >= 2 -> 0 (double bogey or worse)
+    //   diff == 1 -> 1 (bogey)
+    //   diff == 0 -> 2 (par)
+    //   diff == -1 -> 3 (birdie)
+    //   diff == -2 -> 4 (eagle)
+    //   diff <= -3 -> 5 (albatross)
+    // Test cases:
+    //   (strokes=4, par=4, given=0) -> net 4, diff 0 -> 2
+    //   (strokes=5, par=4, given=0) -> net 5, diff 1 -> 1
+    //   (strokes=5, par=4, given=1) -> net 4, diff 0 -> 2
+    //   (strokes=6, par=4, given=0) -> net 6, diff 2 -> 0
+    //   (strokes=7, par=5, given=2) -> net 5, diff 0 -> 2
+    //   (strokes=0 = not entered)   -> 0
     function stablefordForHole(strokes, par, given) {
       if (!strokes || strokes <= 0) return 0;
       const net = strokes - given;
@@ -1148,12 +2086,22 @@
     function getCourse(courseId) {
       return state.appState.courses.find(function (c) { return c.id === courseId; }) || null;
     }
+    // History/persistence: prefer the course snapshot stored with the round,
+    // so historical rounds render exactly as saved even if the live course was edited.
+    function getCourseForRound(round) {
+      if (!round) return null;
+      if (round.courseSnapshot && Array.isArray(round.courseSnapshot.holes) && round.courseSnapshot.holes.length > 0) {
+        return round.courseSnapshot;
+      }
+      return getCourse(round.courseId);
+    }
     function getTee(course, colorKey) {
       if (!course) return null;
       return course.tees.find(function (t) { return t.colorKey === colorKey; }) || course.tees[0] || null;
     }
     function getHole(course, holeNumber) {
-      return course.holes.find(function (h) { return h.holeNumber === holeNumber; });
+      if (!course || !Array.isArray(course.holes)) return null;
+      return course.holes.find(function (h) { return h.holeNumber === holeNumber; }) || null;
     }
     function getStrokesForPlayerHole(round, playerIdx, holeNumber) {
       const score = round.holeScores.find(function (s) {
@@ -1165,8 +2113,9 @@
       let score = round.holeScores.find(function (s) {
         return s.playerInRoundIdx === playerIdx && s.holeNumber === holeNumber;
       });
-      const course = getCourse(round.courseId);
+      const course = getCourseForRound(round);
       const hole = getHole(course, holeNumber);
+      round.updatedAt = new Date().toISOString();
       const pir = round.playersInRound[playerIdx];
       const given = pir.strokesPerHole[holeNumber - 1] || 0;
       const net = strokes > 0 ? strokes - given : 0;
@@ -1195,7 +2144,7 @@
         parPlayedOut: 0, parPlayedIn: 0, parPlayedTotal: 0,
         anyEntered: false
       };
-      const course = getCourse(round.courseId);
+      const course = getCourseForRound(round);
       for (let h = 1; h <= 18; h++) {
         const strokes = getStrokesForPlayerHole(round, playerIdx, h);
         const hole = getHole(course, h);
@@ -1246,6 +2195,112 @@
       }
       return list;
     }
+    // ---------- v1.1: GPS + distance + filters + nearby ----------
+
+    // Haversine distance in km between two lat/lng pairs.
+    function haversineKm(lat1, lng1, lat2, lng2) {
+      if (lat1 == null || lng1 == null || lat2 == null || lng2 == null) return null;
+      const toRad = function (d) { return d * Math.PI / 180; };
+      const R = 6371; // km
+      const dLat = toRad(lat2 - lat1);
+      const dLng = toRad(lng2 - lng1);
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    // Map accuracy (m) -> { bars, color, label }. null -> 0 bars, grey.
+    function computeGpsBars(accuracy) {
+      if (typeof accuracy !== 'number' || isNaN(accuracy) || accuracy <= 0) {
+        return { bars: 0, color: 'grey', label: 'unbekannt' };
+      }
+      if (accuracy > 50) return { bars: 1, color: 'red', label: 'schlecht' };
+      if (accuracy > 20) return { bars: 2, color: 'orange', label: 'mittel' };
+      return { bars: 3, color: 'green', label: 'gut' };
+    }
+
+    // Format accuracy for UI text.
+    function formatAccuracy(m) {
+      if (typeof m !== 'number' || isNaN(m) || m <= 0) return '';
+      if (m >= 1000) return '> 1 km';
+      if (m >= 100) return 'ca. ' + (Math.round(m / 10) * 10) + ' m';
+      return 'ca. ' + Math.round(m) + ' m';
+    }
+
+    // Promise wrapper for geolocation (single-shot, high accuracy).
+    function requestCurrentPosition() {
+      return new Promise(function (resolve, reject) {
+        if (!navigator.geolocation) {
+          reject(new Error('unsupported'));
+          return;
+        }
+        const options = { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 };
+        navigator.geolocation.getCurrentPosition(resolve, reject, options);
+      });
+    }
+
+    // Human-readable error text for geolocation errors.
+    function gpsErrorText(err) {
+      if (!err) return 'nicht verfuegbar';
+      if (err.message === 'unsupported') return 'im Browser nicht verfuegbar';
+      if (err.code === 1) return 'Zugriff verweigert';
+      if (err.code === 2) return 'nicht verfuegbar';
+      if (err.code === 3) return 'Zeitueberschreitung';
+      return 'Fehler';
+    }
+
+    // Filter a course array by name/region/holeCount. All args optional.
+    function filterCoursesForSetup(courses, nameFilter, regionFilter, holeCountFilter) {
+      const nf = (nameFilter || '').trim().toLowerCase();
+      const rf = (regionFilter && regionFilter !== 'Alle') ? regionFilter : null;
+      const hf = (holeCountFilter && holeCountFilter !== 'Alle') ? Number(holeCountFilter) : null;
+      return courses.filter(function (c) {
+        if (nf && c.name.toLowerCase().indexOf(nf) === -1) return false;
+        if (rf && !(Array.isArray(c.regionTags) && c.regionTags.indexOf(rf) !== -1)) return false;
+        if (hf && c.holeCount !== hf) return false;
+        return true;
+      });
+    }
+
+    // Courses sorted by distance to current GPS position; filters out courses without coords.
+    function getNearbyCourses(limit) {
+      const gps = state.appState.gps;
+      if (!gps || gps.status !== 'ok' || typeof gps.lat !== 'number') return [];
+      const list = state.appState.courses
+        .filter(function (c) { return c.location && typeof c.location.lat === 'number' && typeof c.location.lng === 'number'; })
+        .map(function (c) {
+          return { course: c, distKm: haversineKm(gps.lat, gps.lng, c.location.lat, c.location.lng) };
+        })
+        .filter(function (x) { return x.distKm !== null; })
+        .sort(function (a, b) { return a.distKm - b.distKm; });
+      return typeof limit === 'number' ? list.slice(0, limit) : list;
+    }
+
+    // Count courses attached to a given region label.
+    function countCoursesInRegion(regionLabel) {
+      return state.appState.courses.filter(function (c) {
+        return Array.isArray(c.regionTags) && c.regionTags.indexOf(regionLabel) !== -1;
+      }).length;
+    }
+
+    // Format km distance for display.
+    function formatDistKm(km) {
+      if (km == null) return '';
+      if (km < 1) return Math.round(km * 1000) + ' m';
+      if (km < 10) return km.toFixed(1) + ' km';
+      return Math.round(km) + ' km';
+    }
+
+    // Layout summary string: "27 Loch (3x9)" etc.
+    function formatHoleCountLabel(course) {
+      const n = course.holeCount || (course.holes && course.holes.length) || 18;
+      if (n === 27) return '27 Loch (3x9)';
+      if (n === 36) return '36 Loch (2x18)';
+      return n + ' Loch';
+    }
+
     function slashChars(n) {
       if (n <= 0) return '';
       if (n === 1) return '/';
@@ -1265,17 +2320,27 @@
     // ============================================================
     // Setup draft helpers
     // ============================================================
+    function defaultLayoutIdForCourse(course) {
+      if (!course || !Array.isArray(course.layouts) || course.layouts.length === 0) return 'standard';
+      const def = course.layouts.find(function (l) { return l.isDefault; });
+      return (def || course.layouts[0]).id;
+    }
     function newSetupDraft() {
       const firstCourse = state.appState.courses[0] || null;
       return {
         courseId: firstCourse ? firstCourse.id : null,
         teeForCourse: firstCourse ? (getTee(firstCourse, 'yellow') || firstCourse.tees[0]).colorKey : null,
-        players: []
+        layoutId: firstCourse ? defaultLayoutIdForCourse(firstCourse) : 'standard',
+        players: [],
+        filters: { name: '', region: 'Alle', holeCount: 'Alle' }
       };
     }
     function ensureSetupDraft() {
       if (!state.setupDraft) {
         state.setupDraft = newSetupDraft();
+      }
+      if (!state.setupDraft.filters) {
+        state.setupDraft.filters = { name: '', region: 'Alle', holeCount: 'Alle' };
       }
       // re-validate course
       const course = getCourse(state.setupDraft.courseId);
@@ -1283,9 +2348,14 @@
         const c = state.appState.courses[0];
         state.setupDraft.courseId = c ? c.id : null;
         state.setupDraft.teeForCourse = c ? c.tees[0].colorKey : null;
+        state.setupDraft.layoutId = c ? defaultLayoutIdForCourse(c) : 'standard';
         state.setupDraft.players.forEach(function (p) {
           p.teeColorKey = state.setupDraft.teeForCourse;
         });
+      } else {
+        // ensure layoutId is valid for this course
+        const hasLayout = Array.isArray(course.layouts) && course.layouts.some(function (l) { return l.id === state.setupDraft.layoutId; });
+        if (!hasLayout) state.setupDraft.layoutId = defaultLayoutIdForCourse(course);
       }
     }
     function setupIsValid() {
@@ -1315,33 +2385,119 @@
           strokesPerHole: distributeStrokesPerHole(ph, course.holes)
         };
       });
+      // Resolve layout -> holeNumbers (snapshot into round)
+      const layoutId = d.layoutId || defaultLayoutIdForCourse(course);
+      let layout = (course.layouts || []).find(function (l) { return l.id === layoutId; });
+      if (!layout) layout = (course.layouts || [])[0] || null;
+      let holeNumbers;
+      if (layout && Array.isArray(layout.holeNumbers) && layout.holeNumbers.length > 0) {
+        holeNumbers = layout.holeNumbers.slice();
+      } else {
+        holeNumbers = [];
+        const n = course.holeCount || course.holes.length || 18;
+        for (let i = 1; i <= n; i++) holeNumbers.push(i);
+      }
+      const now = new Date().toISOString();
+      // Deep-clone the course so the saved round keeps a stable snapshot,
+      // independent of later edits to the live course catalogue.
+      const courseSnapshot = JSON.parse(JSON.stringify(course));
       const round = {
         id: uid('round'),
         courseId: course.id,
-        date: new Date().toISOString(),
+        courseName: course.name,
+        courseSnapshot: courseSnapshot,
+        courseLayoutId: layout ? layout.id : 'standard',
+        holeNumbers: holeNumbers,
+        date: now,
+        createdAt: now,
+        updatedAt: now,
         playersInRound: playersInRound,
         currentHole: 1,
-        status: 'active',
+        status: 'draft', // new round is always a draft until finished
         holeScores: []
       };
-      state.appState.rounds.push(round);
-      state.appState.lastActiveRoundId = round.id;
+      // Add as a new open round (multiple open rounds are allowed).
+      round.status = 'in_progress';
+      addOrUpdateOpenRound(round);
       state.activeRound = round;
       state.setupDraft = null;
       saveState();
     }
+    // Open/History lifecycle:
+    //  - Open rounds are editable drafts (autosaved).
+    //  - History rounds are finished snapshots (read-only).
+    // discardActiveRound treats both cases distinctly; moveOpenRoundToHistory
+    // is the only path from "open" into "history".
     function discardActiveRound() {
-      if (!state.activeRound) return;
-      // remove from rounds
-      const id = state.activeRound.id;
-      state.appState.rounds = state.appState.rounds.filter(function (r) { return r.id !== id; });
-      state.appState.lastActiveRoundId = null;
+      flushAutosave();
+      const ar = state.activeRound;
+      if (ar && ar.status !== 'finished') {
+        // Active round was an open draft -> drop it from openRounds.
+        removeOpenRound(ar.id);
+      }
+      // If active round was a finished history round, we just stop viewing it
+      // (do not touch state.appState.rounds[]).
       state.activeRound = null;
       saveState();
     }
     function finishActiveRound() {
-      if (!state.activeRound) return;
-      state.activeRound.status = 'finished';
+      flushAutosave();
+      const ar = state.activeRound;
+      if (!ar) return;
+      // Finishing only applies to open rounds. Already finished is a noop.
+      if (ar.status !== 'finished') {
+        const moved = moveOpenRoundToHistory(ar.id);
+        if (moved) state.activeRound = moved; // keep viewing the now-finished round
+      }
+      saveState();
+    }
+    // Convenience used by the Setup "Offene Spiele" list entries.
+    function resumeOpenRound(id) {
+      const round = getOpenRounds().find(function (r) { return r.id === id; });
+      if (!round) { showToast('Runde nicht mehr verfuegbar.'); return; }
+      flushAutosave();
+      state.activeRound = round;
+      state.segment = 'live';
+      setScreen('play');
+    }
+    function archiveOpenRound(id) {
+      const moved = moveOpenRoundToHistory(id);
+      if (!moved) { showToast('Runde nicht mehr verfuegbar.'); return; }
+      // Stay on Setup; user sees updated list. Optionally could jump to history.
+      showToast('Runde in History verschoben');
+      if (state.activeRound && state.activeRound.id === moved.id) {
+        state.activeRound = moved;
+      }
+      renderAll();
+    }
+    // Open a saved round from the history list and switch to the scorecard view.
+    function openSavedRound(roundId) {
+      const round = state.appState.rounds.find(function (r) { return r.id === roundId; });
+      if (!round) { showToast('Runde nicht gefunden.'); return; }
+      state.activeRound = round;
+      state.segment = 'card'; // historical rounds: go straight to scorecard view
+      setScreen('play');
+    }
+    function deleteSavedRound(roundId) {
+      const idx = state.appState.rounds.findIndex(function (r) { return r.id === roundId; });
+      if (idx < 0) return;
+      state.appState.rounds.splice(idx, 1);
+      if (state.activeRound && state.activeRound.id === roundId) {
+        state.activeRound = null;
+      }
+      saveState();
+      renderHistory();
+      renderBottomNav();
+    }
+    // Discard a specific open round by id (or the active one if no id).
+    function discardDraft(id) {
+      flushAutosave();
+      const targetId = id || (state.activeRound ? state.activeRound.id : null);
+      if (!targetId) return;
+      if (state.activeRound && state.activeRound.id === targetId) {
+        state.activeRound = null;
+      }
+      removeOpenRound(targetId);
       saveState();
     }
 
@@ -1349,10 +2505,21 @@
     // Navigation
     // ============================================================
     function setScreen(name) {
-      // disabled tabs guard
-      if ((name === 'play' || name === 'results') && !hasActiveRound()) {
-        showToast('Bitte zuerst eine Runde im Setup starten.');
-        return;
+      // If user taps Spiel/Ergebnis without an activeRound but exactly one open
+      // round exists, auto-resume it. Multiple → user must pick one on Setup.
+      if ((name === 'play' || name === 'results') && !state.activeRound) {
+        const openList = getOpenRounds();
+        if (openList.length === 1) {
+          state.activeRound = openList[0];
+        } else if (openList.length > 1) {
+          showToast('Bitte im Setup ein offenes Spiel waehlen.');
+          state.activeScreen = 'setup';
+          renderAll();
+          return;
+        } else {
+          showToast('Bitte zuerst eine Runde im Setup starten.');
+          return;
+        }
       }
       state.activeScreen = name;
       renderAll();
@@ -1363,7 +2530,8 @@
       renderBottomNav();
     }
     function hasActiveRound() {
-      return !!state.activeRound;
+      // Active if viewing a round OR at least one open round exists.
+      return !!state.activeRound || getOpenRounds().length > 0;
     }
 
     // ============================================================
@@ -1399,6 +2567,40 @@
       const scroll = el('div', { class: 'scroll-area' });
       const padded = el('div', { class: 'padded stack' });
 
+      // v1.5: Open rounds list (Startseiten-Uebersicht laufender Spiele)
+      const openBlock = renderOpenRoundsBlock();
+      if (openBlock) padded.appendChild(openBlock);
+
+      // v1.1: GPS status block (above course section)
+      padded.appendChild(renderGpsStatusBlock());
+
+      // v1.1: Nearby list (only if GPS ok and we have at least one hit)
+      const nearby = getNearbyCourses(5);
+      if (nearby.length > 0) {
+        padded.appendChild(el('div', { class: 'section-title' }, ['Plaetze in der Naehe']));
+        const nList = el('div', { class: 'nearby-list' });
+        nearby.forEach(function (entry) {
+          const btn = el('button', {
+            class: 'nearby-item' + (entry.course.id === state.setupDraft.courseId ? ' is-selected' : ''),
+            type: 'button'
+          });
+          const top = el('div', { class: 'ni-top' });
+          top.appendChild(el('span', { class: 'ni-name' }, [entry.course.name]));
+          top.appendChild(el('span', { class: 'ni-dist' }, [formatDistKm(entry.distKm)]));
+          btn.appendChild(top);
+          btn.appendChild(el('div', { class: 'ni-meta' }, [
+            (entry.course.country || '') +
+            (entry.course.region ? ' / ' + entry.course.region : '') +
+            ' · ' + formatHoleCountLabel(entry.course)
+          ]));
+          btn.addEventListener('click', function () {
+            selectCourseInSetup(entry.course.id);
+          });
+          nList.appendChild(btn);
+        });
+        padded.appendChild(nList);
+      }
+
       // Course section
       const course = getCourse(state.setupDraft.courseId);
       const courseCard = el('div', { class: 'course-card' });
@@ -1407,7 +2609,9 @@
       const courseInfo = el('div', {}, []);
       courseInfo.appendChild(el('div', { class: 'course-name' }, [course ? course.name : 'Kein Platz']));
       if (course) {
-        const meta = course.country + (course.region ? ' / ' + course.region : '');
+        const meta = (course.country || '') +
+          (course.region ? ' / ' + course.region : '') +
+          ' · ' + formatHoleCountLabel(course);
         courseInfo.appendChild(el('div', { class: 'course-meta' }, [meta]));
       }
       const changeBtn = el('button', { class: 'btn', type: 'button' }, ['Aendern']);
@@ -1415,6 +2619,30 @@
       courseRow.appendChild(courseInfo);
       courseRow.appendChild(changeBtn);
       courseCard.appendChild(courseRow);
+
+      // v1.1: Layout picker (if course has multiple layouts)
+      if (course && Array.isArray(course.layouts) && course.layouts.length > 1) {
+        courseCard.appendChild(el('div', { class: 'label', style: 'margin-top:10px;' }, ['Course-Layout']));
+        const pills = el('div', { class: 'layout-pills' });
+        course.layouts.forEach(function (l) {
+          const p = el('button', {
+            class: 'layout-pill' + (l.id === state.setupDraft.layoutId ? ' is-selected' : ''),
+            type: 'button'
+          }, [l.name + ' (' + l.holeNumbers.length + ')']);
+          p.addEventListener('click', function () {
+            state.setupDraft.layoutId = l.id;
+            renderSetup();
+          });
+          pills.appendChild(p);
+        });
+        courseCard.appendChild(pills);
+      }
+
+      // v1.1: Filter bar for "Alle Plaetze"
+      const filterBar = renderCourseFilterBar();
+      padded.appendChild(el('div', { class: 'section-title' }, ['Alle Plaetze']));
+      padded.appendChild(filterBar);
+      padded.appendChild(renderFilteredCoursesList());
 
       // Tee selection (default tee for course; players can override)
       if (course) {
@@ -1500,32 +2728,201 @@
       const startBtn = el('button', {
         class: 'btn btn-primary btn-block btn-large' + (valid ? '' : ' is-disabled'),
         type: 'button'
-      }, [hasActiveRound() ? 'Neue Runde starten (laufende beenden)' : 'Runde starten']);
+      }, [getOpenRounds().length > 0 ? 'Neue Runde zusaetzlich starten' : 'Runde starten']);
       if (!valid) startBtn.disabled = true;
       startBtn.addEventListener('click', function () {
         if (!setupIsValid()) return;
-        if (hasActiveRound()) {
-          openDialog({
-            title: 'Aktuelle Runde verwerfen?',
-            message: 'Es laeuft bereits eine Runde. Wenn du eine neue Runde startest, wird die laufende Runde verworfen.',
-            confirmText: 'Verwerfen & starten',
-            confirmKind: 'danger',
-            onConfirm: function () {
-              discardActiveRound();
-              startRoundFromDraft();
-              state.segment = 'live';
-              setScreen('play');
-            }
-          });
-        } else {
-          startRoundFromDraft();
-          state.segment = 'live';
-          setScreen('play');
-        }
+        // v1.5: multiple open rounds are allowed -> no "verwerfen" confirm.
+        // Previously active round stays in openRounds[] and is still listed.
+        startRoundFromDraft();
+        state.segment = 'live';
+        setScreen('play');
       });
       footer.appendChild(startBtn);
       root.appendChild(footer);
     }
+    // v1.5: "Offene Spiele" block on Setup screen — lists in-progress rounds
+    // with Weiter / Beenden actions. Returns null if there are no open rounds.
+    function renderOpenRoundsBlock() {
+      const openList = getOpenRounds();
+      if (openList.length === 0) return null;
+      const block = el('div', { class: 'open-rounds-block' });
+      block.appendChild(el('div', { class: 'or-title' }, [
+        openList.length === 1 ? 'Offenes Spiel' : ('Offene Spiele (' + openList.length + ')')
+      ]));
+      // Sort by updatedAt desc so recently touched rounds are on top.
+      const sorted = openList.slice().sort(function (a, b) {
+        const tb = new Date(b.updatedAt || b.createdAt || b.date || 0).getTime();
+        const ta = new Date(a.updatedAt || a.createdAt || a.date || 0).getTime();
+        return tb - ta;
+      });
+      sorted.forEach(function (r) {
+        block.appendChild(renderOpenRoundCard(r));
+      });
+      return block;
+    }
+    function renderOpenRoundCard(r) {
+      const card = el('div', { class: 'open-round-card', 'data-round-id': r.id });
+      const line1 = el('div', { class: 'or-line1' });
+      line1.appendChild(el('span', { class: 'or-date' }, [formatDate(r.date || r.createdAt)]));
+      line1.appendChild(el('span', { class: 'or-course', title: r.courseName || '' }, [r.courseName || 'Unbekannter Platz']));
+      line1.appendChild(el('span', { class: 'or-status' }, ['in Bearbeitung']));
+      card.appendChild(line1);
+
+      const names = (r.playersInRound || []).map(function (p) { return p.displayName; }).join(', ');
+      const line2bits = [];
+      if (names) line2bits.push(names);
+      if (r.currentHole) line2bits.push('Loch ' + r.currentHole);
+      const saved = r.updatedAt ? ('zuletzt ' + formatTime(r.updatedAt)) : null;
+      if (saved) line2bits.push(saved);
+      if (line2bits.length) card.appendChild(el('div', { class: 'or-line2' }, [line2bits.join(' · ')]));
+
+      const actions = el('div', { class: 'or-actions' });
+      const resumeBtn = el('button', { class: 'btn btn-primary', type: 'button' }, ['Weiterspielen']);
+      resumeBtn.addEventListener('click', function () { resumeOpenRound(r.id); });
+      const finishBtn = el('button', { class: 'btn btn-danger', type: 'button' }, ['Beenden / Speichern']);
+      finishBtn.addEventListener('click', function () {
+        openDialog({
+          title: 'Runde beenden?',
+          message: 'Moechtest du diese Runde beenden und in die History verschieben? Sie kann dann nicht mehr bearbeitet werden.',
+          confirmText: 'Beenden & speichern',
+          confirmKind: 'danger',
+          onConfirm: function () { archiveOpenRound(r.id); }
+        });
+      });
+      actions.appendChild(resumeBtn);
+      actions.appendChild(finishBtn);
+      card.appendChild(actions);
+      return card;
+    }
+
+    // v1.1 helpers for setup screen
+    function renderGpsStatusBlock() {
+      const gps = state.appState.gps || defaultGpsState();
+      const row = el('div', { class: 'gps-row' });
+      row.appendChild(el('span', { class: 'gps-label' }, ['GPS']));
+
+      const bars = computeGpsBars(gps.accuracy);
+      const barsEl = el('span', { class: 'gps-bars is-' + (bars.color === 'grey' ? 'grey' : bars.color) });
+      if (gps.status === 'requesting') barsEl.classList.add('is-pulsing');
+      for (let i = 1; i <= 3; i++) {
+        const b = el('span', { class: 'bar' + (i <= bars.bars ? ' on' : '') });
+        barsEl.appendChild(b);
+      }
+      row.appendChild(barsEl);
+
+      let text;
+      if (gps.status === 'idle') text = 'aus';
+      else if (gps.status === 'requesting') text = 'wird ermittelt …';
+      else if (gps.status === 'ok') text = formatAccuracy(gps.accuracy);
+      else text = gps.lastError || 'nicht verfuegbar';
+      row.appendChild(el('span', { class: 'gps-text' }, [text]));
+
+      const btn = el('button', { class: 'gps-activate-btn', type: 'button' }, [
+        gps.status === 'ok' ? 'Aktualisieren' : 'Aktivieren'
+      ]);
+      if (gps.status === 'requesting') btn.disabled = true;
+      btn.addEventListener('click', activateGps);
+      row.appendChild(btn);
+      return row;
+    }
+    function renderCourseFilterBar() {
+      const f = state.setupDraft.filters || { name: '', region: 'Alle', holeCount: 'Alle' };
+      const wrap = el('div', { class: 'filter-bar' });
+      const nameIn = el('input', { type: 'text', placeholder: 'Platzname filtern', value: f.name || '' });
+      nameIn.addEventListener('input', function () {
+        f.name = nameIn.value;
+        renderFilteredCoursesList(true);
+      });
+      wrap.appendChild(nameIn);
+
+      const row2 = el('div', { class: 'filter-row2' });
+      const regionSel = el('select');
+      const regionOpts = ['Alle'].concat(allKnownRegionItems());
+      // include any additional labels actually present in data
+      state.appState.courses.forEach(function (c) {
+        (c.regionTags || []).forEach(function (r) {
+          if (regionOpts.indexOf(r) === -1) regionOpts.push(r);
+        });
+      });
+      regionOpts.forEach(function (r) {
+        const o = document.createElement('option');
+        o.value = r;
+        o.textContent = r;
+        if (r === f.region) o.selected = true;
+        regionSel.appendChild(o);
+      });
+      regionSel.addEventListener('change', function () {
+        f.region = regionSel.value;
+        renderFilteredCoursesList(true);
+      });
+      row2.appendChild(regionSel);
+
+      const holeSel = el('select');
+      ['Alle', '9', '18', '27', '36'].forEach(function (h) {
+        const o = document.createElement('option');
+        o.value = h;
+        o.textContent = h === 'Alle' ? 'Alle Lochanzahlen' : (h + ' Loch');
+        if (h === f.holeCount) o.selected = true;
+        holeSel.appendChild(o);
+      });
+      holeSel.addEventListener('change', function () {
+        f.holeCount = holeSel.value;
+        renderFilteredCoursesList(true);
+      });
+      row2.appendChild(holeSel);
+
+      wrap.appendChild(row2);
+      return wrap;
+    }
+    function renderFilteredCoursesList(replaceExisting) {
+      const f = state.setupDraft.filters || { name: '', region: 'Alle', holeCount: 'Alle' };
+      const courses = filterCoursesForSetup(state.appState.courses, f.name, f.region, f.holeCount);
+      const list = el('div', { class: 'all-courses-list', id: 'all-courses-list' });
+      if (courses.length === 0) {
+        list.appendChild(el('div', { class: 'empty-state' }, ['Keine Plaetze gefunden.']));
+      } else {
+        courses.forEach(function (c) {
+          const btn = el('button', {
+            class: 'course-item' + (c.id === state.setupDraft.courseId ? ' is-selected' : ''),
+            type: 'button'
+          });
+          btn.appendChild(el('div', { class: 'ci-name' }, [c.name]));
+          btn.appendChild(el('div', { class: 'ci-meta' }, [
+            (c.country || '') +
+            (c.region ? ' / ' + c.region : '') +
+            ' · ' + formatHoleCountLabel(c) +
+            ((c.regionTags && c.regionTags.length) ? ' · ' + c.regionTags.join(', ') : '')
+          ]));
+          btn.addEventListener('click', function () {
+            selectCourseInSetup(c.id);
+          });
+          list.appendChild(btn);
+        });
+      }
+      if (replaceExisting) {
+        const old = document.getElementById('all-courses-list');
+        if (old && old.parentNode) old.parentNode.replaceChild(list, old);
+      }
+      return list;
+    }
+    function selectCourseInSetup(courseId) {
+      const c = getCourse(courseId);
+      if (!c) return;
+      state.setupDraft.courseId = c.id;
+      const newTee = getTee(c, state.setupDraft.teeForCourse) || getTee(c, 'yellow') || c.tees[0];
+      state.setupDraft.teeForCourse = newTee ? newTee.colorKey : null;
+      state.setupDraft.layoutId = defaultLayoutIdForCourse(c);
+      const availableKeys = new Set(c.tees.map(function (t) { return t.colorKey; }));
+      state.setupDraft.players.forEach(function (p) {
+        if (!p._teeOverride || !availableKeys.has(p.teeColorKey)) {
+          p.teeColorKey = state.setupDraft.teeForCourse;
+          p._teeOverride = false;
+        }
+      });
+      renderSetup();
+    }
+
     function renderSetupPlayerRow(p, idx, course) {
       const errors = [];
       if (!p.displayName || !p.displayName.trim()) errors.push('Name fehlt');
@@ -1624,8 +3021,14 @@
           // reset tee to yellow if available, otherwise first
           const newTee = getTee(c, 'yellow') || c.tees[0];
           state.setupDraft.teeForCourse = newTee.colorKey;
+          // Validate every player's tee against the new course; if the previously
+          // chosen color does not exist here, fall back to the new default.
+          const availableKeys = new Set(c.tees.map(function (t) { return t.colorKey; }));
           state.setupDraft.players.forEach(function (p) {
-            if (!p._teeOverride) p.teeColorKey = newTee.colorKey;
+            if (!p._teeOverride || !availableKeys.has(p.teeColorKey)) {
+              p.teeColorKey = newTee.colorKey;
+              p._teeOverride = false;
+            }
           });
           closeOverlay();
           renderSetup();
@@ -1852,7 +3255,15 @@
         root.appendChild(empty);
         return;
       }
-      const course = getCourse(round.courseId);
+      const course = getCourseForRound(round);
+
+      // Banner for saved/finished rounds (read-only mode)
+      if (round.status === 'finished') {
+        root.appendChild(el('div', { class: 'history-banner' }, [
+          'Gespeicherte Runde · ', el('strong', {}, [course.name]),
+          ' · ', formatDate(round.date)
+        ]));
+      }
 
       // Header (status + segment)
       const header = el('div', { class: 'play-header' });
@@ -1860,15 +3271,31 @@
       status.appendChild(el('span', { class: 'nowrap' }, [course.name]));
       status.appendChild(el('span', { class: 'nowrap' }, [formatDate(round.date)]));
       header.appendChild(status);
+
+      // Autosave indicator only for drafts
+      if (round.status === 'draft') {
+        const hint = el('div', {
+          id: 'autosave-hint',
+          class: 'small',
+          style: 'font-size:10px; color:#5A5A5A; margin-top:-2px;'
+        }, [
+          __lastAutosaveAt
+            ? ('Automatisch gespeichert · ' + formatTime(__lastAutosaveAt))
+            : 'Automatisch lokal gespeichert'
+        ]);
+        header.appendChild(hint);
+      }
       const segWrap = el('div');
       const seg = el('div', { class: 'segment', role: 'tablist' });
       const segLive = el('button', {
         class: state.segment === 'live' ? 'is-active' : '',
-        type: 'button', role: 'tab'
+        type: 'button', role: 'tab',
+        'aria-selected': state.segment === 'live' ? 'true' : 'false'
       }, ['Live']);
       const segCard = el('button', {
         class: state.segment === 'card' ? 'is-active' : '',
-        type: 'button', role: 'tab'
+        type: 'button', role: 'tab',
+        'aria-selected': state.segment === 'card' ? 'true' : 'false'
       }, ['Karte']);
       segLive.addEventListener('click', function () { setSegment('live'); });
       segCard.addEventListener('click', function () { setSegment('card'); });
@@ -1916,7 +3343,7 @@
       prev.addEventListener('click', function () {
         if (round.currentHole > 1) {
           round.currentHole--;
-          saveState();
+          scheduleAutosave();
           renderPlay();
         }
       });
@@ -1925,7 +3352,7 @@
       next.addEventListener('click', function () {
         if (round.currentHole < 18) {
           round.currentHole++;
-          saveState();
+          scheduleAutosave();
           renderPlay();
         } else {
           openDialog({
@@ -1949,6 +3376,7 @@
       const given = pir.strokesPerHole[hole.holeNumber - 1] || 0;
       const strokes = getStrokesForPlayerHole(round, idx, hole.holeNumber);
       const totals = computeTotals(round, idx);
+      const readOnly = (round.status === 'finished');
 
       const row1 = el('div', { class: 'pb-row1' });
       row1.appendChild(el('span', { class: 'pb-name' }, [pir.displayName]));
@@ -1963,13 +3391,14 @@
         type: 'button',
         'aria-label': 'Schlag minus'
       }, ['−']);
-      if (strokes <= 0) minus.disabled = true;
+      if (strokes <= 0 || readOnly) minus.disabled = true;
       minus.addEventListener('click', function () {
+        if (readOnly) return;
         let s = strokes;
         if (s <= 0) return;
         s = Math.max(0, s - 1);
         setStrokesForPlayerHole(round, idx, hole.holeNumber, s);
-        saveState();
+        scheduleAutosave();
         renderPlay();
       });
       const value = el('div', {
@@ -1980,8 +3409,9 @@
         type: 'button',
         'aria-label': 'Schlag plus'
       }, ['+']);
-      if (strokes >= 15) plus.disabled = true;
+      if (strokes >= 15 || readOnly) plus.disabled = true;
       plus.addEventListener('click', function () {
+        if (readOnly) return;
         let s = strokes;
         if (s <= 0) {
           s = hole.par;
@@ -1991,7 +3421,7 @@
           return;
         }
         setStrokesForPlayerHole(round, idx, hole.holeNumber, s);
-        saveState();
+        scheduleAutosave();
         renderPlay();
       });
       row2.appendChild(minus);
@@ -2011,146 +3441,204 @@
       return block;
     }
     function renderCardPane(pane, round, course) {
-      // Mini header
+      // Mini header (tournament-style) with print button
       const mini = el('div', { class: 'card-mini-header' });
-      mini.appendChild(el('div', {}, [course.name + ' — ' + formatDate(round.date)]));
+      const topRow = el('div', { class: 'mini-header-top' });
+      topRow.appendChild(el('div', { class: 'course-line' }, [course.name + ' — ' + formatDate(round.date)]));
+      const printBtn = el('button', { class: 'print-btn', type: 'button' }, ['Drucken / PDF']);
+      printBtn.addEventListener('click', function () { window.print(); });
+      topRow.appendChild(printBtn);
+      mini.appendChild(topRow);
       const legend = el('div', { class: 'legend' });
       round.playersInRound.forEach(function (pir) {
-        const span = el('span', {});
-        span.appendChild(el('span', { class: 'dot tee-dot-' + pir.teeColorKey }));
-        span.appendChild(document.createTextNode(' ' + shortName(pir.displayName, 14) + ' (' + (TEE_LABELS[pir.teeColorKey] || pir.teeColorKey) + ')'));
-        legend.appendChild(span);
+        const tag = el('span', { class: 'player-tag' });
+        tag.appendChild(el('span', { class: 'dot tee-dot-' + pir.teeColorKey }));
+        tag.appendChild(document.createTextNode(' ' + shortName(pir.displayName, 14) + ' (' + (TEE_LABELS[pir.teeColorKey] || pir.teeColorKey) + ')'));
+        legend.appendChild(tag);
       });
       mini.appendChild(legend);
       pane.appendChild(mini);
 
-      // Scrollable table
+      // Scrollable table (paper scorecard layout: holes = rows, players = column blocks)
       const wrap = el('div', { class: 'scorecard-wrap' });
-      const table = el('table', { class: 'scorecard' });
+      const nPlayers = round.playersInRound.length;
+      // v1.2: denser classes for 4-player mode
+      const table = el('table', { class: 'scorecard' + (nPlayers >= 4 ? ' is-4players' : '') });
 
-      // thead
+      // Distance column: pick the dominant tee to display in the left block.
+      // Prefer yellow (classical men's tee), fallback to any tee that actually has yardages.
+      let domTee = getTee(course, 'yellow');
+      if (!domTee || !Array.isArray(domTee.holeYardage) || domTee.holeYardage.length === 0) {
+        const withYard = (course.tees || []).find(function (t) {
+          return Array.isArray(t.holeYardage) && t.holeYardage.length > 0;
+        });
+        if (withYard) domTee = withYard;
+      }
+      const teeHasYards = !!(domTee && Array.isArray(domTee.holeYardage) && domTee.holeYardage.length > 0);
+      // Dynamic label: use actual tee color label if known, otherwise generic "Tee"
+      const teeColLabel = domTee ? (domTee.colorLabel || TEE_LABELS[domTee.colorKey] || 'Tee') : 'Tee';
+      function yardFor(h) {
+        if (!teeHasYards) return '–';
+        const y = domTee.holeYardage[h - 1];
+        return (typeof y === 'number' && y > 0) ? String(y) : '–';
+      }
+
+      // --- thead: 2 rows ---
       const thead = el('thead');
-      const trH = el('tr');
-      const corner = el('th', { class: 'label-col corner-cell' }, ['']);
-      trH.appendChild(corner);
-      for (let h = 1; h <= 9; h++) {
-        const th = el('th', { 'data-col': 'h' + h }, [String(h)]);
-        if (h === round.currentHole) th.classList.add('active-hole-mark');
-        trH.appendChild(th);
-      }
-      trH.appendChild(el('th', { class: 'summary-col' }, ['OUT']));
-      for (let h = 10; h <= 18; h++) {
-        const th = el('th', { 'data-col': 'h' + h }, [String(h)]);
-        if (h === round.currentHole) th.classList.add('active-hole-mark');
-        trH.appendChild(th);
-      }
-      trH.appendChild(el('th', { class: 'summary-col' }, ['IN']));
-      trH.appendChild(el('th', { class: 'summary-col' }, ['TOT']));
-      thead.appendChild(trH);
+
+      // Row 1: corner (spans Loch/SI/Par/Gelb) + each player name (spans Schl | / | Stbf = colspan 3)
+      const tr1 = el('tr', { class: 'hdr-row-1' });
+      tr1.appendChild(el('th', { class: 'corner-cell hdr-fixed', colspan: '4' }, ['Lochdaten']));
+      round.playersInRound.forEach(function (pir) {
+        const th = el('th', { class: 'player-header', colspan: '3' });
+        th.appendChild(el('span', { class: 'ph-dot tee-dot-' + pir.teeColorKey }));
+        th.appendChild(document.createTextNode(shortName(pir.displayName, 10)));
+        tr1.appendChild(th);
+      });
+      thead.appendChild(tr1);
+
+      // Row 2: Loch | SI | Par | Gelb | (Schl | / | Stbf) per player
+      const tr2 = el('tr', { class: 'hdr-row-2' });
+      tr2.appendChild(el('th', { class: 'col-loch' }, ['Loch']));
+      tr2.appendChild(el('th', { class: 'col-si'   }, ['SI']));
+      tr2.appendChild(el('th', { class: 'col-par'  }, ['Par']));
+      tr2.appendChild(el('th', { class: 'col-gelb', title: 'Distanz ' + teeColLabel }, [teeColLabel]));
+      round.playersInRound.forEach(function () {
+        tr2.appendChild(el('th', { class: 'col-schl col-schl--first-of-player' }, ['Schl']));
+        tr2.appendChild(el('th', { class: 'col-slash' }, ['/']));
+        tr2.appendChild(el('th', { class: 'col-stbf' }, ['Stbf']));
+      });
+      thead.appendChild(tr2);
       table.appendChild(thead);
 
-      // tbody
+      // --- tbody ---
       const tbody = el('tbody');
 
-      // Par row
-      const parRow = el('tr', { class: 'row-par' });
-      parRow.appendChild(el('th', { class: 'label-col' }, ['Par']));
+      // Per-player accumulators for OUT / IN
+      const outAcc = round.playersInRound.map(function () { return { schl: 0, stbl: 0, any: false }; });
+      const inAcc  = round.playersInRound.map(function () { return { schl: 0, stbl: 0, any: false }; });
       let parOut = 0, parIn = 0;
-      for (let h = 1; h <= 9; h++) {
+
+      // Build one hole row: Loch | SI | Par | Gelb | per player (Schl | / | Stbf)
+      function buildHoleRow(h, altClass) {
         const hole = getHole(course, h);
-        parOut += hole.par;
-        parRow.appendChild(el('td', {}, [String(hole.par)]));
+        const tr = el('tr', { class: 'row-hole ' + altClass + (h === round.currentHole ? ' is-active' : '') });
+        tr.appendChild(el('th', { class: 'col-loch' }, [String(h)]));
+        tr.appendChild(el('td', { class: 'col-si'   }, [String(hole.strokeIndex)]));
+        tr.appendChild(el('td', { class: 'col-par'  }, [String(hole.par)]));
+        tr.appendChild(el('td', { class: 'col-gelb' }, [yardFor(h)]));
+
+        // player blocks: 3 columns each
+        round.playersInRound.forEach(function (pir, idx) {
+          const given = pir.strokesPerHole[h - 1] || 0;
+          const strokes = getStrokesForPlayerHole(round, idx, h);
+
+          // Schlagzahl (click jumps to live mode on this hole)
+          const schlTd = el('td', {
+            class: 'col-schl col-schl--first-of-player' + (strokes <= 0 ? ' is-empty' : '')
+          }, [strokes > 0 ? String(strokes) : '—']);
+          schlTd.addEventListener('click', function () {
+            round.currentHole = h;
+            scheduleAutosave();
+            state.segment = 'live';
+            renderPlay();
+            renderBottomNav();
+          });
+          tr.appendChild(schlTd);
+
+          // Slash-Spalte (own column, separate from Schl)
+          tr.appendChild(el('td', { class: 'col-slash' }, [slashChars(given)]));
+
+          // Stableford-Spalte
+          const pts = strokes > 0 ? stablefordForHole(strokes, hole.par, given) : 0;
+          tr.appendChild(el('td', { class: 'col-stbf' }, [strokes > 0 ? String(pts) : '']));
+        });
+        return tr;
       }
-      parRow.appendChild(el('td', { class: 'summary-col' }, [String(parOut)]));
-      for (let h = 10; h <= 18; h++) {
+
+      // Accumulate per-player OUT / IN from actual entries
+      function accumulateHole(h, accArr) {
         const hole = getHole(course, h);
-        parIn += hole.par;
-        parRow.appendChild(el('td', {}, [String(hole.par)]));
+        round.playersInRound.forEach(function (pir, idx) {
+          const given = pir.strokesPerHole[h - 1] || 0;
+          const strokes = getStrokesForPlayerHole(round, idx, h);
+          if (strokes > 0) {
+            accArr[idx].schl += strokes;
+            accArr[idx].stbl += stablefordForHole(strokes, hole.par, given);
+            accArr[idx].any = true;
+          }
+        });
+        return hole.par;
       }
-      parRow.appendChild(el('td', { class: 'summary-col' }, [String(parIn)]));
-      parRow.appendChild(el('td', { class: 'summary-col' }, [String(parOut + parIn)]));
-      tbody.appendChild(parRow);
 
-      // SI row
-      const siRow = el('tr', { class: 'row-si' });
-      siRow.appendChild(el('th', { class: 'label-col' }, ['SI']));
+      // --- Holes 1-9 (alternating row A/B) ---
       for (let h = 1; h <= 9; h++) {
-        siRow.appendChild(el('td', {}, [String(getHole(course, h).strokeIndex)]));
+        parOut += accumulateHole(h, outAcc);
+        tbody.appendChild(buildHoleRow(h, (h % 2 === 1) ? 'row-a' : 'row-b'));
       }
-      siRow.appendChild(el('td', { class: 'summary-col' }, ['']));
-      for (let h = 10; h <= 18; h++) {
-        siRow.appendChild(el('td', {}, [String(getHole(course, h).strokeIndex)]));
-      }
-      siRow.appendChild(el('td', { class: 'summary-col' }, ['']));
-      siRow.appendChild(el('td', { class: 'summary-col' }, ['']));
-      tbody.appendChild(siRow);
 
-      // Players: brutto + stbl rows each
-      round.playersInRound.forEach(function (pir, idx) {
-        const totals = computeTotals(round, idx);
-
-        // Brutto row
-        const brRow = el('tr', { class: 'row-brutto' });
-        brRow.appendChild(el('th', { class: 'label-col', title: pir.displayName }, [shortName(pir.displayName, 12)]));
-        for (let h = 1; h <= 9; h++) {
-          brRow.appendChild(buildStrokeCell(round, course, idx, pir, h));
-        }
-        const outCell = el('td', { class: 'summary-col' }, [
-          totals.anyEntered ? String(totals.grossOut) : ''
-        ]);
-        brRow.appendChild(outCell);
-        for (let h = 10; h <= 18; h++) {
-          brRow.appendChild(buildStrokeCell(round, course, idx, pir, h));
-        }
-        brRow.appendChild(el('td', { class: 'summary-col' }, [
-          totals.anyEntered ? String(totals.grossIn) : ''
-        ]));
-        brRow.appendChild(el('td', { class: 'summary-col' }, [
-          totals.anyEntered ? String(totals.grossTotal) : ''
-        ]));
-        tbody.appendChild(brRow);
-
-        // Stableford row
-        const stRow = el('tr', { class: 'row-stbl' });
-        stRow.appendChild(el('th', { class: 'label-col' }, ['Stbf']));
-        for (let h = 1; h <= 9; h++) {
-          const s = getStrokesForPlayerHole(round, idx, h);
-          const hole = getHole(course, h);
-          const given = pir.strokesPerHole[h - 1] || 0;
-          const pts = s > 0 ? stablefordForHole(s, hole.par, given) : 0;
-          stRow.appendChild(el('td', {}, [s > 0 ? String(pts) : '']));
-        }
-        stRow.appendChild(el('td', { class: 'summary-col' }, [
-          totals.anyEntered ? String(totals.stablefordOut) : ''
-        ]));
-        for (let h = 10; h <= 18; h++) {
-          const s = getStrokesForPlayerHole(round, idx, h);
-          const hole = getHole(course, h);
-          const given = pir.strokesPerHole[h - 1] || 0;
-          const pts = s > 0 ? stablefordForHole(s, hole.par, given) : 0;
-          stRow.appendChild(el('td', {}, [s > 0 ? String(pts) : '']));
-        }
-        stRow.appendChild(el('td', { class: 'summary-col' }, [
-          totals.anyEntered ? String(totals.stablefordIn) : ''
-        ]));
-        stRow.appendChild(el('td', { class: 'summary-col' }, [
-          totals.anyEntered ? String(totals.stablefordTotal) : ''
-        ]));
-        tbody.appendChild(stRow);
+      // --- OUT summary row ---
+      const outRow = el('tr', { class: 'row-summary row-out' });
+      outRow.appendChild(el('th', { class: 'col-loch' }, ['OUT']));
+      outRow.appendChild(el('td', { class: 'col-si'   }, ['']));
+      outRow.appendChild(el('td', { class: 'col-par'  }, [String(parOut)]));
+      outRow.appendChild(el('td', { class: 'col-gelb' }, ['']));
+      round.playersInRound.forEach(function (_, idx) {
+        const a = outAcc[idx];
+        outRow.appendChild(el('td', { class: 'col-schl col-schl--first-of-player' }, [a.any ? String(a.schl) : '']));
+        outRow.appendChild(el('td', { class: 'col-slash' }, ['']));
+        outRow.appendChild(el('td', { class: 'col-stbf' }, [a.any ? String(a.stbl) : '']));
       });
+      tbody.appendChild(outRow);
+
+      // --- Holes 10-18 ---
+      for (let h = 10; h <= 18; h++) {
+        parIn += accumulateHole(h, inAcc);
+        tbody.appendChild(buildHoleRow(h, (h % 2 === 1) ? 'row-a' : 'row-b'));
+      }
+
+      // --- IN summary row ---
+      const inRow = el('tr', { class: 'row-summary row-in' });
+      inRow.appendChild(el('th', { class: 'col-loch' }, ['IN']));
+      inRow.appendChild(el('td', { class: 'col-si'   }, ['']));
+      inRow.appendChild(el('td', { class: 'col-par'  }, [String(parIn)]));
+      inRow.appendChild(el('td', { class: 'col-gelb' }, ['']));
+      round.playersInRound.forEach(function (_, idx) {
+        const a = inAcc[idx];
+        inRow.appendChild(el('td', { class: 'col-schl col-schl--first-of-player' }, [a.any ? String(a.schl) : '']));
+        inRow.appendChild(el('td', { class: 'col-slash' }, ['']));
+        inRow.appendChild(el('td', { class: 'col-stbf' }, [a.any ? String(a.stbl) : '']));
+      });
+      tbody.appendChild(inRow);
+
+      // --- TOTAL row ---
+      const totalRow = el('tr', { class: 'row-summary row-total' });
+      totalRow.appendChild(el('th', { class: 'col-loch' }, ['TOT']));
+      totalRow.appendChild(el('td', { class: 'col-si'   }, ['']));
+      totalRow.appendChild(el('td', { class: 'col-par'  }, [String(parOut + parIn)]));
+      totalRow.appendChild(el('td', { class: 'col-gelb' }, ['']));
+      round.playersInRound.forEach(function (_, idx) {
+        const any = outAcc[idx].any || inAcc[idx].any;
+        const s = outAcc[idx].schl + inAcc[idx].schl;
+        const p = outAcc[idx].stbl + inAcc[idx].stbl;
+        totalRow.appendChild(el('td', { class: 'col-schl col-schl--first-of-player' }, [any ? String(s) : '']));
+        totalRow.appendChild(el('td', { class: 'col-slash' }, ['']));
+        totalRow.appendChild(el('td', { class: 'col-stbf' }, [any ? String(p) : '']));
+      });
+      tbody.appendChild(totalRow);
 
       table.appendChild(tbody);
       wrap.appendChild(table);
       pane.appendChild(wrap);
 
-      // After mounting, scroll active hole into view
+      // Scroll active hole row into view (vertical)
       requestAnimationFrame(function () {
-        const target = wrap.querySelector('th[data-col="h' + round.currentHole + '"]');
+        const target = wrap.querySelector('tr.row-hole.is-active');
         if (target) {
           const wRect = wrap.getBoundingClientRect();
           const tRect = target.getBoundingClientRect();
-          const offset = (tRect.left - wRect.left) - (wRect.width / 2) + (tRect.width / 2);
-          wrap.scrollLeft += offset;
+          const offset = (tRect.top - wRect.top) - (wRect.height / 2) + (tRect.height / 2);
+          wrap.scrollTop += offset;
         }
       });
     }
@@ -2165,7 +3653,10 @@
       if (slash) {
         td.appendChild(el('span', { class: 'stroke-slash' }, [slash]));
       }
-      if (holeNumber === round.currentHole) td.classList.add('active-hole-mark');
+      if (holeNumber === round.currentHole) {
+        td.classList.add('active-hole-mark');
+        td.classList.add('active-hole-col');
+      }
       td.addEventListener('click', function () {
         round.currentHole = holeNumber;
         saveState();
@@ -2196,7 +3687,7 @@
         ]));
         return;
       }
-      const course = getCourse(round.courseId);
+      const course = getCourseForRound(round);
       const scroll = el('div', { class: 'scroll-area' });
       const padded = el('div', { class: 'padded stack' });
 
@@ -2340,16 +3831,58 @@
       padded.appendChild(updBtn);
       padded.appendChild(el('div', { class: 'small' }, ['Online-Update von Plaetzen ist fuer eine spaetere Version geplant.']));
 
-      // Import / Export
-      padded.appendChild(el('div', { class: 'section-title', style: 'margin-top:14px;' }, ['Import / Export']));
+      // App-Daten Import / Export
+      padded.appendChild(el('div', { class: 'section-title', style: 'margin-top:14px;' }, ['App-Daten (Spieler + Plaetze + Runden)']));
       const ie = el('div', { class: 'stack' });
-      const eBtn = el('button', { class: 'btn btn-block', type: 'button' }, ['Daten exportieren']);
+      const eBtn = el('button', { class: 'btn btn-block', type: 'button' }, ['Alle Daten exportieren']);
       eBtn.addEventListener('click', exportData);
-      const iBtn = el('button', { class: 'btn btn-block', type: 'button' }, ['Daten importieren']);
+      const iBtn = el('button', { class: 'btn btn-block', type: 'button' }, ['Alle Daten importieren']);
       iBtn.addEventListener('click', triggerImport);
       ie.appendChild(eBtn);
       ie.appendChild(iBtn);
       padded.appendChild(ie);
+
+      // v1.1: Course-Datenbank (nur Plaetze)
+      padded.appendChild(el('div', { class: 'section-title', style: 'margin-top:14px;' }, ['Course-Datenbank']));
+      const cdb = el('div', { class: 'stack' });
+      const cdbE = el('button', { class: 'btn btn-block', type: 'button' }, ['Plaetze exportieren']);
+      cdbE.addEventListener('click', exportCourseDatabase);
+      const cdbI = el('button', { class: 'btn btn-block', type: 'button' }, ['Plaetze importieren']);
+      cdbI.addEventListener('click', function () { triggerCourseDbImport(null); });
+      cdb.appendChild(cdbE);
+      cdb.appendChild(cdbI);
+      padded.appendChild(cdb);
+
+      // v1.1: Course-Regionen laden
+      padded.appendChild(el('div', { class: 'section-title', style: 'margin-top:14px;' }, ['Course-Regionen laden']));
+      padded.appendChild(el('div', { class: 'small' }, [
+        'Lade gezielt Plaetze fuer eine Region. Pro Import max. ca. 3000 Plaetze. Bei Bedarf mehrere Regionen nacheinander importieren.'
+      ]));
+      Object.keys(KNOWN_REGIONS).forEach(function (groupKey) {
+        const group = KNOWN_REGIONS[groupKey];
+        const groupWrap = el('div', { class: 'region-group' });
+        groupWrap.appendChild(el('div', { class: 'rg-title' }, [group.label]));
+        group.items.forEach(function (regionLabel) {
+          const count = countCoursesInRegion(regionLabel);
+          const row = el('div', { class: 'region-row' });
+          const info = el('div');
+          info.appendChild(el('div', { class: 'rr-name' }, [regionLabel]));
+          info.appendChild(el('div', { class: 'rr-count' }, [
+            count === 0 ? 'keine Plaetze geladen' : (count + ' Plaetze geladen')
+          ]));
+          row.appendChild(info);
+          const btn = el('button', { class: 'btn', type: 'button' }, ['Importieren']);
+          btn.addEventListener('click', function () {
+            triggerCourseDbImport(regionLabel);
+          });
+          row.appendChild(btn);
+          groupWrap.appendChild(row);
+        });
+        padded.appendChild(groupWrap);
+      });
+      const ownBtn = el('button', { class: 'btn btn-block', type: 'button', style: 'margin-top:6px;' }, ['Eigene Region importieren …']);
+      ownBtn.addEventListener('click', openCustomRegionImportDialog);
+      padded.appendChild(ownBtn);
 
       // Bluetooth
       padded.appendChild(el('div', { class: 'section-title', style: 'margin-top:14px;' }, ['Geraete-Sync (Bluetooth)']));
@@ -2379,6 +3912,36 @@
       scroll.appendChild(padded);
       root.appendChild(scroll);
     }
+    // v1.1: custom region import dialog
+    function openCustomRegionImportDialog() {
+      const content = el('div');
+      content.appendChild(el('div', { class: 'overlay-header' }, ['Eigene Region importieren']));
+      const body = el('div', { class: 'overlay-body' });
+      const f1 = el('label', { class: 'field' });
+      f1.appendChild(el('span', { class: 'label' }, ['Region-Label (z.B. "Mallorca")']));
+      const labelIn = el('input', { type: 'text' });
+      f1.appendChild(labelIn);
+      body.appendChild(f1);
+      body.appendChild(el('div', { class: 'small' }, [
+        'Waehle anschliessend eine Course-JSON-Datei. Alle darin enthaltenen Plaetze erhalten dieses Region-Label.'
+      ]));
+      content.appendChild(body);
+      const actions = el('div', { class: 'overlay-actions' });
+      const cancel = el('button', { class: 'btn', type: 'button' }, ['Abbrechen']);
+      cancel.addEventListener('click', closeOverlay);
+      const pick = el('button', { class: 'btn btn-primary', type: 'button' }, ['Datei waehlen']);
+      pick.addEventListener('click', function () {
+        const label = labelIn.value.trim();
+        if (!label) { showToast('Bitte Region-Label eingeben.'); return; }
+        closeOverlay();
+        triggerCourseDbImport(label);
+      });
+      actions.appendChild(cancel);
+      actions.appendChild(pick);
+      content.appendChild(actions);
+      openDialogContent(content);
+    }
+
     function openEditPlayerSheet(playerId) {
       const p = state.appState.players.find(function (x) { return x.id === playerId; });
       if (!p) return;
@@ -2501,6 +4064,121 @@
     }
 
     // ============================================================
+    // History screen (v1.3)
+    // ============================================================
+    // Build a sorted snapshot of all saved rounds for the history table.
+    // Rounds are sorted by updatedAt desc (fallback createdAt / date).
+    function getHistoryRounds() {
+      const list = (state.appState.rounds || []).slice();
+      list.sort(function (a, b) {
+        const ta = new Date(a.updatedAt || a.createdAt || a.date || 0).getTime();
+        const tb = new Date(b.updatedAt || b.createdAt || b.date || 0).getTime();
+        return tb - ta;
+      });
+      return list;
+    }
+    function renderHistory() {
+      const root = document.getElementById('screen-history');
+      root.innerHTML = '';
+      const scroll = el('div', { class: 'scroll-area' });
+      const wrap = el('div', { class: 'history-wrap' });
+
+      // Open-rounds banner (open rounds never appear in history table).
+      const openCount = getOpenRounds().length;
+      if (openCount > 0) {
+        const draftBanner = el('div', {
+          class: 'history-banner',
+          style: 'cursor:pointer; border-radius:8px; margin-bottom:10px; padding:8px 12px; border:1px solid #2F6B3A; background:#EFF4EF;'
+        });
+        draftBanner.appendChild(el('strong', {}, [
+          openCount === 1 ? 'Laufende Runde vorhanden' : (openCount + ' offene Spiele vorhanden')
+        ]));
+        draftBanner.appendChild(document.createTextNode(' — siehe Setup, um fortzufahren.'));
+        draftBanner.addEventListener('click', function () {
+          setScreen('setup');
+        });
+        wrap.appendChild(draftBanner);
+      }
+
+      wrap.appendChild(el('div', { class: 'history-title' }, ['Gespeicherte Runden']));
+      wrap.appendChild(el('div', { class: 'history-subtitle' }, [
+        'Tippe auf eine Zeile, um die gespeicherte Turnierkarte zu oeffnen.'
+      ]));
+
+      const rounds = getHistoryRounds();
+      if (rounds.length === 0) {
+        wrap.appendChild(el('div', { class: 'history-empty' }, [
+          'Noch keine gespeicherten Runden.'
+        ]));
+        scroll.appendChild(wrap);
+        root.appendChild(scroll);
+        return;
+      }
+
+      const table = el('table', { class: 'history-table' });
+      const thead = el('thead');
+      const trH = el('tr');
+      trH.appendChild(el('th', {}, ['Datum']));
+      trH.appendChild(el('th', {}, ['Platz / Spieler']));
+      trH.appendChild(el('th', { class: 'history-col-actions' }, ['']));
+      thead.appendChild(trH);
+      table.appendChild(thead);
+
+      const tbody = el('tbody');
+      rounds.forEach(function (r) {
+        const tr = el('tr', { class: 'history-row', 'data-round-id': r.id });
+        // Datum cell (YYYY.DD.MM + small time)
+        const tdDate = el('td');
+        tdDate.appendChild(el('div', { class: 'h-date' }, [formatDate(r.date || r.createdAt)]));
+        const time = formatTime(r.date || r.createdAt);
+        if (time) tdDate.appendChild(el('div', { class: 'h-time' }, [time + ' Uhr']));
+        tr.appendChild(tdDate);
+
+        // Platz + Spieler cell
+        const tdMain = el('td');
+        const courseLine = el('div', { class: 'h-course' });
+        courseLine.appendChild(document.createTextNode(r.courseName || 'Unbekannter Platz'));
+        const badge = el('span', {
+          class: 'h-status-badge ' + (r.status === 'finished' ? 'finished' : 'active')
+        }, [r.status === 'finished' ? 'Abgeschl.' : 'Laufend']);
+        courseLine.appendChild(badge);
+        tdMain.appendChild(courseLine);
+        const names = (r.playersInRound || []).map(function (p) { return p.displayName; }).join(', ');
+        if (names) tdMain.appendChild(el('div', { class: 'h-players' }, [names]));
+        tr.appendChild(tdMain);
+
+        // Delete button
+        const tdAct = el('td', { class: 'history-col-actions' });
+        const delBtn = el('button', {
+          class: 'history-del', type: 'button',
+          'aria-label': 'Runde loeschen', title: 'Runde loeschen'
+        }, ['🗑']);
+        delBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          openDialog({
+            title: 'Gespeicherte Runde loeschen?',
+            message: 'Die Runde vom ' + formatDate(r.date || r.createdAt) +
+                     ' (' + (r.courseName || '') + ') wird entfernt. Diese Aktion kann nicht rueckgaengig gemacht werden.',
+            confirmText: 'Loeschen',
+            confirmKind: 'danger',
+            onConfirm: function () { deleteSavedRound(r.id); }
+          });
+        });
+        tdAct.appendChild(delBtn);
+        tr.appendChild(tdAct);
+
+        // Row click opens the saved round's scorecard view
+        tr.addEventListener('click', function () { openSavedRound(r.id); });
+
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      wrap.appendChild(table);
+      scroll.appendChild(wrap);
+      root.appendChild(scroll);
+    }
+
+    // ============================================================
     // Overlay (modal & sheet)
     // ============================================================
     const overlayRoot = document.getElementById('overlay-root');
@@ -2588,13 +4266,26 @@
       }
       return node;
     }
+    // Date format jjjj.tt.mm (yyyy.dd.mm) as requested
     function formatDate(iso) {
       try {
         const d = new Date(iso);
+        if (isNaN(d.getTime())) return '';
         const dd = String(d.getDate()).padStart(2, '0');
         const mm = String(d.getMonth() + 1).padStart(2, '0');
         const yy = d.getFullYear();
-        return dd + '.' + mm + '.' + yy;
+        return yy + '.' + dd + '.' + mm;
+      } catch (e) {
+        return '';
+      }
+    }
+    function formatTime(iso) {
+      try {
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return '';
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mi = String(d.getMinutes()).padStart(2, '0');
+        return hh + ':' + mi;
       } catch (e) {
         return '';
       }
@@ -2604,16 +4295,17 @@
     // Master render & init
     // ============================================================
     function renderAll() {
-      // toggle screen visibility
-      ['setup', 'play', 'results', 'data'].forEach(function (name) {
-        const el = document.getElementById('screen-' + name);
-        el.classList.toggle('is-active', name === state.activeScreen);
+      // toggle screen visibility (local var 'screenEl' avoids shadowing 'el' helper)
+      ['setup', 'play', 'results', 'history', 'data'].forEach(function (name) {
+        const screenEl = document.getElementById('screen-' + name);
+        screenEl.classList.toggle('is-active', name === state.activeScreen);
       });
       renderTopbar();
       renderBottomNav();
       if (state.activeScreen === 'setup') renderSetup();
       else if (state.activeScreen === 'play') renderPlay();
       else if (state.activeScreen === 'results') renderResults();
+      else if (state.activeScreen === 'history') renderHistory();
       else if (state.activeScreen === 'data') renderData();
     }
 
@@ -2637,34 +4329,77 @@
           closeOverlay();
         }
       });
+      // Flush pending autosave before unload / tab hide so no input is lost.
+      window.addEventListener('beforeunload', function () { flushAutosave(); });
+      window.addEventListener('pagehide', function () { flushAutosave(); });
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'hidden') flushAutosave();
+      });
     }
 
     function init() {
       loadState();
-      // Restore active round
-      if (state.appState.lastActiveRoundId) {
-        const r = state.appState.rounds.find(function (x) { return x.id === state.appState.lastActiveRoundId; });
-        if (r) state.activeRound = r;
-      }
-      // Decide initial screen
-      if (state.activeRound && state.activeRound.status !== 'finished') {
-        state.activeScreen = 'play';
-        state.segment = 'live';
-      } else if (state.activeRound && state.activeRound.status === 'finished') {
-        state.activeScreen = 'results';
-      } else {
-        state.activeScreen = 'setup';
-        state.setupDraft = newSetupDraft();
-        // pre-add first sample player for convenience on first launch
-        if (state.appState.players.length > 0 && state.setupDraft.players.length === 0) {
-          // do not auto-add; user picks
-        }
-      }
+      // App start: always land on Setup. Open rounds are shown as a list on the
+      // Setup screen (the "Startseite"), so the user explicitly picks what to
+      // resume — no silent restore, no single-draft dialog.
+      state.activeScreen = 'setup';
+      state.setupDraft = newSetupDraft();
       bindGlobalEvents();
       renderAll();
     }
+    // Show a dedicated restore prompt with meaningful context about the draft.
+    function showDraftRestoreDialog(draft) {
+      const course = getCourseForRound(draft);
+      const courseName = draft.courseName || (course ? course.name : 'Unbekannter Platz');
+      const dateStr = formatDate(draft.date || draft.createdAt);
+      const names = (draft.playersInRound || []).map(function (p) { return p.displayName; }).join(', ');
+      const savedDate = formatDate(draft.updatedAt);
+      const savedTime = formatTime(draft.updatedAt);
+      const holeInfo = draft.currentHole ? ('Loch ' + draft.currentHole) : '';
 
-    document.addEventListener('DOMContentLoaded', init);
+      const content = el('div');
+      content.appendChild(el('div', { class: 'overlay-header' }, ['Laufende Runde gefunden']));
+      const body = el('div', { class: 'overlay-body' });
+      const info = el('div', { style: 'display:flex; flex-direction:column; gap:4px; font-size:13px;' });
+      info.appendChild(el('div', {}, [el('strong', {}, ['Platz: ']), courseName]));
+      info.appendChild(el('div', {}, [el('strong', {}, ['Datum: ']), dateStr]));
+      if (names) info.appendChild(el('div', {}, [el('strong', {}, ['Spieler: ']), names]));
+      if (holeInfo) info.appendChild(el('div', {}, [el('strong', {}, ['Stand: ']), holeInfo]));
+      info.appendChild(el('div', { class: 'small', style: 'margin-top:6px;' }, [
+        'Zuletzt gespeichert: ' + savedDate + (savedTime ? ' um ' + savedTime + ' Uhr' : '')
+      ]));
+      body.appendChild(info);
+      content.appendChild(body);
+
+      const actions = el('div', { class: 'overlay-actions' });
+      const discardBtn = el('button', { class: 'btn btn-danger', type: 'button' }, ['Verwerfen']);
+      discardBtn.addEventListener('click', function () {
+        closeOverlay();
+        discardDraft();
+        showToast('Entwurf verworfen');
+        renderAll();
+      });
+      const restoreBtn = el('button', { class: 'btn btn-primary', type: 'button' }, ['Wiederherstellen']);
+      restoreBtn.addEventListener('click', function () {
+        closeOverlay();
+        state.activeRound = draft;
+        state.segment = 'live';
+        setScreen('play');
+      });
+      actions.appendChild(discardBtn);
+      actions.appendChild(restoreBtn);
+      content.appendChild(actions);
+      openDialogContent(content);
+    }
+
+    // Script is at end of <body>, so DOM is typically already parsed here.
+    // Guard against DOMContentLoaded having already fired (in which case the
+    // listener would never run).
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   })();
   </script>
 </body>
