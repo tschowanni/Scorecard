@@ -4,10 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#2F6B3A" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Turnierkarte" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <title>Turnierkarte Pur — Live &amp; Karte</title>
-  <!-- Inline SVG favicon (golf flag + ball on green) -->
+
+  <!-- 1) Browser-Tab-Favicon: SVG-Data-URI (funktioniert ueberall im Tab) -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%232F6B3A'/><path d='M0 50 Q16 44 32 46 Q48 48 64 50 L64 64 L0 64 Z' fill='%231F4A28'/><rect x='39' y='12' width='2.5' height='40' rx='1' fill='%23FFFFFF'/><path d='M41.5 13 L58 18 L41.5 23 Z' fill='%23DA7101'/><circle cx='20' cy='50' r='6.5' fill='%23FFFFFF'/><circle cx='18' cy='48.5' r='0.8' fill='%23BFBDB4'/><circle cx='22' cy='48.5' r='0.8' fill='%23BFBDB4'/><circle cx='20' cy='52' r='0.8' fill='%23BFBDB4'/><circle cx='17' cy='51' r='0.8' fill='%23BFBDB4'/><circle cx='23' cy='51' r='0.8' fill='%23BFBDB4'/></svg>" />
-  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%232F6B3A'/><path d='M0 50 Q16 44 32 46 Q48 48 64 50 L64 64 L0 64 Z' fill='%231F4A28'/><rect x='39' y='12' width='2.5' height='40' rx='1' fill='%23FFFFFF'/><path d='M41.5 13 L58 18 L41.5 23 Z' fill='%23DA7101'/><circle cx='20' cy='50' r='6.5' fill='%23FFFFFF'/></svg>" />
+  <!-- 2) iOS-Home-Screen: echtes PNG erforderlich (Safari akzeptiert kein SVG-Data-URI dafuer) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png" />
+  <!-- 3) Fallback-Favicon als PNG (alte Browser) -->
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+  <!-- 4) Web-App-Manifest fuer Android-Chrome / PWA-Behandlung -->
+  <link rel="manifest" href="manifest.json" />
   <style>
     /* ---------- Reset & base ---------- */
     *, *::before, *::after { box-sizing: border-box; }
@@ -1252,15 +1263,28 @@
     }
     .h-status-badge.finished { background: #DDE8DF; color: #2F6B3A; }
     .h-status-badge.active   { background: #FCE7C8; color: #8B5A20; }
-    .history-col-actions { width: 40px; text-align: right; }
+    .history-col-actions { width: 96px; text-align: right; white-space: nowrap; }
     .history-del {
       border: 0;
       background: transparent;
       color: #B23A3A;
-      padding: 6px;
+      padding: 6px 4px;
       font-size: 14px;
       cursor: pointer;
     }
+    .history-del.history-share { color: #2F6B3A; }
+    .history-del.history-share-native {
+      color: #3F6FAE;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .history-actions-top {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+    .history-actions-top .btn { min-height: 36px; font-size: 12px; }
     .history-empty {
       padding: 30px 20px;
       text-align: center;
@@ -3905,6 +3929,13 @@
       iBtn.addEventListener('click', triggerImport);
       ie.appendChild(eBtn);
       ie.appendChild(iBtn);
+      // v1.7: Einzelrunde importieren (single-round sharing between devices)
+      const srBtn = el('button', { class: 'btn btn-block', type: 'button' }, ['Einzelrunde importieren']);
+      srBtn.addEventListener('click', triggerSingleRoundImport);
+      ie.appendChild(srBtn);
+      ie.appendChild(el('div', { class: 'small' }, [
+        'Einzelne Runden koennen in der History exportiert und auf einem anderen Geraet hier importiert werden.'
+      ]));
       padded.appendChild(ie);
 
       // v1.1: Course-Datenbank (nur Plaetze)
@@ -4129,6 +4160,263 @@
     }
 
     // ============================================================
+    // Single-round export / import (v1.7)
+    // Device-to-device sharing of individual finished rounds, without cloud.
+    // ============================================================
+    const SINGLE_ROUND_SCHEMA_VERSION = 1;
+
+    // Filename-safe short slug for course name (Muenchen-Riedhof -> muenchen-riedhof)
+    function slugifyCourseName(name) {
+      const s = (name || 'runde').toString().toLowerCase()
+        .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      return (s || 'runde').slice(0, 40);
+    }
+
+    // Build a self-contained single-round export payload (deep clone of the round).
+    function buildSingleRoundPayload(round) {
+      return {
+        schemaVersion: SINGLE_ROUND_SCHEMA_VERSION,
+        exportType: 'single-round',
+        exportedAt: new Date().toISOString(),
+        round: JSON.parse(JSON.stringify(round))
+      };
+    }
+
+    // Export one round to a downloadable .json file.
+    // Filename pattern: jjjj.tt.mm_<slug>_round.json
+    function exportSingleRound(roundId) {
+      const round = (state.appState.rounds || []).find(function (r) { return r.id === roundId; })
+        || getOpenRounds().find(function (r) { return r.id === roundId; });
+      if (!round) { showToast('Runde nicht gefunden.'); return; }
+      const payload = buildSingleRoundPayload(round);
+      const data = JSON.stringify(payload, null, 2);
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const stamp = formatDateFile(round.date || round.createdAt);
+      const slug = slugifyCourseName(round.courseName);
+      a.href = url;
+      a.download = stamp + '_' + slug + '_round.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+      showToast('Runde exportiert');
+    }
+
+    // Defensive validation of the single-round export structure.
+    // Returns { ok: true, round } on success or { ok: false, reason }.
+    function validateSingleRoundPayload(parsed) {
+      if (!parsed || typeof parsed !== 'object') return { ok: false, reason: 'Ungueltige Datei' };
+      if (parsed.exportType !== 'single-round') return { ok: false, reason: 'Kein Einzelrunden-Format' };
+      if (parsed.schemaVersion !== SINGLE_ROUND_SCHEMA_VERSION) {
+        return { ok: false, reason: 'Inkompatible Schema-Version (erwartet ' + SINGLE_ROUND_SCHEMA_VERSION + ')' };
+      }
+      const r = parsed.round;
+      if (!r || typeof r !== 'object') return { ok: false, reason: 'Runde fehlt' };
+      if (!r.id) return { ok: false, reason: 'Runde ohne ID' };
+      if (!r.courseId) return { ok: false, reason: 'Runde ohne Kurs-Referenz' };
+      if (!Array.isArray(r.playersInRound) || r.playersInRound.length === 0) {
+        return { ok: false, reason: 'Runde ohne Spieler' };
+      }
+      return { ok: true, round: r };
+    }
+
+    // Fill in any fields an imported round may be missing, purely defensively.
+    function ensureImportedRoundShape(r) {
+      if (!r.courseLayoutId) r.courseLayoutId = 'standard';
+      if (!Array.isArray(r.holeNumbers) || r.holeNumbers.length === 0) {
+        const n = (r.courseSnapshot && r.courseSnapshot.holeCount) || 18;
+        const arr = [];
+        for (let i = 1; i <= n; i++) arr.push(i);
+        r.holeNumbers = arr;
+      }
+      if (!r.createdAt) r.createdAt = r.date || new Date().toISOString();
+      if (!r.updatedAt) r.updatedAt = r.createdAt;
+      if (!r.courseName) r.courseName = (r.courseSnapshot && r.courseSnapshot.name) || 'Unbekannter Platz';
+      if (!Array.isArray(r.holeScores)) r.holeScores = [];
+      if (typeof r.currentHole !== 'number' || r.currentHole < 1) r.currentHole = 1;
+      // Imported rounds are archival — always finished in the receiving device.
+      r.status = 'finished';
+      return r;
+    }
+
+    // Shallow equality of two rounds for duplicate detection.
+    function roundsLookIdentical(a, b) {
+      try {
+        return JSON.stringify(a) === JSON.stringify(b);
+      } catch (e) { return false; }
+    }
+
+    function importSingleRoundFromFile(file) {
+      const reader = new FileReader();
+      reader.onload = function () {
+        let parsed;
+        try {
+          parsed = JSON.parse(String(reader.result));
+        } catch (e) {
+          openDialog({
+            title: 'Import fehlgeschlagen',
+            message: 'Die Datei enthaelt kein gueltiges JSON.',
+            confirmText: 'OK', hideCancel: true
+          });
+          return;
+        }
+        const check = validateSingleRoundPayload(parsed);
+        if (!check.ok) {
+          openDialog({
+            title: 'Import fehlgeschlagen',
+            message: 'Die Datei ist keine gueltige Einzelrunde: ' + check.reason + '.',
+            confirmText: 'OK', hideCancel: true
+          });
+          return;
+        }
+        const r = ensureImportedRoundShape(check.round);
+
+        // Duplicate handling: same id already in history?
+        const existing = (state.appState.rounds || []).find(function (x) { return x.id === r.id; });
+        if (existing) {
+          if (roundsLookIdentical(existing, r)) {
+            openDialog({
+              title: 'Bereits importiert',
+              message: 'Diese Runde ist bereits in deiner History vorhanden.',
+              confirmText: 'OK', hideCancel: true
+            });
+            return;
+          }
+          openDialog({
+            title: 'Runde bereits vorhanden',
+            message: 'Eine Runde mit derselben ID existiert bereits, aber die Inhalte unterscheiden sich. Soll sie durch die importierte Version ersetzt werden?',
+            confirmText: 'Ersetzen',
+            confirmKind: 'danger',
+            onConfirm: function () {
+              const idx = state.appState.rounds.findIndex(function (x) { return x.id === r.id; });
+              if (idx >= 0) state.appState.rounds[idx] = r;
+              saveState();
+              renderHistory();
+              showToast('Runde ersetzt');
+            }
+          });
+          return;
+        }
+        // Not a duplicate -> show preview dialog and append on confirm.
+        showSingleRoundImportPreview(r);
+      };
+      reader.onerror = function () {
+        openDialog({
+          title: 'Import fehlgeschlagen',
+          message: 'Datei konnte nicht gelesen werden.',
+          confirmText: 'OK', hideCancel: true
+        });
+      };
+      reader.readAsText(file);
+    }
+
+    function showSingleRoundImportPreview(r) {
+      const content = el('div');
+      content.appendChild(el('div', { class: 'overlay-header' }, ['Runde importieren?']));
+      const body = el('div', { class: 'overlay-body' });
+      const info = el('div', { style: 'display:flex; flex-direction:column; gap:4px; font-size:13px;' });
+      info.appendChild(el('div', {}, [el('strong', {}, ['Platz: ']), r.courseName || '-']));
+      info.appendChild(el('div', {}, [el('strong', {}, ['Datum: ']), formatDate(r.date || r.createdAt)]));
+      const names = (r.playersInRound || []).map(function (p) { return p.displayName; }).join(', ');
+      info.appendChild(el('div', {}, [el('strong', {}, ['Spieler: ']), names || '-']));
+      info.appendChild(el('div', {}, [el('strong', {}, ['Loecher: ']), String((r.holeNumbers || []).length)]));
+      body.appendChild(info);
+      body.appendChild(el('div', { class: 'small', style: 'margin-top:6px;' }, [
+        'Die Runde wird in deine History uebernommen (nur lesbar).'
+      ]));
+      content.appendChild(body);
+      const actions = el('div', { class: 'overlay-actions' });
+      const cancel = el('button', { class: 'btn', type: 'button' }, ['Abbrechen']);
+      cancel.addEventListener('click', closeOverlay);
+      const ok = el('button', { class: 'btn btn-primary', type: 'button' }, ['Importieren']);
+      ok.addEventListener('click', function () {
+        closeOverlay();
+        state.appState.rounds.push(r);
+        saveState();
+        renderHistory();
+        showToast('Runde importiert');
+      });
+      actions.appendChild(cancel);
+      actions.appendChild(ok);
+      content.appendChild(actions);
+      openDialogContent(content);
+    }
+
+    function triggerSingleRoundImport() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json,.json';
+      input.addEventListener('change', function () {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        importSingleRoundFromFile(file);
+      });
+      input.click();
+    }
+
+    // Feature detection for Web Share API with file support.
+    // Cached: the probe creates a tiny File to test navigator.canShare.
+    let __webShareFilesSupported = null;
+    function canShareFiles() {
+      if (__webShareFilesSupported !== null) return __webShareFilesSupported;
+      try {
+        if (!navigator.share || !navigator.canShare || typeof File === 'undefined') {
+          __webShareFilesSupported = false;
+          return false;
+        }
+        const probe = new File([''], 'probe.json', { type: 'application/json' });
+        __webShareFilesSupported = !!navigator.canShare({ files: [probe] });
+      } catch (e) {
+        __webShareFilesSupported = false;
+      }
+      return __webShareFilesSupported;
+    }
+
+    // Share a single round via the native OS share sheet (Web Share API L2).
+    // Falls back to a regular download if the share flow is unavailable or fails.
+    function shareSingleRound(roundId) {
+      const round = (state.appState.rounds || []).find(function (r) { return r.id === roundId; })
+        || getOpenRounds().find(function (r) { return r.id === roundId; });
+      if (!round) { showToast('Runde nicht gefunden.'); return; }
+      const payload = buildSingleRoundPayload(round);
+      const data = JSON.stringify(payload, null, 2);
+      const stamp = formatDateFile(round.date || round.createdAt);
+      const slug = slugifyCourseName(round.courseName);
+      const filename = stamp + '_' + slug + '_round.json';
+
+      if (!canShareFiles()) {
+        // No Web Share -> fallback to download.
+        exportSingleRound(roundId);
+        return;
+      }
+      try {
+        const file = new File([data], filename, { type: 'application/json' });
+        if (!navigator.canShare({ files: [file] })) {
+          exportSingleRound(roundId);
+          return;
+        }
+        const shareData = {
+          files: [file],
+          title: 'Golf-Runde teilen',
+          text: 'Runde vom ' + formatDate(round.date || round.createdAt) +
+                ' · ' + (round.courseName || '')
+        };
+        navigator.share(shareData).catch(function (err) {
+          // AbortError = user cancelled the native share sheet -> silent noop.
+          if (err && err.name === 'AbortError') return;
+          // Any other share failure -> fall back to a plain download.
+          exportSingleRound(roundId);
+        });
+      } catch (e) {
+        exportSingleRound(roundId);
+      }
+    }
+
+    // ============================================================
     // History screen (v1.3)
     // ============================================================
     // Build a sorted snapshot of all saved rounds for the history table.
@@ -4169,6 +4457,13 @@
       wrap.appendChild(el('div', { class: 'history-subtitle' }, [
         'Tippe auf eine Zeile, um die gespeicherte Turnierkarte zu oeffnen.'
       ]));
+
+      // v1.7: Single-round import action (device-to-device sharing)
+      const importRow = el('div', { class: 'history-actions-top' });
+      const importBtn = el('button', { class: 'btn', type: 'button' }, ['Einzelrunde importieren']);
+      importBtn.addEventListener('click', triggerSingleRoundImport);
+      importRow.appendChild(importBtn);
+      wrap.appendChild(importRow);
 
       const rounds = getHistoryRounds();
       if (rounds.length === 0) {
@@ -4212,8 +4507,30 @@
         if (names) tdMain.appendChild(el('div', { class: 'h-players' }, [names]));
         tr.appendChild(tdMain);
 
-        // Delete button
+        // Action buttons: Share (via Web Share API) + Download + Delete
         const tdAct = el('td', { class: 'history-col-actions' });
+        // Share button: only shown when Web Share with files is supported.
+        // On iOS Safari / Android Chrome this opens the native share sheet.
+        if (canShareFiles()) {
+          const shareBtn = el('button', {
+            class: 'history-del history-share-native', type: 'button',
+            'aria-label': 'Runde teilen', title: 'Runde teilen (Messenger, Mail, AirDrop …)'
+          }, ['⤴']);
+          shareBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            shareSingleRound(r.id);
+          });
+          tdAct.appendChild(shareBtn);
+        }
+        const exportBtn = el('button', {
+          class: 'history-del history-share', type: 'button',
+          'aria-label': 'Runde als Datei exportieren', title: 'Runde als Datei exportieren'
+        }, ['⤓']);
+        exportBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          exportSingleRound(r.id);
+        });
+        tdAct.appendChild(exportBtn);
         const delBtn = el('button', {
           class: 'history-del', type: 'button',
           'aria-label': 'Runde loeschen', title: 'Runde loeschen'
