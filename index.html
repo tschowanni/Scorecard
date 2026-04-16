@@ -11,7 +11,9 @@
   <style>
     /* ---------- Reset & base ---------- */
     *, *::before, *::after { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; height: 100%; }
+    /* Lock page to viewport so the bottom nav can never scroll off screen.
+       Inner .scroll-area elements do the actual scrolling. */
+    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       font-size: 15px;
@@ -38,8 +40,12 @@
     #app {
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
-      min-height: 100dvh;
+      /* Fixed viewport height — prevents body overflow and keeps bottom nav anchored.
+         100dvh handles mobile browser chrome (address bar collapse). Fallback: 100vh. */
+      height: 100vh;
+      height: 100dvh;
+      max-height: 100dvh;
+      overflow: hidden;
       max-width: 720px;
       margin: 0 auto;
       background: #FAFAF7;
@@ -97,12 +103,16 @@
 
     /* ---------- Bottom navigation ---------- */
     #bottomnav {
+      /* Permanently pinned: flex-shrink locked + safe-area padding keeps the
+         bar visible under browser chrome / iOS home indicator. */
       flex: 0 0 auto;
+      flex-shrink: 0;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       border-top: 1px solid #D8D6CF;
       background: #FAFAF7;
       padding-bottom: env(safe-area-inset-bottom, 0);
+      z-index: 50;
     }
     #bottomnav button {
       min-height: 56px;
@@ -431,12 +441,12 @@
     }
     .play-pane.is-active { display: flex; }
 
-    /* Live pane */
+    /* Live pane — compact but prominent hole header */
     .hole-header {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      padding: 10px 14px;
+      padding: 6px 12px;
       border-bottom: 1px solid #D8D6CF;
       background: #FFFFFF;
       position: sticky;
@@ -444,30 +454,34 @@
       z-index: 5;
     }
     .hole-header .hole-num {
-      font-size: 26px;
-      font-weight: 700;
+      font-size: 22px;
+      font-weight: 800;
       letter-spacing: 0.02em;
     }
     .hole-header .hole-meta {
       font-size: 13px;
-      color: #5A5A5A;
+      font-weight: 600;
+      color: #1A1A1A;
       display: flex;
       gap: 12px;
       font-variant-numeric: tabular-nums;
     }
+    /* v1.6 density: compact enough to fit 4 player blocks on ~6.5" screens
+       without vertical scroll while keeping score dominant. */
     .player-blocks {
       flex: 1 1 auto;
       overflow-y: auto;
-      padding: 10px 14px 12px;
+      padding: 6px 10px 8px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 6px;
     }
     .player-block {
       border: 1px solid #D8D6CF;
-      border-radius: 10px;
+      border-left-width: 4px;
+      border-radius: 8px;
       background: #FFFFFF;
-      padding: 10px 12px;
+      padding: 6px 10px 7px;
     }
     .player-block .pb-row1 {
       display: flex;
@@ -475,40 +489,42 @@
       gap: 8px;
     }
     .player-block .pb-name {
-      font-weight: 600;
-      font-size: 16px;
+      font-weight: 700;
+      font-size: 15px;
       flex: 1 1 auto;
       min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      color: #1A1A1A;
     }
     .player-block .pb-hcp {
       color: #5A5A5A;
-      font-size: 12px;
+      font-size: 11px;
     }
     .player-block .pb-slash {
-      color: #444444;
-      font-size: 22px;
+      color: #B23A3A;
+      font-size: 20px;
+      font-weight: 700;
       letter-spacing: 1px;
       margin-left: 4px;
       font-variant-numeric: tabular-nums;
     }
     .player-block .pb-row2 {
       display: grid;
-      grid-template-columns: 56px 1fr 56px;
+      grid-template-columns: 52px 1fr 52px;
       align-items: center;
-      gap: 10px;
-      margin-top: 8px;
+      gap: 8px;
+      margin-top: 3px;
     }
     .player-block .stroke-btn {
-      width: 56px;
-      height: 56px;
+      width: 52px;
+      height: 52px;
       border-radius: 8px;
       border: 1px solid #D8D6CF;
       background: #FFFFFF;
-      font-size: 28px;
-      font-weight: 600;
+      font-size: 26px;
+      font-weight: 700;
       color: #1A1A1A;
       display: inline-flex;
       align-items: center;
@@ -520,35 +536,75 @@
       border-color: #2F6B3A;
     }
     .player-block .stroke-btn:disabled { color: #C7C7C7; background: #F4F2EC; }
+    /* Score is the visual center — markedly larger and heavier than metrics */
     .player-block .stroke-value {
       text-align: center;
-      font-size: 32px;
-      font-weight: 700;
+      font-size: 40px;
+      font-weight: 800;
+      line-height: 1;
       font-variant-numeric: tabular-nums;
       color: #1A1A1A;
     }
     .player-block .stroke-value.is-empty { color: #BBBBBB; font-weight: 400; }
     .player-block .pb-row3 {
       display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-      font-size: 12px;
+      gap: 10px;
+      flex-wrap: nowrap;
+      justify-content: space-between;
+      margin-top: 4px;
+      font-size: 11px;
       color: #5A5A5A;
       font-variant-numeric: tabular-nums;
+      line-height: 1.15;
     }
-    .player-block .pb-row3 strong { color: #1A1A1A; font-weight: 600; }
+    .player-block .pb-row3 > span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .player-block .pb-row3 strong {
+      color: #1A1A1A;
+      font-weight: 700;
+      font-size: 14px;
+      margin-left: 2px;
+    }
+
+    /* Dezente Spielerveredelung:
+       - zart getoentes Card-Background (ca. 3% Saettigung)
+       - 4px Akzentstrich links als Player-Color-Code
+       - pb-row1 bekommt eine feine farbige Unterkante, sodass Name+HCP wie
+         eine klassische Titelzeile wirkt, ohne in eine bunte Flaeche zu kippen
+       - Spielername in gedeckter Akzentfarbe, Zahlen/Werte bleiben Anthrazit */
+    .player-block .pb-row1 {
+      padding-bottom: 3px;
+      margin-bottom: 3px;
+      border-bottom: 1px solid #E2E0D9;
+    }
+    .player-block.p-1 { background: #FFFBEE; border-left-color: #B8922B; }
+    .player-block.p-2 { background: #F3F6FA; border-left-color: #345E96; }
+    .player-block.p-3 { background: #F2F6F1; border-left-color: #456C3A; }
+    .player-block.p-4 { background: #FAF1F3; border-left-color: #91405A; }
+    .player-block.p-1 .pb-row1 { border-bottom-color: #E8D9A8; }
+    .player-block.p-2 .pb-row1 { border-bottom-color: #C0CFE1; }
+    .player-block.p-3 .pb-row1 { border-bottom-color: #C3D3BE; }
+    .player-block.p-4 .pb-row1 { border-bottom-color: #E0C3CC; }
+    .player-block.p-1 .pb-name { color: #5C4100; }
+    .player-block.p-2 .pb-name { color: #1B3558; }
+    .player-block.p-3 .pb-name { color: #24481E; }
+    .player-block.p-4 .pb-name { color: #631B33; }
+    /* Leichter Tap-Highlight beim aktiven Block-Bereich (nur wenn Karte angetippt) */
+    .player-block:active { filter: brightness(0.99); }
 
     .hole-nav {
       flex: 0 0 auto;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      padding: 8px 14px 12px;
+      padding: 6px 12px 8px;
       border-top: 1px solid #D8D6CF;
       background: #FAFAF7;
     }
-    .hole-nav .btn { min-height: 56px; font-size: 15px; font-weight: 600; }
+    .hole-nav .btn { min-height: 48px; font-size: 14px; font-weight: 700; }
 
     /* Card pane */
     /* ---------- Tournament Scorecard (paper-style: holes = rows, players = column blocks) ---------- */
@@ -1838,9 +1894,10 @@
       const blob = new Blob([data], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      const stamp = new Date().toISOString().slice(0, 10);
+      // Backup filenames: yyyy.dd.mm
+      const stamp = formatDateFile();
       a.href = url;
-      a.download = 'courses-export-' + stamp + '.json';
+      a.download = stamp + '_courses-backup.json';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -1964,9 +2021,10 @@
       const blob = new Blob([data], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      const stamp = new Date().toISOString().slice(0, 10);
+      // Backup filenames: yyyy.dd.mm
+      const stamp = formatDateFile();
       a.href = url;
-      a.download = 'scorecard-export-' + stamp + '.json';
+      a.download = stamp + '_scorecard-backup.json';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -3372,7 +3430,12 @@
       pane.appendChild(nav);
     }
     function renderPlayerBlock(round, course, hole, pir, idx) {
-      const block = el('div', { class: 'player-block', 'data-player-idx': String(idx) });
+      // Subtle per-player color accent (idx 0..3 -> p-1..p-4, cycles for 5+)
+      const colorClass = 'p-' + ((idx % 4) + 1);
+      const block = el('div', {
+        class: 'player-block ' + colorClass,
+        'data-player-idx': String(idx)
+      });
       const given = pir.strokesPerHole[hole.holeNumber - 1] || 0;
       const strokes = getStrokesForPlayerHole(round, idx, hole.holeNumber);
       const totals = computeTotals(round, idx);
@@ -3429,13 +3492,15 @@
       row2.appendChild(plus);
       block.appendChild(row2);
 
+      // Row 3: compact metrics — short labels so 4 items fit on one line
+      // even on 375px-wide devices without wrapping.
       const row3 = el('div', { class: 'pb-row3' });
       const stbl = strokes > 0 ? stablefordForHole(strokes, hole.par, given) : 0;
       const net = strokes > 0 ? (strokes - given) : 0;
-      row3.appendChild(el('span', {}, ['Stbf: ', el('strong', {}, [strokes > 0 ? String(stbl) : '—'])]));
-      row3.appendChild(el('span', {}, ['Net: ', el('strong', {}, [strokes > 0 ? String(net) : '—'])]));
-      row3.appendChild(el('span', {}, ['Total: ', el('strong', {}, [String(totals.grossTotal)]), totals.anyEntered ? (' (' + formatToPar(totals.toParGross) + ')') : '']));
-      row3.appendChild(el('span', {}, ['Stbf-Gesamt: ', el('strong', {}, [String(totals.stablefordTotal)])]));
+      row3.appendChild(el('span', {}, ['Stbl ', el('strong', {}, [strokes > 0 ? String(stbl) : '—'])]));
+      row3.appendChild(el('span', {}, ['Net ', el('strong', {}, [strokes > 0 ? String(net) : '—'])]));
+      row3.appendChild(el('span', {}, ['Tot ', el('strong', {}, [String(totals.grossTotal)])]));
+      row3.appendChild(el('span', {}, ['Σ ', el('strong', {}, [String(totals.stablefordTotal)])]));
       block.appendChild(row3);
 
       return block;
@@ -4266,7 +4331,7 @@
       }
       return node;
     }
-    // Date format jjjj.tt.mm (yyyy.dd.mm) as requested
+    // UI date: tt.mm.jjjj (dd.mm.yyyy)
     function formatDate(iso) {
       try {
         const d = new Date(iso);
@@ -4274,11 +4339,12 @@
         const dd = String(d.getDate()).padStart(2, '0');
         const mm = String(d.getMonth() + 1).padStart(2, '0');
         const yy = d.getFullYear();
-        return yy + '.' + dd + '.' + mm;
+        return dd + '.' + mm + '.' + yy;
       } catch (e) {
         return '';
       }
     }
+    // UI time: HH:MM
     function formatTime(iso) {
       try {
         const d = new Date(iso);
@@ -4286,6 +4352,19 @@
         const hh = String(d.getHours()).padStart(2, '0');
         const mi = String(d.getMinutes()).padStart(2, '0');
         return hh + ':' + mi;
+      } catch (e) {
+        return '';
+      }
+    }
+    // Filename date: jjjj.tt.mm (yyyy.dd.mm) for backups / exports
+    function formatDateFile(iso) {
+      try {
+        const d = iso ? new Date(iso) : new Date();
+        if (isNaN(d.getTime())) return '';
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yy = d.getFullYear();
+        return yy + '.' + dd + '.' + mm;
       } catch (e) {
         return '';
       }
