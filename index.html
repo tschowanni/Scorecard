@@ -30,7 +30,7 @@
       font-size: 15px;
       line-height: 1.35;
       color: #1A1A1A;
-      background: #FAFAF7;
+      background: #EAE4D8;
       -webkit-text-size-adjust: 100%;
       -webkit-tap-highlight-color: transparent;
     }
@@ -59,13 +59,13 @@
       overflow: hidden;
       max-width: 720px;
       margin: 0 auto;
-      background: #FAFAF7;
+      background: #EAE4D8;
     }
     #topbar {
       flex: 0 0 auto;
       padding: 10px 14px 8px;
       border-bottom: 1px solid #D8D6CF;
-      background: #FAFAF7;
+      background: #EAE4D8;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -121,7 +121,7 @@
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       border-top: 1px solid #D8D6CF;
-      background: #FAFAF7;
+      background: #EAE4D8;
       padding-bottom: env(safe-area-inset-bottom, 0);
       z-index: 50;
     }
@@ -136,7 +136,7 @@
       align-items: center;
       justify-content: center;
       gap: 2px;
-      color: #5A5A5A;
+      color: #746E63;
       font-size: 11px;
     }
     #bottomnav button:last-child { border-right: 0; }
@@ -161,12 +161,17 @@
       gap: 6px;
       min-height: 44px;
       padding: 8px 14px;
-      border: 1px solid #D8D6CF;
+      /* Warm-neutral card-like button: warmer border, sand-tinted surface */
+      border: 1px solid #C8C1B2;
       border-radius: 6px;
-      background: #FFFFFF;
+      background: #F7F3EA;
       color: #1A1A1A;
       font-size: 14px;
       font-weight: 500;
+    }
+    /* Ruhiges visuelles Feedback beim Tippen (keine Animation, keine Bewegung) */
+    .btn:active:not(:disabled):not(.is-disabled) {
+      background: #ECE5D8;
     }
     .btn:disabled, .btn.is-disabled {
       color: #BBBBBB;
@@ -209,14 +214,14 @@
     .label {
       display: block;
       font-size: 12px;
-      color: #5A5A5A;
+      color: #746E63;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin-bottom: 4px;
     }
     .info-line {
       font-size: 12px;
-      color: #5A5A5A;
+      color: #746E63;
     }
     .divider {
       height: 1px;
@@ -230,7 +235,7 @@
     .empty-state {
       padding: 24px 12px;
       text-align: center;
-      color: #5A5A5A;
+      color: #746E63;
       font-size: 13px;
     }
     .section-title {
@@ -238,7 +243,7 @@
       font-weight: 600;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      color: #5A5A5A;
+      color: #746E63;
       margin: 8px 0 6px;
     }
     .row {
@@ -262,7 +267,7 @@
     }
     #screen-setup .course-card .course-meta {
       font-size: 12px;
-      color: #5A5A5A;
+      color: #746E63;
       margin-top: 2px;
     }
     .tee-palette {
@@ -328,7 +333,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      color: #5A5A5A;
+      color: #746E63;
       font-size: 18px;
     }
     .player-row .icon-btn.danger { color: #B23A3A; }
@@ -388,7 +393,7 @@
     .accordion summary::after {
       content: "▾";
       font-size: 12px;
-      color: #5A5A5A;
+      color: #746E63;
     }
     .accordion[open] summary::after { content: "▴"; }
     .accordion .accordion-body {
@@ -400,12 +405,12 @@
     .play-header {
       flex: 0 0 auto;
       border-bottom: 1px solid #D8D6CF;
-      background: #FAFAF7;
+      background: #EAE4D8;
       padding: 8px 14px 0;
     }
     .status-line {
       font-size: 12px;
-      color: #5A5A5A;
+      color: #746E63;
       display: flex;
       gap: 8px;
       align-items: baseline;
@@ -425,7 +430,7 @@
       padding: 6px 16px;
       background: transparent;
       border: 0;
-      color: #5A5A5A;
+      color: #746E63;
       font-weight: 500;
       font-size: 14px;
       transition: opacity 100ms linear;
@@ -488,20 +493,29 @@
       gap: 6px;
     }
     .player-block {
-      border: 1px solid #D8D6CF;
+      /* Waermerer Border, damit Karten besser in den Sandton integriert sind */
+      border: 1px solid #C8C1B2;
       border-left-width: 4px;
       border-radius: 8px;
       background: #FFFFFF;
-      padding: 6px 10px 7px;
+      padding: 6px 8px 7px;
+      /* Subtile Tiefe — nur ein einziger Effekt, fast unbewusst wahrnehmbar */
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
     }
     .player-block .pb-row1 {
       display: flex;
       align-items: baseline;
       gap: 8px;
+      /* Mikro-Kontrast: Name/HCP zart zurueckgenommen, Fokus auf Score-Zeile */
+      opacity: 0.9;
+    }
+    .player-block .pb-row2 {
+      /* Row2 (Score) bleibt visuell dominant */
+      opacity: 1;
     }
     .player-block .pb-name {
-      font-weight: 700;
-      font-size: 15px;
+      font-weight: 600;
+      font-size: 14px;
       flex: 1 1 auto;
       min-width: 0;
       overflow: hidden;
@@ -510,8 +524,9 @@
       color: #1A1A1A;
     }
     .player-block .pb-hcp {
-      color: #5A5A5A;
-      font-size: 11px;
+      color: #746E63;
+      font-size: 12px;
+      font-weight: 500;
     }
     .player-block .pb-slash {
       color: #B23A3A;
@@ -547,14 +562,17 @@
       border-color: #2F6B3A;
     }
     .player-block .stroke-btn:disabled { color: #C7C7C7; background: #F4F2EC; }
-    /* Score is the visual center — markedly larger and heavier than metrics */
+    /* Score is the visual center — markedly larger and heavier than metrics.
+       clamp() skaliert zwischen 28 und 36 px, damit die Score-Zelle bei
+       4-Spieler-Dichte nicht den Block sprengt. */
     .player-block .stroke-value {
       text-align: center;
-      font-size: 40px;
+      font-size: clamp(28px, 5vw, 36px);
       font-weight: 800;
       line-height: 1;
+      letter-spacing: -0.02em;
       font-variant-numeric: tabular-nums;
-      color: #1A1A1A;
+      color: #1A1713;
     }
     .player-block .stroke-value.is-empty { color: #BBBBBB; font-weight: 400; }
     .player-block .pb-row3 {
@@ -564,7 +582,7 @@
       justify-content: space-between;
       margin-top: 4px;
       font-size: 11px;
-      color: #5A5A5A;
+      color: #746E63;
       font-variant-numeric: tabular-nums;
       line-height: 1.15;
     }
@@ -613,7 +631,7 @@
       gap: 8px;
       padding: 6px 12px 8px;
       border-top: 1px solid #D8D6CF;
-      background: #FAFAF7;
+      background: #EAE4D8;
     }
     .hole-nav .btn { min-height: 48px; font-size: 14px; font-weight: 700; }
 
@@ -623,7 +641,7 @@
     .card-pane .card-mini-header {
       padding: 8px 12px 6px;
       font-size: 12px;
-      color: #5A5A5A;
+      color: #746E63;
       border-bottom: 1px solid #BFBDB4;
       background: #F4F2EC;
     }
@@ -741,7 +759,7 @@
     table.scorecard tr.row-hole.row-b td.col-gelb { background: #EDEBE2; color: #1A1A1A; }
 
     /* SI cells slightly gray */
-    table.scorecard tbody td.col-si { color: #5A5A5A; font-size: 11px; font-weight: 500; }
+    table.scorecard tbody td.col-si { color: #746E63; font-size: 11px; font-weight: 500; }
 
     /* Slash cells: sekundaer */
     table.scorecard td.col-slash {
@@ -950,13 +968,13 @@
     }
     .ranking-card .rc-hcp {
       font-size: 12px;
-      color: #5A5A5A;
+      color: #746E63;
     }
     .ranking-card .rc-stats {
       display: flex;
       gap: 14px;
       font-size: 13px;
-      color: #5A5A5A;
+      color: #746E63;
       margin-top: 8px;
       flex-wrap: wrap;
       font-variant-numeric: tabular-nums;
@@ -975,7 +993,7 @@
       background: #F4F2EC;
       border-radius: 2px;
       font-variant-numeric: tabular-nums;
-      color: #5A5A5A;
+      color: #746E63;
     }
     .ranking-card .rc-spark .pt.empty { color: #BBBBBB; }
     .ranking-card .rc-spark .pt.p0 { background: #F4F2EC; }
@@ -1008,7 +1026,7 @@
     }
     .data-row .meta {
       font-size: 12px;
-      color: #5A5A5A;
+      color: #746E63;
     }
     .data-row .name {
       font-weight: 600;
@@ -1023,7 +1041,7 @@
       border-radius: 6px;
       border: 1px solid #D8D6CF;
       background: #FFFFFF;
-      color: #5A5A5A;
+      color: #746E63;
       font-size: 16px;
       display: inline-flex;
       align-items: center;
@@ -1125,7 +1143,7 @@
     /* ---------- Misc helpers ---------- */
     .hidden { display: none !important; }
     .nowrap { white-space: nowrap; }
-    .small { font-size: 12px; color: #5A5A5A; }
+    .small { font-size: 12px; color: #746E63; }
 
     /* ---------- Open rounds list on Setup (v1.5) ---------- */
     .open-rounds-block {
@@ -1180,7 +1198,7 @@
     }
     .open-round-card .or-line2 {
       font-size: 11px;
-      color: #5A5A5A;
+      color: #746E63;
       margin-top: 2px;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1200,7 +1218,7 @@
     /* ---------- History table (v1.3) ---------- */
     .history-wrap { padding: 10px 14px 14px; }
     .history-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
-    .history-subtitle { font-size: 12px; color: #5A5A5A; margin-bottom: 10px; }
+    .history-subtitle { font-size: 12px; color: #746E63; margin-bottom: 10px; }
     table.history-table {
       width: 100%;
       border-collapse: collapse;
@@ -1214,7 +1232,7 @@
       border-bottom: 1px solid #BFBDB4;
       font-weight: 700;
       font-size: 11px;
-      color: #5A5A5A;
+      color: #746E63;
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
@@ -1233,7 +1251,7 @@
     }
     tr.history-row .h-time {
       font-size: 11px;
-      color: #5A5A5A;
+      color: #746E63;
       font-variant-numeric: tabular-nums;
     }
     tr.history-row .h-course {
@@ -1242,7 +1260,7 @@
     }
     tr.history-row .h-players {
       font-size: 11px;
-      color: #5A5A5A;
+      color: #746E63;
       margin-top: 3px;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1288,7 +1306,7 @@
     .history-empty {
       padding: 30px 20px;
       text-align: center;
-      color: #5A5A5A;
+      color: #746E63;
       font-size: 13px;
       border: 1px dashed #D8D6CF;
       border-radius: 8px;
@@ -1315,7 +1333,7 @@
       background: #FFFFFF;
       min-height: 44px;
     }
-    .gps-row .gps-label { font-size: 12px; color: #5A5A5A; font-weight: 600; }
+    .gps-row .gps-label { font-size: 12px; color: #746E63; font-weight: 600; }
     .gps-row .gps-text {
       flex: 1 1 auto;
       font-size: 12px;
@@ -1386,7 +1404,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .nearby-item .ni-meta { font-size: 12px; color: #5A5A5A; }
+    .nearby-item .ni-meta { font-size: 12px; color: #746E63; }
 
     .filter-bar {
       display: grid;
@@ -1426,7 +1444,7 @@
       background: #EAF1EB;
     }
     .course-item .ci-name { font-weight: 600; font-size: 14px; }
-    .course-item .ci-meta { font-size: 12px; color: #5A5A5A; }
+    .course-item .ci-meta { font-size: 12px; color: #746E63; }
     .all-courses-list {
       display: flex;
       flex-direction: column;
@@ -1455,7 +1473,7 @@
     .region-group .rg-title {
       font-size: 12px;
       font-weight: 600;
-      color: #5A5A5A;
+      color: #746E63;
       text-transform: uppercase;
       letter-spacing: 0.04em;
       margin-bottom: 6px;
@@ -1472,7 +1490,7 @@
       margin-bottom: 6px;
     }
     .region-row .rr-name { font-weight: 600; font-size: 14px; }
-    .region-row .rr-count { font-size: 12px; color: #5A5A5A; }
+    .region-row .rr-count { font-size: 12px; color: #746E63; }
     .region-row .btn { min-height: 36px; font-size: 13px; }
   </style>
 </head>
@@ -2806,7 +2824,7 @@
       root.appendChild(scroll);
 
       // Footer
-      const footer = el('div', { class: 'padded', style: 'border-top:1px solid #D8D6CF; background:#FAFAF7;' });
+      const footer = el('div', { class: 'padded', style: 'border-top:1px solid #C8C1B2; background:#EAE4D8;' });
       const startBtn = el('button', {
         class: 'btn btn-primary btn-block btn-large' + (valid ? '' : ' is-disabled'),
         type: 'button'
@@ -3359,7 +3377,7 @@
         const hint = el('div', {
           id: 'autosave-hint',
           class: 'small',
-          style: 'font-size:10px; color:#5A5A5A; margin-top:-2px;'
+          style: 'font-size:10px; color:#746E63; margin-top:-2px;'
         }, [
           __lastAutosaveAt
             ? ('Automatisch gespeichert · ' + formatTime(__lastAutosaveAt))
