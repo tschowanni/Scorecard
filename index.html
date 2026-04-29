@@ -1145,6 +1145,83 @@
     .nowrap { white-space: nowrap; }
     .small { font-size: 12px; color: #746E63; }
 
+    /* ---------- Setup Hub + Sub-Views (v1.8) ---------- */
+    .setup-hub-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1A1713;
+      margin-bottom: 4px;
+    }
+    .setup-hub-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .hub-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 4px;
+      padding: 16px 14px;
+      min-height: 80px;
+      border: 1px solid #C8C1B2;
+      background: #FFFFFF;
+      border-radius: 10px;
+      text-align: left;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+    }
+    .hub-btn:active { background: #F7F3EA; }
+    .hub-btn .hub-btn-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1A1713;
+    }
+    .hub-btn .hub-btn-status {
+      font-size: 12px;
+      color: #746E63;
+    }
+    .hub-btn .hub-btn-status.is-warning { color: #B23A3A; }
+    .hub-btn .hub-btn-arrow {
+      position: absolute;
+      right: 14px;
+      color: #746E63;
+      font-size: 18px;
+    }
+    .hub-btn { position: relative; padding-right: 36px; }
+
+    /* Sub-view header (Back + Title) */
+    .subview-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-bottom: 1px solid #C8C1B2;
+      background: #EAE4D8;
+      flex: 0 0 auto;
+    }
+    .subview-header .back-btn {
+      min-height: 40px;
+      padding: 6px 12px;
+      border: 1px solid #C8C1B2;
+      background: #F7F3EA;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1A1713;
+      cursor: pointer;
+    }
+    .subview-header .back-btn:active { background: #ECE5D8; }
+    .subview-header .subview-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1A1713;
+      flex: 1 1 auto;
+      text-align: center;
+      margin-right: 80px;
+    }
+
     /* ---------- Open rounds list on Setup (v1.5) ---------- */
     .open-rounds-block {
       border: 1px solid #2F6B3A;
@@ -1364,9 +1441,25 @@
       min-height: 36px;
       padding: 4px 10px;
       border-radius: 6px;
-      border: 1px solid #D8D6CF;
-      background: #FFFFFF;
+      border: 1px solid #C8C1B2;
+      background: #F7F3EA;
       font-size: 12px;
+      color: #1A1713;
+      cursor: pointer;
+    }
+    .gps-activate-btn:active:not(:disabled) { background: #ECE5D8; }
+    /* Action group when GPS is OK: small refresh icon + Deaktivieren */
+    .gps-actions { display: inline-flex; gap: 4px; align-items: center; }
+    .gps-refresh-btn {
+      width: 36px;
+      padding: 4px 0;
+      font-size: 16px;
+      line-height: 1;
+    }
+    .gps-deactivate-btn {
+      color: #B23A3A;
+      border-color: #E6C5C5;
+      background: #FFFFFF;
     }
 
     .nearby-list { display: flex; flex-direction: column; gap: 6px; }
@@ -2036,6 +2129,9 @@
     }
 
     // Kick off a GPS request; updates appState.gps and re-renders setup.
+    // Note: requestCurrentPosition() is a one-shot getCurrentPosition() —
+    // no continuous tracking is started. After the fix is obtained, the
+    // browser/OS releases the GPS sensor automatically.
     function activateGps() {
       state.appState.gps.status = 'requesting';
       state.appState.gps.lastError = null;
@@ -2056,6 +2152,14 @@
         saveState();
         renderSetup();
       });
+    }
+    // Reset GPS state to idle. Clears lat/lng/accuracy and signals to the user
+    // that the position is no longer in use (hides Nearby list, balken grau,
+    // Statustext "aus"). After this, no implicit re-activation.
+    function deactivateGps() {
+      state.appState.gps = defaultGpsState();
+      saveState();
+      renderSetup();
     }
 
     function exportData() {
@@ -2614,12 +2718,18 @@
         } else if (openList.length > 1) {
           showToast('Bitte im Setup ein offenes Spiel waehlen.');
           state.activeScreen = 'setup';
+          state.setupSubScreen = 'hub';
           renderAll();
           return;
         } else {
           showToast('Bitte zuerst eine Runde im Setup starten.');
           return;
         }
+      }
+      // v1.8: Tab-Wechsel zum Setup landet immer auf dem Hub —
+      // Sub-View-Scrollpositionen bleiben gecached fuer die naechste Hub-Navigation.
+      if (name === 'setup') {
+        state.setupSubScreen = 'hub';
       }
       state.activeScreen = name;
       renderAll();
@@ -2658,23 +2768,163 @@
     // ============================================================
     // Setup screen rendering
     // ============================================================
+    // ============================================================
+    // Setup Screen — split into Hub / Course / Players sub-views (v1.8)
+    // Reason: previous monolithic Setup screen scrolled to top on every
+    // interaction because root.innerHTML='' destroyed the .scroll-area.
+    // The fix is twofold:
+    //   1. Split into three focused sub-views to reduce vertical length.
+    //   2. Save+restore scrollTop per sub-view across re-renders so taps
+    //      (e.g. tee pill, HCP stepper, player add) keep the user in place.
+    // ============================================================
+    const __setupScroll = { hub: 0, course: 0, players: 0 };
+    let __setupSubLastRendered = null;
+
+    function setSetupSubScreen(name) {
+      state.setupSubScreen = name;
+      renderSetup();
+    }
+
     function renderSetup() {
       ensureSetupDraft();
+      if (!state.setupSubScreen) state.setupSubScreen = 'hub';
+      const sub = state.setupSubScreen;
       const root = document.getElementById('screen-setup');
+
+      // Save current scroll position before destroying the DOM.
+      const oldArea = root.querySelector('.scroll-area');
+      if (oldArea && __setupSubLastRendered) {
+        __setupScroll[__setupSubLastRendered] = oldArea.scrollTop;
+      }
+
       root.innerHTML = '';
+
+      if (sub === 'course') renderSetupCourseView(root);
+      else if (sub === 'players') renderSetupPlayersView(root);
+      else renderSetupHubView(root);
+
+      __setupSubLastRendered = sub;
+
+      // Restore scroll position so re-renders (tee click, HCP +/-, etc.)
+      // keep the user exactly where they were. rAF ensures layout is ready.
+      const newArea = root.querySelector('.scroll-area');
+      if (newArea) {
+        const target = __setupScroll[sub] || 0;
+        requestAnimationFrame(function () {
+          try { newArea.scrollTop = target; } catch (e) {}
+        });
+      }
+    }
+
+    // Setup Hub — Startseite mit zwei grossen Bereichs-Buttons +
+    // Open-Rounds-Liste + Daten-Akkordeon + "Runde starten"-Footer.
+    function renderSetupHubView(root) {
       const valid = setupIsValid();
+      const scroll = el('div', { class: 'scroll-area' });
+      const padded = el('div', { class: 'padded stack' });
+
+      padded.appendChild(el('div', { class: 'setup-hub-title' }, ['Runde vorbereiten']));
+
+      // Open rounds list (existing block)
+      const openBlock = renderOpenRoundsBlock();
+      if (openBlock) padded.appendChild(openBlock);
+
+      // Two large hub buttons
+      const hub = el('div', { class: 'setup-hub-buttons' });
+
+      const courseBtn = el('button', { class: 'hub-btn', type: 'button', 'aria-label': 'Platzauswahl oeffnen' });
+      courseBtn.appendChild(el('div', { class: 'hub-btn-title' }, ['Platzauswahl']));
+      const course = getCourse(state.setupDraft.courseId);
+      if (course) {
+        const tee = getTee(course, state.setupDraft.teeForCourse);
+        const layout = (course.layouts || []).find(function (l) { return l.id === state.setupDraft.layoutId; });
+        const meta = course.name +
+          (tee ? ' · ' + tee.colorLabel : '') +
+          (layout && course.layouts.length > 1 ? ' · ' + layout.name : '');
+        courseBtn.appendChild(el('div', { class: 'hub-btn-status' }, [meta]));
+      } else {
+        courseBtn.appendChild(el('div', { class: 'hub-btn-status is-warning' }, ['Bitte Platz waehlen']));
+      }
+      courseBtn.appendChild(el('span', { class: 'hub-btn-arrow', 'aria-hidden': 'true' }, ['›']));
+      courseBtn.addEventListener('click', function () { setSetupSubScreen('course'); });
+      hub.appendChild(courseBtn);
+
+      const playersBtn = el('button', { class: 'hub-btn', type: 'button', 'aria-label': 'Spielerauswahl oeffnen' });
+      playersBtn.appendChild(el('div', { class: 'hub-btn-title' }, ['Spielerauswahl']));
+      const playerCount = state.setupDraft.players.length;
+      if (playerCount === 0) {
+        playersBtn.appendChild(el('div', { class: 'hub-btn-status is-warning' }, ['Bitte Spieler hinzufuegen']));
+      } else {
+        const names = state.setupDraft.players.map(function (p) { return p.displayName; }).join(', ');
+        playersBtn.appendChild(el('div', { class: 'hub-btn-status' }, [
+          playerCount + (playerCount === 1 ? ' Spieler · ' : ' Spieler · ') + names
+        ]));
+      }
+      playersBtn.appendChild(el('span', { class: 'hub-btn-arrow', 'aria-hidden': 'true' }, ['›']));
+      playersBtn.addEventListener('click', function () { setSetupSubScreen('players'); });
+      hub.appendChild(playersBtn);
+
+      padded.appendChild(hub);
+
+      // Data accordion (kept on hub for quick access without scrolling deep)
+      const accord = el('details', { class: 'accordion' });
+      const summary = el('summary', {}, ['Daten & Import / Export']);
+      const body = el('div', { class: 'accordion-body stack', style: 'padding-top:12px;' });
+      const exportBtn = el('button', { class: 'btn btn-block', type: 'button' }, ['Daten exportieren']);
+      exportBtn.addEventListener('click', exportData);
+      const importBtn = el('button', { class: 'btn btn-block', type: 'button' }, ['Daten importieren']);
+      importBtn.addEventListener('click', triggerImport);
+      const updateBtn = el('button', { class: 'btn btn-block is-disabled', type: 'button', disabled: 'disabled' }, ['Plaetze aktualisieren']);
+      const btBtn = el('button', { class: 'btn btn-block is-disabled', type: 'button', disabled: 'disabled' }, ['Geraete-Sync (Bluetooth)']);
+      body.appendChild(exportBtn);
+      body.appendChild(importBtn);
+      body.appendChild(updateBtn);
+      body.appendChild(el('div', { class: 'small' }, ['Online-Update von Plaetzen ist fuer eine spaetere Version geplant.']));
+      body.appendChild(btBtn);
+      body.appendChild(el('div', { class: 'small' }, ['Geraete-Sync ueber Bluetooth ist fuer eine spaetere Version geplant.']));
+      accord.appendChild(summary);
+      accord.appendChild(body);
+      padded.appendChild(accord);
+
+      scroll.appendChild(padded);
+      root.appendChild(scroll);
+
+      // Footer "Runde starten" — anchored at bottom of hub
+      const footer = el('div', { class: 'padded', style: 'border-top:1px solid #C8C1B2; background:#EAE4D8;' });
+      const startBtn = el('button', {
+        class: 'btn btn-primary btn-block btn-large' + (valid ? '' : ' is-disabled'),
+        type: 'button'
+      }, [getOpenRounds().length > 0 ? 'Neue Runde zusaetzlich starten' : 'Runde starten']);
+      if (!valid) startBtn.disabled = true;
+      startBtn.addEventListener('click', function () {
+        if (!setupIsValid()) return;
+        startRoundFromDraft();
+        state.segment = 'live';
+        setScreen('play');
+      });
+      footer.appendChild(startBtn);
+      root.appendChild(footer);
+    }
+
+    // Subview-Header used by Course and Players sub-views.
+    function buildSubViewHeader(title) {
+      const header = el('div', { class: 'subview-header' });
+      const backBtn = el('button', { class: 'back-btn', type: 'button', 'aria-label': 'Zurueck zum Setup' }, ['‹ Zurueck']);
+      backBtn.addEventListener('click', function () { setSetupSubScreen('hub'); });
+      header.appendChild(backBtn);
+      header.appendChild(el('div', { class: 'subview-title' }, [title]));
+      return header;
+    }
+
+    // Setup Course View — Platzauswahl: GPS, Nearby, Course-Card mit Tee + Layout, Filter, Liste.
+    function renderSetupCourseView(root) {
+      root.appendChild(buildSubViewHeader('Platzauswahl'));
 
       const scroll = el('div', { class: 'scroll-area' });
       const padded = el('div', { class: 'padded stack' });
 
-      // v1.5: Open rounds list (Startseiten-Uebersicht laufender Spiele)
-      const openBlock = renderOpenRoundsBlock();
-      if (openBlock) padded.appendChild(openBlock);
-
-      // v1.1: GPS status block (above course section)
       padded.appendChild(renderGpsStatusBlock());
 
-      // v1.1: Nearby list (only if GPS ok and we have at least one hit)
       const nearby = getNearbyCourses(5);
       if (nearby.length > 0) {
         padded.appendChild(el('div', { class: 'section-title' }, ['Plaetze in der Naehe']));
@@ -2701,10 +2951,10 @@
         padded.appendChild(nList);
       }
 
-      // Course section
+      // Course card (selected course + tee + layout)
       const course = getCourse(state.setupDraft.courseId);
       const courseCard = el('div', { class: 'course-card' });
-      courseCard.appendChild(el('div', { class: 'label' }, ['Platz']));
+      courseCard.appendChild(el('div', { class: 'label' }, ['Aktueller Platz']));
       const courseRow = el('div', { class: 'row between' });
       const courseInfo = el('div', {}, []);
       courseInfo.appendChild(el('div', { class: 'course-name' }, [course ? course.name : 'Kein Platz']));
@@ -2720,7 +2970,7 @@
       courseRow.appendChild(changeBtn);
       courseCard.appendChild(courseRow);
 
-      // v1.1: Layout picker (if course has multiple layouts)
+      // Layout picker (multi-layout courses only)
       if (course && Array.isArray(course.layouts) && course.layouts.length > 1) {
         courseCard.appendChild(el('div', { class: 'label', style: 'margin-top:10px;' }, ['Course-Layout']));
         const pills = el('div', { class: 'layout-pills' });
@@ -2738,13 +2988,7 @@
         courseCard.appendChild(pills);
       }
 
-      // v1.1: Filter bar for "Alle Plaetze"
-      const filterBar = renderCourseFilterBar();
-      padded.appendChild(el('div', { class: 'section-title' }, ['Alle Plaetze']));
-      padded.appendChild(filterBar);
-      padded.appendChild(renderFilteredCoursesList());
-
-      // Tee selection (default tee for course; players can override)
+      // Tee selection (default tee for course)
       if (course) {
         const teeLabel = el('div', { class: 'label', style: 'margin-top:10px;' }, ['Standard-Abschlag (Tee)']);
         courseCard.appendChild(teeLabel);
@@ -2758,7 +3002,6 @@
           pill.appendChild(el('span', {}, [t.colorLabel]));
           pill.addEventListener('click', function () {
             state.setupDraft.teeForCourse = t.colorKey;
-            // also update players using prior default
             state.setupDraft.players.forEach(function (p) {
               if (!p._teeOverride) p.teeColorKey = t.colorKey;
             });
@@ -2776,8 +3019,25 @@
       }
       padded.appendChild(courseCard);
 
-      // Players section
+      // Filter bar + filtered courses list
+      const filterBar = renderCourseFilterBar();
+      padded.appendChild(el('div', { class: 'section-title' }, ['Alle Plaetze']));
+      padded.appendChild(filterBar);
+      padded.appendChild(renderFilteredCoursesList());
+
+      scroll.appendChild(padded);
+      root.appendChild(scroll);
+    }
+
+    // Setup Players View — Spielerauswahl mit Liste, HCP, Tee pro Spieler.
+    function renderSetupPlayersView(root) {
+      root.appendChild(buildSubViewHeader('Spielerauswahl'));
+
+      const scroll = el('div', { class: 'scroll-area' });
+      const padded = el('div', { class: 'padded stack' });
+
       padded.appendChild(el('div', { class: 'section-title' }, ['Spieler dieser Runde']));
+      const course = getCourse(state.setupDraft.courseId);
       const playersBox = el('div', { class: 'stack' });
       if (state.setupDraft.players.length === 0) {
         playersBox.appendChild(el('div', { class: 'empty-state' }, [
@@ -2800,46 +3060,8 @@
       addRow.appendChild(lastRow);
       padded.appendChild(addRow);
 
-      // Data accordion
-      const accord = el('details', { class: 'accordion' });
-      const summary = el('summary', {}, ['Daten & Import / Export']);
-      const body = el('div', { class: 'accordion-body stack', style: 'padding-top:12px;' });
-      const exportBtn = el('button', { class: 'btn btn-block', type: 'button' }, ['Daten exportieren']);
-      exportBtn.addEventListener('click', exportData);
-      const importBtn = el('button', { class: 'btn btn-block', type: 'button' }, ['Daten importieren']);
-      importBtn.addEventListener('click', triggerImport);
-      const updateBtn = el('button', { class: 'btn btn-block is-disabled', type: 'button', disabled: 'disabled' }, ['Plaetze aktualisieren']);
-      const btBtn = el('button', { class: 'btn btn-block is-disabled', type: 'button', disabled: 'disabled' }, ['Geraete-Sync (Bluetooth)']);
-      body.appendChild(exportBtn);
-      body.appendChild(importBtn);
-      body.appendChild(updateBtn);
-      body.appendChild(el('div', { class: 'small' }, ['Online-Update von Plaetzen ist fuer eine spaetere Version geplant.']));
-      body.appendChild(btBtn);
-      body.appendChild(el('div', { class: 'small' }, ['Geraete-Sync ueber Bluetooth ist fuer eine spaetere Version geplant.']));
-      accord.appendChild(summary);
-      accord.appendChild(body);
-      padded.appendChild(accord);
-
       scroll.appendChild(padded);
       root.appendChild(scroll);
-
-      // Footer
-      const footer = el('div', { class: 'padded', style: 'border-top:1px solid #C8C1B2; background:#EAE4D8;' });
-      const startBtn = el('button', {
-        class: 'btn btn-primary btn-block btn-large' + (valid ? '' : ' is-disabled'),
-        type: 'button'
-      }, [getOpenRounds().length > 0 ? 'Neue Runde zusaetzlich starten' : 'Runde starten']);
-      if (!valid) startBtn.disabled = true;
-      startBtn.addEventListener('click', function () {
-        if (!setupIsValid()) return;
-        // v1.5: multiple open rounds are allowed -> no "verwerfen" confirm.
-        // Previously active round stays in openRounds[] and is still listed.
-        startRoundFromDraft();
-        state.segment = 'live';
-        setScreen('play');
-      });
-      footer.appendChild(startBtn);
-      root.appendChild(footer);
     }
     // v1.5: "Offene Spiele" block on Setup screen — lists in-progress rounds
     // with Weiter / Beenden actions. Returns null if there are no open rounds.
@@ -2918,12 +3140,36 @@
       else text = gps.lastError || 'nicht verfuegbar';
       row.appendChild(el('span', { class: 'gps-text' }, [text]));
 
-      const btn = el('button', { class: 'gps-activate-btn', type: 'button' }, [
-        gps.status === 'ok' ? 'Aktualisieren' : 'Aktivieren'
-      ]);
-      if (gps.status === 'requesting') btn.disabled = true;
-      btn.addEventListener('click', activateGps);
-      row.appendChild(btn);
+      // Action buttons:
+      //   idle / error  -> "Aktivieren"
+      //   requesting    -> disabled "Aktivieren"
+      //   ok            -> [⟳ Aktualisieren] [Deaktivieren]
+      // Wenn der Platz feststeht, kann der Nutzer GPS bewusst ausschalten —
+      // rein UX-bezogen, da getCurrentPosition() ohnehin nicht dauerhaft trackt.
+      const actionsWrap = el('span', { class: 'gps-actions' });
+      if (gps.status === 'ok') {
+        const refreshBtn = el('button', {
+          class: 'gps-activate-btn gps-refresh-btn',
+          type: 'button',
+          'aria-label': 'GPS-Position aktualisieren',
+          title: 'Position aktualisieren'
+        }, ['⟳']);
+        refreshBtn.addEventListener('click', activateGps);
+        actionsWrap.appendChild(refreshBtn);
+        const offBtn = el('button', {
+          class: 'gps-activate-btn gps-deactivate-btn',
+          type: 'button',
+          'aria-label': 'GPS deaktivieren'
+        }, ['Aus']);
+        offBtn.addEventListener('click', deactivateGps);
+        actionsWrap.appendChild(offBtn);
+      } else {
+        const btn = el('button', { class: 'gps-activate-btn', type: 'button' }, ['Aktivieren']);
+        if (gps.status === 'requesting') btn.disabled = true;
+        btn.addEventListener('click', activateGps);
+        actionsWrap.appendChild(btn);
+      }
+      row.appendChild(actionsWrap);
       return row;
     }
     function renderCourseFilterBar() {
@@ -4757,6 +5003,7 @@
       // Setup screen (the "Startseite"), so the user explicitly picks what to
       // resume — no silent restore, no single-draft dialog.
       state.activeScreen = 'setup';
+      state.setupSubScreen = 'hub';
       state.setupDraft = newSetupDraft();
       bindGlobalEvents();
       renderAll();
