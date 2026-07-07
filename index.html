@@ -1677,6 +1677,27 @@
       return a;
     }
 
+    // ISO-3166 alpha-2 -> deutscher Anzeigename (fuer die Laender-Suche in der Platzauswahl).
+    const COUNTRY_NAMES = {
+      CH: 'Schweiz', DE: 'Deutschland', AT: 'Oesterreich', LI: 'Liechtenstein',
+      FR: 'Frankreich', IT: 'Italien', ES: 'Spanien', PT: 'Portugal',
+      GB: 'Grossbritannien', IE: 'Irland', NL: 'Niederlande', BE: 'Belgien',
+      LU: 'Luxemburg', DK: 'Daenemark', SE: 'Schweden', NO: 'Norwegen', FI: 'Finnland',
+      US: 'USA', CA: 'Kanada'
+    };
+    function countryDisplayName(iso) {
+      if (!iso) return '';
+      return COUNTRY_NAMES[iso] || iso;
+    }
+    // Distinct country codes present in the loaded course DB, sorted by display name.
+    function availableCountries() {
+      const set = {};
+      state.appState.courses.forEach(function (c) { if (c.country) set[c.country] = true; });
+      return Object.keys(set).sort(function (a, b) {
+        return countryDisplayName(a).localeCompare(countryDisplayName(b));
+      });
+    }
+
     const TEE_LABELS = {
       white:  'Weiss',
       yellow: 'Gelb',
@@ -2230,8 +2251,35 @@
     //   (18.4,  130, 71.2, 72) -> round(21.17 - 0.8) = 20
     //   (28.1,  132, 72.8, 72) -> round(32.83 + 0.8) = 34
     //   (-5,    113, 72, 72) -> max(0, -5) = 0
-    function calculatePlayingHandicap(handicapIndex, slopeRating, courseRating, par) {
-      const ph = Math.round(handicapIndex * (slopeRating / 113) + (courseRating - par));
+    // 18-hole round: round(HI * SR/113 + (CR - Par)).
+    // 9-hole round (WHS): round((HI/2) * SR/113 + (CR9 - Par9)) — half the
+    // Handicap Index and the 9-hole Course Rating. Many 9-hole facilities are
+    // rated as two loops (18-hole CR ~= 2x the 9-hole value); when the tee still
+    // carries such an 18-hole rating, CR is reduced to its 9-hole equivalent.
+    // ratingHoles (9|18) states what CR/SR cover; if absent it is inferred.
+    // Single source of truth for "what do this tee's CR/SR cover" (9 or 18 holes),
+    // used by BOTH the handicap calc and the setup display hint so they can never
+    // disagree. Prefers the stored ratingHoles; falls back to a CR-vs-par heuristic
+    // for tees imported without it (hand-edited / legacy data).
+    function resolveTeeRatingHoles(tee, holeCount) {
+      if (tee && (tee.ratingHoles === 9 || tee.ratingHoles === 18)) return tee.ratingHoles;
+      if (holeCount === 9 && tee && typeof tee.courseRating === 'number' &&
+          typeof tee.par === 'number' && tee.courseRating > tee.par * 1.5) return 18;
+      return holeCount === 9 ? 9 : 18;
+    }
+    function calculatePlayingHandicap(handicapIndex, slopeRating, courseRating, par, holeCount, ratingHoles) {
+      let hi = handicapIndex;
+      let cr = courseRating;
+      if (holeCount === 9) {
+        hi = handicapIndex / 2;
+        // ratingHoles resolved by the caller via resolveTeeRatingHoles(); the
+        // CR-vs-par fallback only guards a direct call without it.
+        const rh = (ratingHoles === 9 || ratingHoles === 18)
+          ? ratingHoles
+          : (courseRating > par * 1.5 ? 18 : 9);
+        if (rh === 18) cr = courseRating / 2;
+      }
+      const ph = Math.round(hi * (slopeRating / 113) + (cr - par));
       return Math.max(0, ph);
     }
     // Distribute playingHandicap strokes across 18 holes in order of lowest
@@ -2243,7 +2291,12 @@
     //   PH 20 -> every hole gets 1, plus SI-1 and SI-2 get +1 (so 2 twice, 16 ones)
     //   PH 36 -> every hole gets 2
     function distributeStrokesPerHole(playingHandicap, holes) {
-      const result = new Array(18).fill(0);
+      // Hole-count-aware: 9-hole courses must allocate over 9 holes, not a
+      // hardcoded 18 (otherwise strokes beyond the hole count are written to
+      // result[undefined] and silently lost). For 18-hole courses n === 18,
+      // so behaviour is unchanged.
+      const n = (holes && holes.length) || 18;
+      const result = new Array(n).fill(0);
       if (playingHandicap <= 0) return result;
       // Build mapping: SI rank -> hole index
       const order = holes
@@ -2252,8 +2305,8 @@
         .map(function (x) { return x.i; });
       let remaining = playingHandicap;
       let safety = 0;
-      while (remaining > 0 && safety < 10) {
-        for (let k = 0; k < 18 && remaining > 0; k++) {
+      while (remaining > 0 && safety < 200) {
+        for (let k = 0; k < n && remaining > 0; k++) {
           result[order[k]]++;
           remaining--;
         }
@@ -2456,14 +2509,21 @@
     }
 
     // Filter a course array by name/region/holeCount. All args optional.
-    function filterCoursesForSetup(courses, nameFilter, regionFilter, holeCountFilter) {
+    function filterCoursesForSetup(courses, nameFilter, regionFilter, holeCountFilter, countryFilter) {
       const nf = (nameFilter || '').trim().toLowerCase();
       const rf = (regionFilter && regionFilter !== 'Alle') ? regionFilter : null;
       const hf = (holeCountFilter && holeCountFilter !== 'Alle') ? Number(holeCountFilter) : null;
+      const cf = (countryFilter && countryFilter !== 'Alle') ? countryFilter : null;
       return courses.filter(function (c) {
-        if (nf && c.name.toLowerCase().indexOf(nf) === -1) return false;
+        // Name filter matches course name OR the country name (so "Schweiz" as a text query works too).
+        if (nf) {
+          const inName = c.name.toLowerCase().indexOf(nf) !== -1;
+          const inCountry = (countryDisplayName(c.country) || '').toLowerCase().indexOf(nf) !== -1;
+          if (!inName && !inCountry) return false;
+        }
         if (rf && !(Array.isArray(c.regionTags) && c.regionTags.indexOf(rf) !== -1)) return false;
         if (hf && c.holeCount !== hf) return false;
+        if (cf && (c.country || '') !== cf) return false;
         return true;
       });
     }
@@ -2536,7 +2596,7 @@
         teeForCourse: firstCourse ? (getTee(firstCourse, 'yellow') || firstCourse.tees[0]).colorKey : null,
         layoutId: firstCourse ? defaultLayoutIdForCourse(firstCourse) : 'standard',
         players: [],
-        filters: { name: '', region: 'Alle', holeCount: 'Alle' }
+        filters: { name: '', region: 'Alle', holeCount: 'Alle', country: 'Alle' }
       };
     }
     function ensureSetupDraft() {
@@ -2544,7 +2604,7 @@
         state.setupDraft = newSetupDraft();
       }
       if (!state.setupDraft.filters) {
-        state.setupDraft.filters = { name: '', region: 'Alle', holeCount: 'Alle' };
+        state.setupDraft.filters = { name: '', region: 'Alle', holeCount: 'Alle', country: 'Alle' };
       }
       // re-validate course
       const course = getCourse(state.setupDraft.courseId);
@@ -2579,7 +2639,7 @@
       const course = getCourse(d.courseId);
       const playersInRound = d.players.map(function (p) {
         const tee = getTee(course, p.teeColorKey);
-        const ph = calculatePlayingHandicap(p.handicapIndex, tee.slopeRating, tee.courseRating, tee.par);
+        const ph = calculatePlayingHandicap(p.handicapIndex, tee.slopeRating, tee.courseRating, tee.par, course.holeCount, resolveTeeRatingHoles(tee, course.holeCount));
         return {
           playerId: p.playerId || null,
           displayName: p.displayName.trim(),
@@ -2939,7 +2999,7 @@
           top.appendChild(el('span', { class: 'ni-dist' }, [formatDistKm(entry.distKm)]));
           btn.appendChild(top);
           btn.appendChild(el('div', { class: 'ni-meta' }, [
-            (entry.course.country || '') +
+            countryDisplayName(entry.course.country) +
             (entry.course.region ? ' / ' + entry.course.region : '') +
             ' · ' + formatHoleCountLabel(entry.course)
           ]));
@@ -2959,7 +3019,7 @@
       const courseInfo = el('div', {}, []);
       courseInfo.appendChild(el('div', { class: 'course-name' }, [course ? course.name : 'Kein Platz']));
       if (course) {
-        const meta = (course.country || '') +
+        const meta = countryDisplayName(course.country) +
           (course.region ? ' / ' + course.region : '') +
           ' · ' + formatHoleCountLabel(course);
         courseInfo.appendChild(el('div', { class: 'course-meta' }, [meta]));
@@ -3012,8 +3072,13 @@
         courseCard.appendChild(palette);
         const tee = getTee(course, state.setupDraft.teeForCourse);
         if (tee) {
+          // For a 9-hole course carrying an 18-hole rating, note that the
+          // Spielvorgabe is computed WHS-style (half index + 9-hole rating).
+          // Uses the SAME resolver as the calc so hint and handicap never disagree.
+          const nineWith18 = course.holeCount === 9 && resolveTeeRatingHoles(tee, course.holeCount) === 18;
           courseCard.appendChild(el('div', { class: 'info-line', style: 'margin-top:8px;' }, [
-            'CR / SR / Par: ' + tee.courseRating.toFixed(1) + ' / ' + tee.slopeRating + ' / ' + tee.par
+            'CR / SR / Par: ' + tee.courseRating.toFixed(1) + ' / ' + tee.slopeRating + ' / ' + tee.par +
+            (nineWith18 ? ' · 18-Loch-Rating (9-Loch-Vorgabe wird berechnet)' : '')
           ]));
         }
       }
@@ -3173,7 +3238,7 @@
       return row;
     }
     function renderCourseFilterBar() {
-      const f = state.setupDraft.filters || { name: '', region: 'Alle', holeCount: 'Alle' };
+      const f = state.setupDraft.filters || { name: '', region: 'Alle', holeCount: 'Alle', country: 'Alle' };
       const wrap = el('div', { class: 'filter-bar' });
       const nameIn = el('input', { type: 'text', placeholder: 'Platzname filtern', value: f.name || '' });
       nameIn.addEventListener('input', function () {
@@ -3183,6 +3248,27 @@
       wrap.appendChild(nameIn);
 
       const row2 = el('div', { class: 'filter-row2' });
+
+      // Country filter: built from the countries actually present in the loaded DB.
+      const countrySel = el('select');
+      const countryList = availableCountries();
+      const countryOpts = [{ v: 'Alle', t: 'Alle Laender' }].concat(
+        countryList.map(function (iso) { return { v: iso, t: countryDisplayName(iso) }; })
+      );
+      countryOpts.forEach(function (opt) {
+        const o = document.createElement('option');
+        o.value = opt.v;
+        o.textContent = opt.t;
+        if (opt.v === (f.country || 'Alle')) o.selected = true;
+        countrySel.appendChild(o);
+      });
+      countrySel.addEventListener('change', function () {
+        f.country = countrySel.value;
+        renderFilteredCoursesList(true);
+      });
+      // Full-width own row (country search is a primary filter).
+      wrap.appendChild(countrySel);
+
       const regionSel = el('select');
       const regionOpts = ['Alle'].concat(allKnownRegionItems());
       // include any additional labels actually present in data
@@ -3222,8 +3308,8 @@
       return wrap;
     }
     function renderFilteredCoursesList(replaceExisting) {
-      const f = state.setupDraft.filters || { name: '', region: 'Alle', holeCount: 'Alle' };
-      const courses = filterCoursesForSetup(state.appState.courses, f.name, f.region, f.holeCount);
+      const f = state.setupDraft.filters || { name: '', region: 'Alle', holeCount: 'Alle', country: 'Alle' };
+      const courses = filterCoursesForSetup(state.appState.courses, f.name, f.region, f.holeCount, f.country);
       const list = el('div', { class: 'all-courses-list', id: 'all-courses-list' });
       if (courses.length === 0) {
         list.appendChild(el('div', { class: 'empty-state' }, ['Keine Plaetze gefunden.']));
@@ -3235,7 +3321,7 @@
           });
           btn.appendChild(el('div', { class: 'ci-name' }, [c.name]));
           btn.appendChild(el('div', { class: 'ci-meta' }, [
-            (c.country || '') +
+            countryDisplayName(c.country) +
             (c.region ? ' / ' + c.region : '') +
             ' · ' + formatHoleCountLabel(c) +
             ((c.regionTags && c.regionTags.length) ? ' · ' + c.regionTags.join(', ') : '')
@@ -3367,7 +3453,7 @@
         });
         item.appendChild(el('span', {}, [c.name + ' ']));
         item.appendChild(el('span', { class: 'small' }, [
-          '— ' + c.country + (c.region ? ' / ' + c.region : '')
+          '— ' + countryDisplayName(c.country) + (c.region ? ' / ' + c.region : '')
         ]));
         item.addEventListener('click', function () {
           state.setupDraft.courseId = c.id;
@@ -3669,6 +3755,10 @@
       root.appendChild(body);
     }
     function renderLivePane(pane, round, course) {
+      // Last playable hole of this round (9 for a 9-hole course, 18 for 18).
+      const lastHole = (Array.isArray(round.holeNumbers) && round.holeNumbers.length)
+        ? round.holeNumbers[round.holeNumbers.length - 1]
+        : (course.holeCount || (course.holes && course.holes.length) || 18);
       const hole = getHole(course, round.currentHole);
       // Hole header
       const hdr = el('div', { class: 'hole-header' });
@@ -3700,10 +3790,10 @@
           renderPlay();
         }
       });
-      const nextLabel = round.currentHole === 18 ? 'Runde abschliessen' : ('Loch ' + (round.currentHole + 1) + ' ›');
+      const nextLabel = round.currentHole >= lastHole ? 'Runde abschliessen' : ('Loch ' + (round.currentHole + 1) + ' ›');
       const next = el('button', { class: 'btn btn-primary', type: 'button' }, [nextLabel]);
       next.addEventListener('click', function () {
-        if (round.currentHole < 18) {
+        if (round.currentHole < lastHole) {
           round.currentHole++;
           scheduleAutosave();
           renderPlay();
@@ -3931,8 +4021,13 @@
         return hole.par;
       }
 
-      // --- Holes 1-9 (alternating row A/B) ---
-      for (let h = 1; h <= 9; h++) {
+      // How many holes this course actually has (9 or 18). Drives whether the
+      // IN block (holes 10+) is rendered at all — a 9-hole course would
+      // otherwise deref getHole(course,10..18) === null and crash the pane.
+      const nHoles = course.holeCount || (course.holes && course.holes.length) || 18;
+
+      // --- Front holes (1 .. min(9, nHoles)), alternating row A/B ---
+      for (let h = 1; h <= Math.min(9, nHoles); h++) {
         parOut += accumulateHole(h, outAcc);
         tbody.appendChild(buildHoleRow(h, (h % 2 === 1) ? 'row-a' : 'row-b'));
       }
@@ -3951,25 +4046,26 @@
       });
       tbody.appendChild(outRow);
 
-      // --- Holes 10-18 ---
-      for (let h = 10; h <= 18; h++) {
-        parIn += accumulateHole(h, inAcc);
-        tbody.appendChild(buildHoleRow(h, (h % 2 === 1) ? 'row-a' : 'row-b'));
-      }
+      // --- Back holes (10 .. nHoles) + IN summary — only for >9-hole courses ---
+      if (nHoles > 9) {
+        for (let h = 10; h <= nHoles; h++) {
+          parIn += accumulateHole(h, inAcc);
+          tbody.appendChild(buildHoleRow(h, (h % 2 === 1) ? 'row-a' : 'row-b'));
+        }
 
-      // --- IN summary row ---
-      const inRow = el('tr', { class: 'row-summary row-in' });
-      inRow.appendChild(el('th', { class: 'col-loch' }, ['IN']));
-      inRow.appendChild(el('td', { class: 'col-si'   }, ['']));
-      inRow.appendChild(el('td', { class: 'col-par'  }, [String(parIn)]));
-      inRow.appendChild(el('td', { class: 'col-gelb' }, ['']));
-      round.playersInRound.forEach(function (_, idx) {
-        const a = inAcc[idx];
-        inRow.appendChild(el('td', { class: 'col-schl col-schl--first-of-player' }, [a.any ? String(a.schl) : '']));
-        inRow.appendChild(el('td', { class: 'col-slash' }, ['']));
-        inRow.appendChild(el('td', { class: 'col-stbf' }, [a.any ? String(a.stbl) : '']));
-      });
-      tbody.appendChild(inRow);
+        const inRow = el('tr', { class: 'row-summary row-in' });
+        inRow.appendChild(el('th', { class: 'col-loch' }, ['IN']));
+        inRow.appendChild(el('td', { class: 'col-si'   }, ['']));
+        inRow.appendChild(el('td', { class: 'col-par'  }, [String(parIn)]));
+        inRow.appendChild(el('td', { class: 'col-gelb' }, ['']));
+        round.playersInRound.forEach(function (_, idx) {
+          const a = inAcc[idx];
+          inRow.appendChild(el('td', { class: 'col-schl col-schl--first-of-player' }, [a.any ? String(a.schl) : '']));
+          inRow.appendChild(el('td', { class: 'col-slash' }, ['']));
+          inRow.appendChild(el('td', { class: 'col-stbf' }, [a.any ? String(a.stbl) : '']));
+        });
+        tbody.appendChild(inRow);
+      }
 
       // --- TOTAL row ---
       const totalRow = el('tr', { class: 'row-summary row-total' });
@@ -4108,7 +4204,8 @@
       card.appendChild(stats);
       // Spark
       const spark = el('div', { class: 'rc-spark' });
-      for (let h = 1; h <= 18; h++) {
+      const nSparkHoles = course.holeCount || (course.holes && course.holes.length) || 18;
+      for (let h = 1; h <= nSparkHoles; h++) {
         const s = getStrokesForPlayerHole(round, entry.idx, h);
         const hole = getHole(course, h);
         const given = entry.pir.strokesPerHole[h - 1] || 0;
@@ -4180,8 +4277,8 @@
         const info = el('div', { class: 'grow' });
         info.appendChild(el('div', { class: 'name' }, [c.name]));
         info.appendChild(el('div', { class: 'meta' }, [
-          (c.country || '') + (c.region ? ' / ' + c.region : '') +
-          ' · ' + c.tees.length + ' Tees · 18 Loecher'
+          countryDisplayName(c.country) + (c.region ? ' / ' + c.region : '') +
+          ' · ' + c.tees.length + ' Tees · ' + (c.holeCount || 18) + ' Loecher'
         ]));
         row.appendChild(info);
         courseList.appendChild(row);
