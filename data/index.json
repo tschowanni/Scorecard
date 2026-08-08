@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "version": "2026-08-08T13:57:01.004790+00:00",
+  "totalCourses": 4998,
+  "countries": [
+    {
+      "iso": "AT",
+      "file": "courses-AT.json",
+      "count": 192,
+      "hash": "fc8984206d78fb23"
+    },
+    {
+      "iso": "BE",
+      "file": "courses-BE.json",
+      "count": 111,
+      "hash": "799ebfaa9cff6860"
+    },
+    {
+      "iso": "CH",
+      "file": "courses-CH.json",
+      "count": 133,
+      "hash": "e8b3633c481f9d37"
+    },
+    {
+      "iso": "CY",
+      "file": "courses-CY.json",
+      "count": 8,
+      "hash": "583855f79925cd08"
+    },
+    {
+      "iso": "CZ",
+      "file": "courses-CZ.json",
+      "count": 113,
+      "hash": "b5fa4fa92708a9f5"
+    },
+    {
+      "iso": "DE",
+      "file": "courses-DE.json",
+      "count": 976,
+      "hash": "e23aaf8a22f9036a"
+    },
+    {
+      "iso": "ES",
+      "file": "courses-ES.json",
+      "count": 459,
+      "hash": "90d3025505a5368e"
+    },
+    {
+      "iso": "FR",
+      "file": "courses-FR.json",
+      "count": 725,
+      "hash": "4748ff1982fe4591"
+    },
+    {
+      "iso": "GG",
+      "file": "courses-GG.json",
+      "count": 3,
+      "hash": "26c43a46a4c152ca"
+    },
+    {
+      "iso": "GR",
+      "file": "courses-GR.json",
+      "count": 8,
+      "hash": "b2f237fbe53f3b0b"
+    },
+    {
+      "iso": "HR",
+      "file": "courses-HR.json",
+      "count": 6,
+      "hash": "89f7edfe659afeb7"
+    },
+    {
+      "iso": "HU",
+      "file": "courses-HU.json",
+      "count": 16,
+      "hash": "a0d543d90093eedf"
+    },
+    {
+      "iso": "IM",
+      "file": "courses-IM.json",
+      "count": 10,
+      "hash": "9d6b6a3cc865d93d"
+    },
+    {
+      "iso": "IT",
+      "file": "courses-IT.json",
+      "count": 285,
+      "hash": "685fb0158ab862a6"
+    },
+    {
+      "iso": "JE",
+      "file": "courses-JE.json",
+      "count": 5,
+      "hash": "650cce19b8391d2e"
+    },
+    {
+      "iso": "LT",
+      "file": "courses-LT.json",
+      "count": 5,
+      "hash": "8d208b477bbbbe40"
+    },
+    {
+      "iso": "LU",
+      "file": "courses-LU.json",
+      "count": 5,
+      "hash": "09cd77443518791b"
+    },
+    {
+      "iso": "LV",
+      "file": "courses-LV.json",
+      "count": 5,
+      "hash": "060573a51357a121"
+    },
+    {
+      "iso": "MT",
+      "file": "courses-MT.json",
+      "count": 1,
+      "hash": "2a479e246ab661b5"
+    },
+    {
+      "iso": "PL",
+      "file": "courses-PL.json",
+      "count": 44,
+      "hash": "0a1d48cd39100753"
+    },
+    {
+      "iso": "PT",
+      "file": "courses-PT.json",
+      "count": 96,
+      "hash": "d8e65a65419a55d1"
+    },
+    {
+      "iso": "SI",
+      "file": "courses-SI.json",
+      "count": 14,
+      "hash": "cb6606c3204bf7a4"
+    },
+    {
+      "iso": "SK",
+      "file": "courses-SK.json",
+      "count": 21,
+      "hash": "b9a4707d4df919d7"
+    },
+    {
+      "iso": "US",
+      "file": "courses-US.json",
+      "count": 1757,
+      "hash": "d0c05bf2de7046d5"
+    }
+  ]
+}
