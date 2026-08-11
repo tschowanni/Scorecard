@@ -1,19 +1,19 @@
 {
   "schema": 1,
-  "version": "2026-08-10T06:42:23.835594+00:00",
-  "totalCourses": 5283,
+  "version": "2026-08-11T07:13:32.174689+00:00",
+  "totalCourses": 5612,
   "countries": [
     {
       "iso": "AT",
       "file": "courses-AT.json",
       "count": 193,
-      "hash": "06943cd64eacc784"
+      "hash": "f3e16b9a83dde09b"
     },
     {
       "iso": "BE",
       "file": "courses-BE.json",
       "count": 117,
-      "hash": "12d92d06b321105b"
+      "hash": "061114b1e857124d"
     },
     {
       "iso": "CH",
@@ -25,13 +25,13 @@
       "iso": "CY",
       "file": "courses-CY.json",
       "count": 8,
-      "hash": "2b4c584550071f6a"
+      "hash": "b0bcde6507d58de5"
     },
     {
       "iso": "CZ",
       "file": "courses-CZ.json",
       "count": 118,
-      "hash": "7916d53bd4be4fc6"
+      "hash": "b7798b63dd9ee90c"
     },
     {
       "iso": "DE",
@@ -43,7 +43,7 @@
       "iso": "ES",
       "file": "courses-ES.json",
       "count": 496,
-      "hash": "6c6bfda4208956fe"
+      "hash": "e1ab5294e707953d"
     },
     {
       "iso": "FR",
@@ -55,115 +55,115 @@
       "iso": "GB",
       "file": "courses-GB.json",
       "count": 78,
-      "hash": "368d6c2c51116ce2"
+      "hash": "1f04e331b4d27b78"
     },
     {
       "iso": "GG",
       "file": "courses-GG.json",
       "count": 5,
-      "hash": "d66f94a68db28433"
+      "hash": "d378e02aeafa485b"
     },
     {
       "iso": "GR",
       "file": "courses-GR.json",
       "count": 8,
-      "hash": "785e6bfaf23904a1"
+      "hash": "c1845e16622a9671"
     },
     {
       "iso": "HR",
       "file": "courses-HR.json",
       "count": 6,
-      "hash": "6876983c3da3b485"
+      "hash": "42d379a4e296303f"
     },
     {
       "iso": "HU",
       "file": "courses-HU.json",
       "count": 16,
-      "hash": "0fbc2dd70cbf18f4"
+      "hash": "6ae54e65a2e75cfe"
     },
     {
       "iso": "IE",
       "file": "courses-IE.json",
       "count": 45,
-      "hash": "2f75351105417bc3"
+      "hash": "ac4fe27b144555e1"
     },
     {
       "iso": "IM",
       "file": "courses-IM.json",
       "count": 10,
-      "hash": "d5f7d456925a13ce"
+      "hash": "188ddd59e7cb6ac4"
     },
     {
       "iso": "IT",
       "file": "courses-IT.json",
       "count": 300,
-      "hash": "6b599859bb027fae"
+      "hash": "e3bcca5d55a52890"
     },
     {
       "iso": "JE",
       "file": "courses-JE.json",
       "count": 5,
-      "hash": "e47f7603572fc690"
+      "hash": "c50304e33fa27f33"
     },
     {
       "iso": "LT",
       "file": "courses-LT.json",
       "count": 6,
-      "hash": "bcbef29116fe9fa7"
+      "hash": "41ab78077912ae47"
     },
     {
       "iso": "LU",
       "file": "courses-LU.json",
       "count": 5,
-      "hash": "0e57ca80a57d50b3"
+      "hash": "909b53ad748cceab"
     },
     {
       "iso": "LV",
       "file": "courses-LV.json",
       "count": 6,
-      "hash": "de000c543b7ed9b2"
+      "hash": "48e23c4ba202d3e8"
     },
     {
       "iso": "MT",
       "file": "courses-MT.json",
       "count": 1,
-      "hash": "a50bd6be0fa18e90"
+      "hash": "6e95647b1f919fc7"
     },
     {
       "iso": "NL",
       "file": "courses-NL.json",
-      "count": 7,
-      "hash": "affe4560d0587a57"
+      "count": 336,
+      "hash": "4b0a1636b1573f83"
     },
     {
       "iso": "PL",
       "file": "courses-PL.json",
       "count": 48,
-      "hash": "d97ccef1fe9b6d91"
+      "hash": "5f1c115fc2012090"
     },
     {
       "iso": "PT",
       "file": "courses-PT.json",
       "count": 99,
-      "hash": "5d4897a7b8e68765"
+      "hash": "0649c13c5a879f7d"
     },
     {
       "iso": "SE",
       "file": "courses-SE.json",
       "count": 65,
-      "hash": "799b5edcb17c264e"
+      "hash": "ef83e5dd3e509e85"
     },
     {
       "iso": "SI",
       "file": "courses-SI.json",
       "count": 14,
-      "hash": "93da26f25e21f112"
+      "hash": "efa409a44a8aff27"
     },
     {
       "iso": "SK",
       "file": "courses-SK.json",
       "count": 22,
-      "hash": "9faa02e18e548bea"
+      "hash": "c8020ce98f58fdaa"
     },
     {
       "iso": "US",
