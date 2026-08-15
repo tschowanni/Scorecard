@@ -1,19 +1,19 @@
 {
   "schema": 1,
-  "version": "2026-08-11T07:13:32.174689+00:00",
-  "totalCourses": 5612,
+  "version": "2026-08-15T09:24:47.880939+00:00",
+  "totalCourses": 6409,
   "countries": [
     {
       "iso": "AT",
       "file": "courses-AT.json",
       "count": 193,
-      "hash": "f3e16b9a83dde09b"
+      "hash": "a5f69ae745e53e97"
     },
     {
       "iso": "BE",
       "file": "courses-BE.json",
       "count": 117,
-      "hash": "061114b1e857124d"
+      "hash": "09a7632a74b6be3d"
     },
     {
       "iso": "CH",
@@ -25,13 +25,13 @@
       "iso": "CY",
       "file": "courses-CY.json",
       "count": 8,
-      "hash": "b0bcde6507d58de5"
+      "hash": "9c82a6675e0d113b"
     },
     {
       "iso": "CZ",
       "file": "courses-CZ.json",
       "count": 118,
-      "hash": "b7798b63dd9ee90c"
+      "hash": "cb77e0ad1de9de51"
     },
     {
       "iso": "DE",
@@ -43,7 +43,7 @@
       "iso": "ES",
       "file": "courses-ES.json",
       "count": 496,
-      "hash": "e1ab5294e707953d"
+      "hash": "e10d6796ffef0bf1"
     },
     {
       "iso": "FR",
@@ -55,115 +55,115 @@
       "iso": "GB",
       "file": "courses-GB.json",
       "count": 78,
-      "hash": "1f04e331b4d27b78"
+      "hash": "5349d3d8d8b6f9c7"
     },
     {
       "iso": "GG",
       "file": "courses-GG.json",
       "count": 5,
-      "hash": "d378e02aeafa485b"
+      "hash": "3244c847833f5b6d"
     },
     {
       "iso": "GR",
       "file": "courses-GR.json",
       "count": 8,
-      "hash": "c1845e16622a9671"
+      "hash": "6f13c215d2a9b6c6"
     },
     {
       "iso": "HR",
       "file": "courses-HR.json",
       "count": 6,
-      "hash": "42d379a4e296303f"
+      "hash": "27fcb14c58ff3828"
     },
     {
       "iso": "HU",
       "file": "courses-HU.json",
       "count": 16,
-      "hash": "6ae54e65a2e75cfe"
+      "hash": "9d497d6091769e8d"
     },
     {
       "iso": "IE",
       "file": "courses-IE.json",
-      "count": 45,
-      "hash": "ac4fe27b144555e1"
+      "count": 337,
+      "hash": "c4c85ff91358f24c"
     },
     {
       "iso": "IM",
       "file": "courses-IM.json",
       "count": 10,
-      "hash": "188ddd59e7cb6ac4"
+      "hash": "1688fd15b954dcd2"
     },
     {
       "iso": "IT",
       "file": "courses-IT.json",
       "count": 300,
-      "hash": "e3bcca5d55a52890"
+      "hash": "92d41709a16d1ca0"
     },
     {
       "iso": "JE",
       "file": "courses-JE.json",
       "count": 5,
-      "hash": "c50304e33fa27f33"
+      "hash": "2a1fc2b4e3b6ce90"
     },
     {
       "iso": "LT",
       "file": "courses-LT.json",
       "count": 6,
-      "hash": "41ab78077912ae47"
+      "hash": "75c6d9f3c9a5f18c"
     },
     {
       "iso": "LU",
       "file": "courses-LU.json",
       "count": 5,
-      "hash": "909b53ad748cceab"
+      "hash": "339c18e516a9d5f2"
     },
     {
       "iso": "LV",
       "file": "courses-LV.json",
       "count": 6,
-      "hash": "48e23c4ba202d3e8"
+      "hash": "8e6449ee3bbc2ca9"
     },
     {
       "iso": "MT",
       "file": "courses-MT.json",
       "count": 1,
-      "hash": "6e95647b1f919fc7"
+      "hash": "d57bd42fcefa65ea"
     },
     {
       "iso": "NL",
       "file": "courses-NL.json",
       "count": 336,
-      "hash": "4b0a1636b1573f83"
+      "hash": "b3d81d3927fec1fa"
     },
     {
       "iso": "PL",
       "file": "courses-PL.json",
       "count": 48,
-      "hash": "5f1c115fc2012090"
+      "hash": "63473f33a7f0c4a2"
     },
     {
       "iso": "PT",
       "file": "courses-PT.json",
       "count": 99,
-      "hash": "0649c13c5a879f7d"
+      "hash": "e6702fcdfb7a6468"
     },
     {
       "iso": "SE",
       "file": "courses-SE.json",
-      "count": 65,
-      "hash": "ef83e5dd3e509e85"
+      "count": 570,
+      "hash": "2200c059b7dd1aa7"
     },
     {
       "iso": "SI",
       "file": "courses-SI.json",
       "count": 14,
-      "hash": "efa409a44a8aff27"
+      "hash": "5ae657cb817c1cd6"
     },
     {
       "iso": "SK",
       "file": "courses-SK.json",
       "count": 22,
-      "hash": "c8020ce98f58fdaa"
+      "hash": "f994e213b4846684"
     },
     {
       "iso": "US",
