@@ -3510,7 +3510,7 @@
     //   2. Save+restore scrollTop per sub-view across re-renders so taps
     //      (e.g. tee pill, HCP stepper, player add) keep the user in place.
     // ============================================================
-    const __setupScroll = { hub: 0, course: 0, players: 0 };
+    const __setupScroll = { hub: 0, course: 0, players: 0, playersDb: 0 };
     let __setupSubLastRendered = null;
 
     function setSetupSubScreen(name) {
@@ -3535,6 +3535,7 @@
       if (sub === 'course') renderSetupCourseView(root);
       else if (sub === 'preview') renderSetupPreviewView(root);
       else if (sub === 'players') renderSetupPlayersView(root);
+      else if (sub === 'playersDb') renderSetupPlayersDbView(root);
       else renderSetupHubView(root);
 
       __setupSubLastRendered = sub;
@@ -3649,6 +3650,17 @@
         card.appendChild(row);
         padded.appendChild(card);
       }
+
+      // Spielerverwaltung — direkter Zugang OHNE vorherige Platzwahl. Fuehrt in
+      // die vollwertige Spieler-DB (anlegen / HCP / Tee / loeschen). Loeschen wirkt
+      // hier DAUERHAFT — im Gegensatz zum "aus dieser Runde entfernen" (✕) der
+      // Rundenliste, das die Datenbank nie veraendert.
+      const managePlayers = el('button', { class: 'hub-btn', type: 'button', 'aria-label': 'Spieler verwalten' });
+      managePlayers.appendChild(el('div', { class: 'hub-btn-title' }, ['Spieler']));
+      managePlayers.appendChild(el('div', { class: 'hub-btn-status' }, ['Anlegen · HCP · Tee · loeschen']));
+      managePlayers.appendChild(el('span', { class: 'hub-btn-arrow', 'aria-hidden': 'true' }, ['›']));
+      managePlayers.addEventListener('click', function () { setSetupSubScreen('playersDb'); });
+      padded.appendChild(managePlayers);
 
       // Data accordion (kept on hub for quick access without scrolling deep)
       const accord = el('details', { class: 'accordion' });
@@ -4270,12 +4282,16 @@
       // Der Spieler in der Setup-Liste ist nur eine Auswahl fuer DIESE Runde,
       // der zugrunde liegende DB-Eintrag (state.appState.players) bleibt
       // unangetastet. "Runde starten" prueft separat auf >=1 Spieler.
+      // '✕' statt '🗑': dieser Button nimmt den Spieler NUR aus dieser Runde,
+      // er loescht NICHT aus der Datenbank. Ein Muelleimer wurde als DB-Loeschen
+      // missverstanden -> neutrales ✕ ohne 'danger'-Rot. Echtes Loeschen: Hub ->
+      // "Spieler".
       const rmBtn = el('button', {
-        class: 'icon-btn danger',
+        class: 'icon-btn',
         type: 'button',
         'aria-label': 'Aus dieser Runde entfernen',
         title: 'Aus dieser Runde entfernen'
-      }, ['🗑']);
+      }, ['✕']);
       rmBtn.addEventListener('click', function () {
         state.setupDraft.players.splice(idx, 1);
         renderSetup();
@@ -5131,30 +5147,18 @@
     // ============================================================
     // Data screen rendering
     // ============================================================
-    function renderData() {
-      const root = document.getElementById('screen-data');
-      root.innerHTML = '';
-      const scroll = el('div', { class: 'scroll-area' });
-      const padded = el('div', { class: 'padded stack' });
-
-      // Darstellung / Vollbild (App-Ansicht ohne Browser-/Systemleisten)
-      if (appFullscreenSupported()) {
-        padded.appendChild(el('div', { class: 'section-title' }, ['Darstellung']));
-        const fsLabel = function () { return isAppFullscreen() ? 'Vollbild verlassen' : 'Vollbild — App-Ansicht'; };
-        const fsBtn = el('button', { class: 'btn btn-block', type: 'button' }, [fsLabel()]);
-        fsBtn.addEventListener('click', function () {
-          toggleAppFullscreen();
-          setTimeout(function () { fsBtn.textContent = fsLabel(); }, 120);
-        });
-        padded.appendChild(fsBtn);
-        padded.appendChild(el('div', { class: 'small' }, [
-          'Blendet Browser- und Android-Leisten aus. Zum Anzeigen von unten nach oben wischen. ' +
-          'Fuer eine echte App-Kachel: Browser-Menue → "Zum Startbildschirm hinzufuegen".'
-        ]));
-      }
-
-      // Spieler section
-      padded.appendChild(el('div', { class: 'section-title', style: 'margin-top:14px;' }, ['Spieler']));
+    // Nach einer Spieler-DB-Aenderung den gerade sichtbaren Verwaltungs-Screen neu
+    // zeichnen: entweder den Daten-Screen ODER die Hub-Spielerverwaltung.
+    function rerenderPlayerAdmin() {
+      if (state.activeScreen === 'data') renderData();
+      else renderSetup();   // Setup -> aktuelle Unteransicht (playersDb) neu rendern
+    }
+    // Vollwertige Spieler-DB (Liste + Bearbeiten + Loeschen + Neu). Wird von BEIDEN
+    // Orten genutzt: Daten-Screen und der Hub-Spielerverwaltung — eine Quelle,
+    // damit sich beide nie auseinanderentwickeln. Loeschen hier ist DAUERHAFT
+    // (filter + saveState), im Browser als persistent verifiziert.
+    function renderPlayerAdminSection(container) {
+      container.appendChild(el('div', { class: 'section-title', style: 'margin-top:14px;' }, ['Spieler']));
       const playerList = el('div', { class: 'data-list' });
       if (state.appState.players.length === 0) {
         playerList.appendChild(el('div', { class: 'empty-state' }, ['Keine Spieler vorhanden.']));
@@ -5180,7 +5184,7 @@
               onConfirm: function () {
                 state.appState.players = state.appState.players.filter(function (x) { return x.id !== p.id; });
                 saveState();
-                renderData();
+                rerenderPlayerAdmin();
               }
             });
           });
@@ -5191,10 +5195,48 @@
           playerList.appendChild(row);
         });
       }
-      padded.appendChild(playerList);
+      container.appendChild(playerList);
       const addPBtn = el('button', { class: 'btn', type: 'button' }, ['+ Spieler']);
       addPBtn.addEventListener('click', openNewPlayerInDatabaseSheet);
-      padded.appendChild(addPBtn);
+      container.appendChild(addPBtn);
+    }
+    // Eigene Hub-Unteransicht "Spieler verwalten" (Zurueck -> Hub). Braucht KEINEN
+    // gewaehlten Platz — reine Datenbank-Pflege.
+    function renderSetupPlayersDbView(root) {
+      root.appendChild(buildSubViewHeader('Spieler verwalten'));
+      const scroll = el('div', { class: 'scroll-area' });
+      const padded = el('div', { class: 'padded stack' });
+      padded.appendChild(el('div', { class: 'small' }, [
+        'Spieler anlegen, HCP/Tee bearbeiten oder loeschen — unabhaengig von einer Runde.'
+      ]));
+      renderPlayerAdminSection(padded);
+      scroll.appendChild(padded);
+      root.appendChild(scroll);
+    }
+    function renderData() {
+      const root = document.getElementById('screen-data');
+      root.innerHTML = '';
+      const scroll = el('div', { class: 'scroll-area' });
+      const padded = el('div', { class: 'padded stack' });
+
+      // Darstellung / Vollbild (App-Ansicht ohne Browser-/Systemleisten)
+      if (appFullscreenSupported()) {
+        padded.appendChild(el('div', { class: 'section-title' }, ['Darstellung']));
+        const fsLabel = function () { return isAppFullscreen() ? 'Vollbild verlassen' : 'Vollbild — App-Ansicht'; };
+        const fsBtn = el('button', { class: 'btn btn-block', type: 'button' }, [fsLabel()]);
+        fsBtn.addEventListener('click', function () {
+          toggleAppFullscreen();
+          setTimeout(function () { fsBtn.textContent = fsLabel(); }, 120);
+        });
+        padded.appendChild(fsBtn);
+        padded.appendChild(el('div', { class: 'small' }, [
+          'Blendet Browser- und Android-Leisten aus. Zum Anzeigen von unten nach oben wischen. ' +
+          'Fuer eine echte App-Kachel: Browser-Menue → "Zum Startbildschirm hinzufuegen".'
+        ]));
+      }
+
+      // Spieler section (geteilte CRUD — auch ueber Hub -> "Spieler" erreichbar)
+      renderPlayerAdminSection(padded);
 
       // Plaetze section — nur eine Vorschau, NICHT die ganze DB als DOM (bei
       // tausenden Plaetzen wuerde das den Screen blockieren). Die vollstaendige,
@@ -5391,7 +5433,7 @@
         p.defaultTeeColorKey = chosen;
         saveState();
         closeOverlay();
-        renderData();
+        rerenderPlayerAdmin();
       });
       actions.appendChild(cancel);
       actions.appendChild(save);
@@ -5452,7 +5494,7 @@
         });
         saveState();
         closeOverlay();
-        renderData();
+        rerenderPlayerAdmin();
       });
       actions.appendChild(cancel);
       actions.appendChild(save);
