@@ -1,19 +1,19 @@
 {
   "schema": 1,
-  "version": "2026-08-15T09:24:47.880939+00:00",
-  "totalCourses": 6409,
+  "version": "2026-08-24T14:54:55.260039+00:00",
+  "totalCourses": 9023,
   "countries": [
     {
       "iso": "AT",
       "file": "courses-AT.json",
       "count": 193,
-      "hash": "a5f69ae745e53e97"
+      "hash": "dfd9e05b29468a7c"
     },
     {
       "iso": "BE",
       "file": "courses-BE.json",
       "count": 117,
-      "hash": "09a7632a74b6be3d"
+      "hash": "4698c58abb5abdc9"
     },
     {
       "iso": "CH",
@@ -25,13 +25,13 @@
       "iso": "CY",
       "file": "courses-CY.json",
       "count": 8,
-      "hash": "9c82a6675e0d113b"
+      "hash": "95b3ddb4f5eff1fd"
     },
     {
       "iso": "CZ",
       "file": "courses-CZ.json",
       "count": 118,
-      "hash": "cb77e0ad1de9de51"
+      "hash": "2ba4badc114d2c0f"
     },
     {
       "iso": "DE",
@@ -43,7 +43,7 @@
       "iso": "ES",
       "file": "courses-ES.json",
       "count": 496,
-      "hash": "e10d6796ffef0bf1"
+      "hash": "0622c2defe732006"
     },
     {
       "iso": "FR",
@@ -54,116 +54,116 @@
     {
       "iso": "GB",
       "file": "courses-GB.json",
-      "count": 78,
-      "hash": "5349d3d8d8b6f9c7"
+      "count": 2692,
+      "hash": "f5aa39744b97925e"
     },
     {
       "iso": "GG",
       "file": "courses-GG.json",
       "count": 5,
-      "hash": "3244c847833f5b6d"
+      "hash": "a65d0a2e686ae156"
     },
     {
       "iso": "GR",
       "file": "courses-GR.json",
       "count": 8,
-      "hash": "6f13c215d2a9b6c6"
+      "hash": "c0ca259e36e20c7c"
     },
     {
       "iso": "HR",
       "file": "courses-HR.json",
       "count": 6,
-      "hash": "27fcb14c58ff3828"
+      "hash": "f27630086420296d"
     },
     {
       "iso": "HU",
       "file": "courses-HU.json",
       "count": 16,
-      "hash": "9d497d6091769e8d"
+      "hash": "c4c3df9cd508cd4a"
     },
     {
       "iso": "IE",
       "file": "courses-IE.json",
       "count": 337,
-      "hash": "c4c85ff91358f24c"
+      "hash": "e4944fcba3c42d69"
     },
     {
       "iso": "IM",
       "file": "courses-IM.json",
       "count": 10,
-      "hash": "1688fd15b954dcd2"
+      "hash": "e38adc5017271a18"
     },
     {
       "iso": "IT",
       "file": "courses-IT.json",
       "count": 300,
-      "hash": "92d41709a16d1ca0"
+      "hash": "b1a2eb2eee2467d5"
     },
     {
       "iso": "JE",
       "file": "courses-JE.json",
       "count": 5,
-      "hash": "2a1fc2b4e3b6ce90"
+      "hash": "b12dd4c9abb039c8"
     },
     {
       "iso": "LT",
       "file": "courses-LT.json",
       "count": 6,
-      "hash": "75c6d9f3c9a5f18c"
+      "hash": "078b468216058d35"
     },
     {
       "iso": "LU",
       "file": "courses-LU.json",
       "count": 5,
-      "hash": "339c18e516a9d5f2"
+      "hash": "65a83c905628f6a1"
     },
     {
       "iso": "LV",
       "file": "courses-LV.json",
       "count": 6,
-      "hash": "8e6449ee3bbc2ca9"
+      "hash": "14876bdd03cc50cc"
     },
     {
       "iso": "MT",
       "file": "courses-MT.json",
       "count": 1,
-      "hash": "d57bd42fcefa65ea"
+      "hash": "796d4477cd4bf98b"
     },
     {
       "iso": "NL",
       "file": "courses-NL.json",
       "count": 336,
-      "hash": "b3d81d3927fec1fa"
+      "hash": "f742bc742c6a107e"
     },
     {
       "iso": "PL",
       "file": "courses-PL.json",
       "count": 48,
-      "hash": "63473f33a7f0c4a2"
+      "hash": "60232540c8c6d09b"
     },
     {
       "iso": "PT",
       "file": "courses-PT.json",
       "count": 99,
-      "hash": "e6702fcdfb7a6468"
+      "hash": "c0e8102a8c06e733"
     },
     {
       "iso": "SE",
       "file": "courses-SE.json",
       "count": 570,
-      "hash": "2200c059b7dd1aa7"
+      "hash": "51ea85cb24befdaf"
     },
     {
       "iso": "SI",
       "file": "courses-SI.json",
       "count": 14,
-      "hash": "5ae657cb817c1cd6"
+      "hash": "acc18a5302babbbd"
     },
     {
       "iso": "SK",
       "file": "courses-SK.json",
       "count": 22,
-      "hash": "f994e213b4846684"
+      "hash": "27115e8735025e35"
     },
     {
       "iso": "US",
