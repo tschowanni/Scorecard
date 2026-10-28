@@ -176,7 +176,7 @@
       flex: 0 0 auto;
       flex-shrink: 0;
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       border-top: 1px solid #D8D6CF;
       background: #EAE4D8;
       padding-bottom: env(safe-area-inset-bottom, 0);
@@ -1729,6 +1729,73 @@
       font-size: 12px; font-weight: 700; color: #fff; background: #B44A2E; margin-left: 6px;
     }
     .audit-badge.ok { background: #4E7A4A; }
+
+    /* ---------- HCP-Rechner (WHS) — im Scorecard-Design ---------- */
+    .hcp-hero { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .hcp-tile {
+      border: 1px solid #D8D6CF; border-radius: 10px; background: #FFFFFF;
+      padding: 12px; text-align: left; font: inherit; color: inherit; width: 100%;
+    }
+    .hcp-tile.calc { background: #E4EFE5; border-color: #B9D3BC; }
+    .hcp-tile .lab { font-size: 12px; color: #746E63; font-weight: 600; }
+    .hcp-tile .val {
+      display: block; font-size: 34px; font-weight: 700; letter-spacing: -.02em;
+      margin-top: 4px; line-height: 1; font-variant-numeric: tabular-nums;
+    }
+    .hcp-tile .sub { display: block; font-size: 11px; color: #746E63; margin-top: 6px; }
+    .hcp-delta {
+      display: inline-block; margin-top: 6px; padding: 2px 8px; border-radius: 999px;
+      background: #FFFFFF; border: 1px solid #B9D3BC; font-size: 12px; font-weight: 700; color: #2F6B3A;
+    }
+    .hcp-delta.up { color: #B3261E; border-color: #E6B8B4; background: #FBEDEC; }
+    .hcp-chart { border: 1px solid #D8D6CF; border-radius: 10px; background: #FFFFFF; padding: 10px 8px 6px; }
+    .hcp-chart svg { display: block; width: 100%; height: auto; }
+    .hcp-chart .cf { display: flex; justify-content: space-between; font-size: 11px; color: #746E63; padding: 2px 4px 0; }
+    .hcp-row {
+      display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+      font: inherit; color: inherit; border: 1px solid #D8D6CF; border-radius: 10px;
+      background: #FFFFFF; padding: 10px 12px; cursor: pointer;
+    }
+    .hcp-row.count { background: #E4EFE5; border-color: #B9D3BC; }
+    .hcp-row.out { opacity: .55; }
+    .hcp-row .d { flex: 0 0 44px; text-align: center; line-height: 1.05; }
+    .hcp-row .d b { display: block; font-size: 17px; font-weight: 700; }
+    .hcp-row .d span { font-size: 10px; font-weight: 600; letter-spacing: .05em; color: #746E63; text-transform: uppercase; }
+    .hcp-row .m { flex: 1; min-width: 0; }
+    .hcp-row .m .nm { font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hcp-row .m .dt { font-size: 12px; color: #746E63; margin-top: 2px; }
+    .hcp-row .v { flex: 0 0 auto; text-align: right; font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .hcp-row .v small { display: block; font-size: 10px; font-weight: 600; color: #746E63; letter-spacing: .05em; }
+    .hcp-chip {
+      display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 6px;
+      background: #2F6B3A; color: #fff; font-size: 10.5px; font-weight: 700; vertical-align: middle;
+    }
+    .hcp-chip.ghost { background: transparent; color: #746E63; border: 1px solid #D8D6CF; }
+    .hcp-divider {
+      display: flex; align-items: center; gap: 10px; margin: 12px 2px 8px;
+      font-size: 11px; font-weight: 600; letter-spacing: .03em; color: #746E63; text-transform: uppercase;
+    }
+    .hcp-divider::before, .hcp-divider::after { content: ""; height: 1px; flex: 1; background: #D8D6CF; }
+    .hcp-legend { display: grid; gap: 6px; border: 1px solid #D8D6CF; border-radius: 10px; background: #FFFFFF; padding: 10px 12px; font-size: 12.5px; }
+    .hcp-legend .li { display: flex; align-items: center; gap: 8px; }
+    .hcp-sw { width: 14px; height: 14px; border-radius: 4px; flex: 0 0 14px; border: 1px solid #D8D6CF; background: #FFFFFF; }
+    .hcp-sw.a { background: #E4EFE5; border-color: #2F6B3A; }
+    .hcp-sw.c { opacity: .45; }
+    .hcp-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .hcp-stat { border: 1px solid #D8D6CF; border-radius: 10px; background: #FFFFFF; padding: 10px 6px; text-align: center; }
+    .hcp-stat b { display: block; font-size: 20px; font-weight: 700; }
+    .hcp-stat span { font-size: 11px; color: #746E63; }
+    .hcp-calc { border: 1px solid #D8D6CF; border-radius: 8px; background: #F5F1E9; padding: 10px; margin-top: 4px; }
+    .hcp-calc .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .hcp-calc .out { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
+    .hcp-calc .out b { font-size: 22px; font-variant-numeric: tabular-nums; }
+    .hcp-me {
+      display: inline-block; font-size: 10.5px; font-weight: 700; color: #2F6B3A;
+      border: 1px solid #B9D3BC; background: #E4EFE5; border-radius: 6px; padding: 1px 6px; margin-left: 6px; vertical-align: middle;
+    }
+    .rc-sd { font-size: 13px; color: #1A1A1A; margin-top: 8px; }
+    .rc-sd strong { font-size: 16px; font-variant-numeric: tabular-nums; }
+    .rc-sd .small { display: block; font-size: 11.5px; color: #746E63; margin-top: 2px; }
   </style>
 </head>
 <body>
@@ -1766,6 +1833,7 @@
       <section id="screen-results" class="screen"></section>
       <section id="screen-history" class="screen"></section>
       <section id="screen-data" class="screen"></section>
+      <section id="screen-hcp" class="screen"></section>
     </main>
 
     <nav id="bottomnav">
@@ -1789,6 +1857,10 @@
         <span class="nav-icon" aria-hidden="true">📁</span>
         <span>Daten</span>
       </button>
+      <button data-screen="hcp">
+        <span class="nav-icon" aria-hidden="true">🎯</span>
+        <span>HCP</span>
+      </button>
     </nav>
   </div>
 
@@ -1808,6 +1880,9 @@
     // ============================================================
     const STORAGE_KEY = 'golfScorecardAppStateV1';
     const SCHEMA_VERSION = 1;
+    // Heimatland: wird beim Start VOR der UI geladen (sofort bedienbar); alle
+    // anderen Laender kommen danach im Hintergrund (siehe loadRemainingCountries).
+    const HOME_COUNTRY = 'CH';
     const COURSE_DB_SCHEMA_VERSION = 1;
 
     // ISO-3166 alpha-2 -> deutscher Anzeigename (fuer die Laender-Suche in der Platzauswahl).
@@ -2265,7 +2340,8 @@
         // damit syncEmbeddedCourses() nicht unnoetig erneut merged.
         embeddedDbVersion: LOADED_COURSE_DB.version || null,
         gps: defaultGpsState(),
-        lastBackupAt: null   // Zeitpunkt des letzten "Alle Daten exportieren"
+        lastBackupAt: null,   // Zeitpunkt des letzten "Alle Daten exportieren"
+        hcp: defaultHcpState()   // HCP-Rechner: aktuelles HCP, Turnierliste, Ich-Spieler
       };
     }
 
@@ -2434,6 +2510,8 @@
         }
         return true;
       });
+      // HCP-Rechner-Daten absichern (fehlen in aelteren States / Backups).
+      s.hcp = sanitizeHcpState(s.hcp);
       if (typeof s.version !== 'number') s.version = SCHEMA_VERSION;
       if (!s.gps || typeof s.gps !== 'object') s.gps = defaultGpsState();
       return s;
@@ -2865,6 +2943,8 @@
             // Offene (laufende) Runden gehoeren zum Backup — frueher gingen sie
             // beim Wiederherstellen stillschweigend verloren.
             openRounds: Array.isArray(parsed.openRounds) ? parsed.openRounds : [],
+            // HCP-Rechner (aktuelles HCP + Turnierliste + Ich-Spieler) gehoert zum Backup.
+            hcp: parsed.hcp,
             // Legacy-Backups (v1.4 und aelter): einzelner Runden-Entwurf.
             currentRoundDraft: (parsed.currentRoundDraft && typeof parsed.currentRoundDraft === 'object')
               ? parsed.currentRoundDraft : undefined
@@ -4084,6 +4164,9 @@
       const container = el('div', { class: 'course-list-wrap', id: 'all-courses-list' });
       let note = headerText + ' (' + (countText != null ? countText : entries.length) + ')';
       if (!nfRaw && gps && gps.status === 'requesting') note = 'GPS wird ermittelt … — ' + note;
+      // Waehrend die uebrigen Laender im Hintergrund nachgeladen werden: Hinweis,
+      // damit klar ist, dass Suche/GPS-Naehe noch nicht alle Plaetze kennen.
+      if (__bgLoad.running) note += ' · weitere Laender werden geladen (' + __bgLoad.done + '/' + __bgLoad.total + ')';
       container.appendChild(el('div', { class: 'section-title' }, [note]));
 
       const list = el('div', { class: 'all-courses-list' });
@@ -5129,6 +5212,43 @@
         entry.totals.anyEntered ? formatToPar(entry.totals.toParGross) : '—'
       ])]));
       card.appendChild(stats);
+      // Gespieltes HCP (Score Differential) — nur bei abgeschlossenen Runden:
+      // exakt aus Par, erhaltenen Schlaegen, Stableford, CR und Slope. Von hier
+      // kann das Ergebnis (im Dialog editierbar) in die HCP-Turnierliste
+      // uebernommen werden — oder es bleibt eine Proberunde (einfach nichts tun).
+      if (round.status === 'finished') {
+        const sdr = scoreDifferentialForPlayer(round, entry.idx);
+        const box = el('div', { class: 'rc-sd' });
+        if (!sdr) {
+          box.appendChild(el('span', { class: 'small' }, ['Gespieltes HCP: nicht berechenbar (keine Schläge oder kein Slope/CR).']));
+        } else {
+          box.appendChild(el('span', {}, ['Gespieltes HCP (Score Diff.): ', el('strong', {}, [fmt1(sdr.sd)])]));
+          box.appendChild(el('span', { class: 'small' }, [
+            'Par ' + sdr.par + ' + Vorgabe ' + sdr.given + ' + ' + (2 * sdr.played) + ' − ' + sdr.pts + ' Pkt = ' + sdr.ags +
+            ' · CR ' + fmt1(sdr.cr) + ' · Slope ' + sdr.slope +
+            (sdr.partial ? ' · nur ' + sdr.played + ' von ' + sdr.holes + ' Löchern (Näherung)' : '')
+          ]));
+          const H = state.appState.hcp || defaultHcpState();
+          const isMe = !!(H.meId && entry.pir.playerId === H.meId);
+          const already = (H.rounds || []).some(function (x) { return x.roundId === round.id; });
+          if (already) {
+            box.appendChild(el('span', { class: 'small', style: 'color:#2F6B3A; font-weight:600;' }, ['✓ In der HCP-Turnierliste']));
+          } else if (isMe || !H.meId) {
+            const btn = el('button', { class: 'btn' + (isMe ? ' btn-primary' : ''), type: 'button', style: 'margin-top:6px;' },
+              [isMe ? 'In HCP-Liste übernehmen' : 'Als mein Ergebnis in HCP-Liste übernehmen']);
+            btn.addEventListener('click', function () {
+              openHcpRoundSheet(null, {
+                datum: isoFromAny(round.date || round.createdAt),
+                name: course.name, courseName: course.name,
+                hcp: sdr.sd, roundId: round.id
+              });
+            });
+            box.appendChild(btn);
+            if (!H.meId) box.appendChild(el('span', { class: 'small' }, ['Tipp: unter HCP → «Das bin ich» deinen Spieler wählen — dann erscheint der Button nur bei dir.']));
+          }
+        }
+        card.appendChild(box);
+      }
       // Spark
       const spark = el('div', { class: 'rc-spark' });
       const nSparkHoles = course.holeCount || (course.holes && course.holes.length) || 18;
@@ -5147,6 +5267,551 @@
     // ============================================================
     // Data screen rendering
     // ============================================================
+    // ============================================================
+    // HCP-Rechner (World Handicap System, Swiss Golf) — eigener Tab "HCP"
+    // ============================================================
+    // Datenmodell in appState.hcp (im Backup enthalten, Schema unveraendert):
+    //   current : aktuell gueltiger Handicap Index (Zahl) oder null
+    //   rounds  : [{ id, datum:'YYYY-MM-DD', name, hcp, courseName?, roundId? }]
+    //             hcp = Score Differential der Runde (das, was gemittelt wird)
+    //   meId    : Spieler "Das bin ich" (fuer die Uebernahme nach einer Runde)
+    //   showOld : Runden ausserhalb der letzten 20 anzeigen
+    // Rechenlogik 1:1 aus dem HCP-Rechner (WHS-Tabelle, Score Differential).
+    function defaultHcpState() {
+      return { current: null, rounds: [], meId: null, showOld: true };
+    }
+    function clampHcp(v) { return Math.min(54, Math.max(-10, Math.round(v * 10) / 10)); }
+    function sanitizeHcpState(h) {
+      if (!h || typeof h !== 'object') return defaultHcpState();
+      const out = {
+        current: (typeof h.current === 'number' && isFinite(h.current)) ? clampHcp(h.current) : null,
+        rounds: [],
+        meId: (typeof h.meId === 'string' && h.meId) ? h.meId : null,
+        showOld: h.showOld !== false
+      };
+      (Array.isArray(h.rounds) ? h.rounds : []).forEach(function (r) {
+        if (!r || typeof r !== 'object') return;
+        const hcp = parseFloat(r.hcp);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(String(r.datum || '')) || isNaN(hcp)) return;
+        const e = { id: String(r.id || uid('hcp')), datum: String(r.datum),
+                    name: String(r.name || '').trim() || 'Turnier', hcp: Math.round(hcp * 10) / 10 };
+        if (r.courseName) e.courseName = String(r.courseName);
+        if (r.roundId) e.roundId = String(r.roundId);
+        out.rounds.push(e);
+      });
+      return out;
+    }
+    function fmt1(n) { return (Math.round(n * 10) / 10).toFixed(1); }
+    function isoFromAny(v) {   // Zeitstempel/Date -> 'YYYY-MM-DD' (lokal)
+      const d = v ? new Date(v) : new Date();
+      const x = isNaN(d.getTime()) ? new Date() : d;
+      return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0');
+    }
+    function isoToday() { return isoFromAny(null); }
+    function deDatum(iso) {   // 'YYYY-MM-DD' -> 'tt.mm.jjjj'
+      const p = String(iso).split('-');
+      return p.length === 3 ? (p[2] + '.' + p[1] + '.' + p[0]) : String(iso);
+    }
+    const HCP_MON = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+    // WHS-Tabelle (Swiss Golf): wie viele der letzten 20 Runden zaehlen + Anpassung.
+    const WHS_TABELLE = [
+      { ab: 20, anzahl: 8, anpassung: 0 }, { ab: 19, anzahl: 7, anpassung: 0 },
+      { ab: 17, anzahl: 6, anpassung: 0 }, { ab: 15, anzahl: 5, anpassung: 0 },
+      { ab: 12, anzahl: 4, anpassung: 0 }, { ab: 9,  anzahl: 3, anpassung: 0 },
+      { ab: 7,  anzahl: 2, anpassung: 0 }, { ab: 6,  anzahl: 2, anpassung: -1 },
+      { ab: 5,  anzahl: 1, anpassung: 0 }, { ab: 4,  anzahl: 1, anpassung: -1 },
+      { ab: 3,  anzahl: 1, anpassung: -2 }
+    ];
+    function hcpSorted() {   // neueste zuerst
+      return (state.appState.hcp.rounds || []).slice().sort(function (a, b) {
+        return b.datum.localeCompare(a.datum) || String(b.id).localeCompare(String(a.id));
+      });
+    }
+    // runden: bereits nach Datum ABSTEIGEND sortiert.
+    function berechneHcp(runden) {
+      const letzte20 = runden.slice(0, 20);
+      const regel = WHS_TABELLE.find(function (r) { return letzte20.length >= r.ab; });
+      if (!regel) return { hcp: null, zaehlendeIds: [], regel: null, basis: letzte20.length };
+      const sortiert = letzte20.slice().sort(function (a, b) { return a.hcp - b.hcp || a.datum.localeCompare(b.datum); });
+      const zaehlend = sortiert.slice(0, regel.anzahl);
+      const summe = zaehlend.reduce(function (s, r) { return s + r.hcp; }, 0);
+      const hcp = Math.min(54, Math.max(-10, summe / regel.anzahl + regel.anpassung));
+      return { hcp: Math.round(hcp * 10) / 10, zaehlendeIds: zaehlend.map(function (r) { return r.id; }),
+               regel: regel, basis: letzte20.length };
+    }
+    // Score Differential aus Brutto-Score: (113 / Slope) x (Score - CR - PCC)
+    function scoreDifferential(score, cr, slope, pcc) {
+      if (!(slope > 0) || !isFinite(score) || !isFinite(cr)) return null;
+      return Math.round((113 / slope) * (score - cr - (pcc || 0)) * 10) / 10;
+    }
+    // Eintrag in die Turnierliste (auch aus der gespielten Runde genutzt).
+    function addHcpRound(e) {
+      const H = state.appState.hcp;
+      const entry = { id: uid('hcp'), datum: e.datum, name: e.name, hcp: Math.round(e.hcp * 10) / 10 };
+      if (e.courseName) entry.courseName = e.courseName;
+      if (e.roundId) entry.roundId = e.roundId;
+      H.rounds.push(entry);
+      saveState();
+      return entry;
+    }
+
+    function renderHcp() {
+      const root = document.getElementById('screen-hcp');
+      root.innerHTML = '';
+      const H = state.appState.hcp;
+      const list = hcpSorted();
+      const res = berechneHcp(list);
+      const win = list.slice(0, 20);
+      const zaehl = res.zaehlendeIds;
+      const scroll = el('div', { class: 'scroll-area' });
+      const padded = el('div', { class: 'padded stack' });
+      padded.appendChild(el('div', { class: 'setup-hub-title' }, ['Handicap']));
+
+      // Kacheln: aktuelles HCP (editierbar) + neu berechnet (mit Delta)
+      const hero = el('div', { class: 'hcp-hero' });
+      const tNow = el('button', { class: 'hcp-tile', type: 'button', 'aria-label': 'Aktuelles HCP aendern' });
+      tNow.appendChild(el('div', { class: 'lab' }, ['Aktuelles HCP  ✎']));
+      tNow.appendChild(el('span', { class: 'val' }, [H.current == null ? '–' : fmt1(H.current)]));
+      tNow.appendChild(el('span', { class: 'sub' }, ['Tippen zum Ändern']));
+      tNow.addEventListener('click', openCurrentHcpSheet);
+      const tNew = el('div', { class: 'hcp-tile calc' });
+      tNew.appendChild(el('div', { class: 'lab' }, ['Neu berechnet']));
+      tNew.appendChild(el('span', { class: 'val' }, [res.hcp == null ? '–' : fmt1(res.hcp)]));
+      if (res.hcp == null) {
+        tNew.appendChild(el('span', { class: 'sub' }, ['Mindestens 3 Runden nötig']));
+      } else if (H.current != null) {
+        const diff = Math.round((res.hcp - H.current) * 10) / 10;
+        tNew.appendChild(el('span', { class: 'hcp-delta' + (diff > 0 ? ' up' : '') }, [
+          diff === 0 ? '= unverändert' : ((diff > 0 ? '▲ +' : '▼ −') + fmt1(Math.abs(diff)))
+        ]));
+      } else {
+        tNew.appendChild(el('span', { class: 'sub' }, ['Vorschlag aus deinen Runden']));
+      }
+      hero.appendChild(tNow);
+      hero.appendChild(tNew);
+      padded.appendChild(hero);
+      if (res.hcp != null && res.hcp !== H.current) {
+        const adopt = el('button', { class: 'btn btn-primary btn-block', type: 'button' },
+          ['Berechnetes HCP übernehmen (' + fmt1(res.hcp) + ')']);
+        adopt.addEventListener('click', function () {
+          H.current = res.hcp; saveState(); renderHcp(); showToast('Aktuelles HCP: ' + fmt1(res.hcp));
+        });
+        padded.appendChild(adopt);
+      }
+
+      // Verlauf (Balken der letzten 20, zaehlende hervorgehoben)
+      const chart = el('div', { class: 'hcp-chart' });
+      chart.appendChild(el('div', { style: 'font-size:14px; font-weight:600;' }, ['Verlauf der letzten 20']));
+      chart.appendChild(el('div', { class: 'small' }, [zaehl.length + ' von ' + win.length + ' Runden zählen in die Wertung']));
+      const cw = el('div');
+      cw.innerHTML = hcpChartSvg(win, res);
+      chart.appendChild(cw);
+      const cf = el('div', { class: 'cf' });
+      cf.appendChild(el('span', {}, [win.length ? deDatum(win[win.length - 1].datum) : '–']));
+      cf.appendChild(el('span', {}, [win.length ? deDatum(win[0].datum) : '–']));
+      chart.appendChild(cf);
+      padded.appendChild(chart);
+
+      // Berechnungsgrundlage
+      const stats = el('div', { class: 'hcp-stats' });
+      [
+        [String(list.length), 'Runden'],
+        [win.length ? fmt1(Math.min.apply(null, win.map(function (r) { return r.hcp; }))) : '–', 'Beste'],
+        [win.length ? fmt1(win.reduce(function (s, r) { return s + r.hcp; }, 0) / win.length) : '–', 'Ø 20']
+      ].forEach(function (x) {
+        const st = el('div', { class: 'hcp-stat' });
+        st.appendChild(el('b', {}, [x[0]]));
+        st.appendChild(el('span', {}, [x[1]]));
+        stats.appendChild(st);
+      });
+      padded.appendChild(stats);
+      padded.appendChild(el('div', { class: 'small' }, [
+        res.regel
+          ? (res.basis + ' Runden in der Wertung · Ø der ' + res.regel.anzahl + ' besten' +
+             (res.regel.anpassung ? ' · Anpassung ' + fmt1(res.regel.anpassung) : ' · keine Anpassung'))
+          : 'WHS: Ø der besten Score Differentials der letzten 20 Runden (Tabelle Swiss Golf).'
+      ]));
+
+      const add = el('button', { class: 'btn btn-primary btn-block', type: 'button' }, ['+ Turnier erfassen']);
+      add.addEventListener('click', function () { openHcpRoundSheet(null); });
+      padded.appendChild(add);
+
+      // Turnierliste
+      const head = el('div', { class: 'row', style: 'justify-content:space-between; align-items:center; margin-top:6px;' });
+      head.appendChild(el('div', { class: 'section-title', style: 'margin:0;' }, ['Turniere (' + list.length + ')']));
+      const legend = el('div', { class: 'hcp-legend', style: 'display:none;' });
+      [['a', 'Zählt in die Wertung', '– eine der besten Runden'],
+       ['',  'Innerhalb der letzten 20', '– zählt aktuell nicht'],
+       ['c', 'Ausserhalb der letzten 20', '– fliesst nicht mehr ein']].forEach(function (x) {
+        const li = el('div', { class: 'li' });
+        li.appendChild(el('i', { class: 'hcp-sw ' + x[0] }));
+        li.appendChild(el('div', {}, [el('b', {}, [x[1] + ' ']), el('span', { class: 'small' }, [x[2]])]));
+        legend.appendChild(li);
+      });
+      const legBtn = el('button', { class: 'btn', type: 'button', style: 'padding:4px 10px; min-height:0;' }, ['Legende']);
+      legBtn.addEventListener('click', function () { legend.style.display = (legend.style.display === 'none') ? 'grid' : 'none'; });
+      head.appendChild(legBtn);
+      padded.appendChild(head);
+      padded.appendChild(legend);
+      const lst = el('div', { class: 'stack', style: 'gap:6px;' });
+      if (list.length === 0) lst.appendChild(el('div', { class: 'empty-state' }, ['Noch keine Turniere erfasst.']));
+      let dividerSet = false;
+      list.forEach(function (r, i) {
+        const out = i >= 20;
+        if (out && !H.showOld) return;
+        if (out && !dividerSet) { lst.appendChild(el('div', { class: 'hcp-divider' }, ['Ausserhalb der letzten 20 Runden'])); dividerSet = true; }
+        lst.appendChild(hcpRowEl(r, zaehl.indexOf(r.id) !== -1, out));
+      });
+      padded.appendChild(lst);
+      if (list.length > 20) {
+        const tog = el('button', { class: 'btn btn-block', type: 'button' }, [H.showOld ? 'Ältere Runden ausblenden' : 'Ältere Runden zeigen']);
+        tog.addEventListener('click', function () { H.showOld = !H.showOld; saveState(); renderHcp(); });
+        padded.appendChild(tog);
+      }
+
+      // Daten: Ich-Spieler, Export/Import (Textformat des HCP-Rechners)
+      padded.appendChild(el('div', { class: 'section-title', style: 'margin-top:14px;' }, ['Daten']));
+      const me = (state.appState.players || []).find(function (p) { return p.id === H.meId; });
+      const meBtn = el('button', { class: 'btn btn-block', type: 'button' }, ['Das bin ich: ' + (me ? me.name : '– noch nicht gewählt –')]);
+      meBtn.addEventListener('click', openMePlayerSheet);
+      padded.appendChild(meBtn);
+      padded.appendChild(el('div', { class: 'small' }, ['Nach einer gespielten Runde wird das gespielte HCP dieses Spielers zur Übernahme angeboten.']));
+      const exp = el('button', { class: 'btn btn-block', type: 'button' }, ['Turniere exportieren (Textdatei)']);
+      exp.addEventListener('click', exportHcpTxt);
+      const imp = el('button', { class: 'btn btn-block', type: 'button' }, ['Turniere importieren (Textdatei)']);
+      imp.addEventListener('click', triggerHcpImport);
+      padded.appendChild(exp);
+      padded.appendChild(imp);
+      padded.appendChild(el('div', { class: 'small' }, [
+        'Format je Zeile: tt.mm.jjjj Turniername HCP — kompatibel mit dem HCP-Rechner. ' +
+        'Soft Cap und Hard Cap gegenüber dem Low Handicap Index sind nicht berücksichtigt.'
+      ]));
+
+      scroll.appendChild(padded);
+      root.appendChild(scroll);
+    }
+    function hcpRowEl(r, zaehlt, out) {
+      const p = r.datum.split('-');
+      const b = el('button', { class: 'hcp-row' + (zaehlt ? ' count' : '') + (out ? ' out' : ''), type: 'button' });
+      const d = el('span', { class: 'd' });
+      d.appendChild(el('b', {}, [p[2]]));
+      d.appendChild(el('span', {}, [HCP_MON[parseInt(p[1], 10) - 1] || '']));
+      const m = el('span', { class: 'm' });
+      m.appendChild(el('span', { class: 'nm' }, [r.name]));
+      const dt = el('span', { class: 'dt' }, [deDatum(r.datum) + (r.courseName ? ' · ' + r.courseName : '')]);
+      if (zaehlt) dt.appendChild(el('span', { class: 'hcp-chip' }, ['✓ Zählt']));
+      else if (out) dt.appendChild(el('span', { class: 'hcp-chip ghost' }, ['ausserhalb 20']));
+      m.appendChild(dt);
+      const v = el('span', { class: 'v' }, [fmt1(r.hcp)]);
+      v.appendChild(el('small', {}, ['HCP']));
+      b.appendChild(d); b.appendChild(m); b.appendChild(v);
+      b.addEventListener('click', function () { openHcpRowActions(r.id); });
+      return b;
+    }
+    // Balkendiagramm (Logik aus dem HCP-Rechner, Farben im Scorecard-Design).
+    function hcpChartSvg(win, res) {
+      const W = 344, H = 170, padT = 14, padB = 20, padL = 28, padR = 6;
+      const plotH = H - padT - padB, plotW = W - padL - padR;
+      const chrono = win.slice().reverse();
+      const n = chrono.length;
+      if (!n) return '<div class="small" style="padding:10px 4px;">Noch keine Runden erfasst.</div>';
+      const vals = chrono.map(function (r) { return r.hcp; });
+      const mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals);
+      let lo = Math.floor((mn - 1.6) / 2) * 2, hi = Math.ceil((mx + 1.2) / 2) * 2;
+      if (hi - lo < 6) hi = lo + 6;
+      const y = function (v) { return padT + (hi - v) / (hi - lo) * plotH; };
+      const base = padT + plotH;
+      const gap = n > 1 ? 6 : 0;
+      const bw = Math.max(5, Math.min(14, (plotW - gap * (n - 1)) / n));
+      const step = n > 1 ? (plotW - bw) / (n - 1) : 0;
+      const x = function (i) { return padL + i * step; };
+      let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Verlauf der letzten Runden">';
+      for (let g = 0; g <= 4; g++) {
+        const gv = lo + (hi - lo) * g / 4, gy = y(gv);
+        s += '<line x1="' + padL + '" y1="' + gy.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + gy.toFixed(1) + '" stroke="#E2E0D9" stroke-width="1"/>';
+        s += '<text x="' + (padL - 6) + '" y="' + (gy + 3.5).toFixed(1) + '" text-anchor="end" font-size="9" fill="#8A9A8F">' + gv.toFixed(0) + '</text>';
+      }
+      const pts = chrono.map(function (r, i) { return [x(i) + bw / 2, y(r.hcp)]; });
+      let d = 'M ' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1);
+      for (let i = 1; i < pts.length; i++) {
+        const p0 = pts[i - 1], p1 = pts[i], cx = (p0[0] + p1[0]) / 2;
+        d += ' C ' + cx.toFixed(1) + ' ' + p0[1].toFixed(1) + ' ' + cx.toFixed(1) + ' ' + p1[1].toFixed(1) + ' ' + p1[0].toFixed(1) + ' ' + p1[1].toFixed(1);
+      }
+      s += '<path d="' + d + '" fill="none" stroke="#2F6B3A" stroke-opacity=".35" stroke-width="1.5" stroke-linecap="round"/>';
+      chrono.forEach(function (r, i) {
+        const zaehlt = res.zaehlendeIds.indexOf(r.id) !== -1;
+        const top = y(r.hcp), h = Math.max(bw, base - top);
+        s += '<rect x="' + x(i).toFixed(1) + '" y="' + (base - h).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) +
+             '" rx="' + (bw / 2).toFixed(1) + '" fill="' + (zaehlt ? '#2F6B3A' : '#CDE7D8') + '"/>';
+      });
+      if (res.hcp !== null) {
+        const ly = y(res.hcp);
+        s += '<line x1="' + padL + '" y1="' + ly.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + ly.toFixed(1) + '" stroke="#2F6B3A" stroke-width="1.6" stroke-dasharray="4 4" opacity=".85"/>';
+        s += '<rect x="' + (W - padR - 40) + '" y="' + (ly - 9.5).toFixed(1) + '" width="40" height="19" rx="9.5" fill="#2F6B3A"/>';
+        s += '<text x="' + (W - padR - 20) + '" y="' + (ly + 4).toFixed(1) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">' + fmt1(res.hcp) + '</text>';
+      }
+      return s + '</svg>';
+    }
+    // Turnier erfassen / bearbeiten (Datum, Name, gespieltes HCP) + Rechenhelfer.
+    // `preset` (optional, aus der gespielten Runde): { datum, name, hcp, courseName, roundId }
+    function openHcpRoundSheet(id, preset) {
+      const H = state.appState.hcp;
+      const r = id != null ? H.rounds.find(function (x) { return x.id === id; }) : null;
+      const content = el('div');
+      content.appendChild(el('div', { class: 'overlay-header' }, [r ? 'Turnier bearbeiten' : 'Turnier erfassen']));
+      const body = el('div', { class: 'overlay-body' });
+      body.appendChild(el('div', { class: 'small', style: 'margin-bottom:8px;' }, ['Datum, Turnier und gespieltes HCP (Score Differential).']));
+      const f0 = el('label', { class: 'field' });
+      f0.appendChild(el('span', { class: 'label' }, ['Datum']));
+      const dateIn = el('input', Object.assign({ type: 'date', value: r ? r.datum : (preset && preset.datum) || isoToday() }, noAutofillAttrs('turnier-datum')));
+      f0.appendChild(dateIn); body.appendChild(f0);
+      const f1 = el('label', { class: 'field' });
+      f1.appendChild(el('span', { class: 'label' }, ['Turniername']));
+      const nameIn = el('input', Object.assign({ type: 'text', placeholder: 'z.B. Sommer-Cup', value: r ? r.name : (preset && preset.name) || '' }, noAutofillAttrs('turniername')));
+      f1.appendChild(nameIn); body.appendChild(f1);
+      if (preset && preset.courseName) {
+        const f1b = el('label', { class: 'field' });
+        f1b.appendChild(el('span', { class: 'label' }, ['Platz']));
+        var courseIn = el('input', Object.assign({ type: 'text', value: preset.courseName }, noAutofillAttrs('turnier-platz')));
+        f1b.appendChild(courseIn); body.appendChild(f1b);
+      }
+      const f2 = el('label', { class: 'field' });
+      f2.appendChild(el('span', { class: 'label' }, ['Gespieltes HCP (Score Differential)']));
+      const hcpIn = el('input', Object.assign({ type: 'number', step: '0.1', inputmode: 'decimal', placeholder: '18.4',
+        value: r ? String(r.hcp) : (preset && typeof preset.hcp === 'number') ? fmt1(preset.hcp) : '' }, noAutofillAttrs('turnier-hcp')));
+      f2.appendChild(hcpIn); body.appendChild(f2);
+      // Rechenhelfer: aus Brutto-Score, CR, Slope, PCC
+      const calc = el('details', { class: 'accordion' });
+      calc.appendChild(el('summary', {}, ['Rechenhelfer: aus Score berechnen']));
+      const cb = el('div', { class: 'hcp-calc' });
+      const g = el('div', { class: 'grid2' });
+      const mk = function (lbl, attrs) { const f = el('label', { class: 'field', style: 'margin-bottom:0;' }); f.appendChild(el('span', { class: 'label' }, [lbl])); const i = el('input', Object.assign(attrs, noAutofillAttrs('hcp-calc'))); f.appendChild(i); g.appendChild(f); return i; };
+      const cScore = mk('Score (Brutto)', { type: 'number', step: '1', inputmode: 'numeric', placeholder: '94' });
+      const cCr = mk('Course Rating', { type: 'number', step: '0.1', inputmode: 'decimal', placeholder: '71.4' });
+      const cSl = mk('Slope Rating', { type: 'number', step: '1', inputmode: 'numeric', placeholder: '132' });
+      const cPcc = mk('PCC', { type: 'number', step: '1', inputmode: 'numeric', placeholder: '0' });
+      cb.appendChild(g);
+      const out = el('div', { class: 'out' });
+      const outV = el('b', {}, ['–']);
+      const outL = el('div', {}, [el('div', { class: 'small' }, ['Score Differential']), outV]);
+      const apply = el('button', { class: 'btn', type: 'button' }, ['Übernehmen']);
+      out.appendChild(outL); out.appendChild(apply); cb.appendChild(out);
+      cb.appendChild(el('div', { class: 'small', style: 'margin-top:6px;' }, ['Formel: (113 / Slope) × (Score − CR − PCC)']));
+      calc.appendChild(cb); body.appendChild(calc);
+      const calcNow = function () {
+        const v = scoreDifferential(parseFloat(cScore.value), parseFloat(cCr.value), parseFloat(cSl.value), parseFloat(cPcc.value) || 0);
+        outV.textContent = v == null ? '–' : fmt1(v); return v;
+      };
+      [cScore, cCr, cSl, cPcc].forEach(function (i) { i.addEventListener('input', calcNow); });
+      apply.addEventListener('click', function () {
+        const v = calcNow();
+        if (v == null) { showToast('Bitte Score, CR und Slope eingeben.'); return; }
+        hcpIn.value = fmt1(v); calc.removeAttribute('open'); showToast('Score Differential übernommen');
+      });
+      content.appendChild(body);
+      const actions = el('div', { class: 'overlay-actions' });
+      const cancel = el('button', { class: 'btn', type: 'button' }, ['Abbrechen']);
+      cancel.addEventListener('click', closeOverlay);
+      const save = el('button', { class: 'btn btn-primary', type: 'button' }, ['Speichern']);
+      save.addEventListener('click', function () {
+        const d = dateIn.value, n = nameIn.value.trim(), h = parseFloat(hcpIn.value);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { showToast('Bitte ein Datum wählen.'); return; }
+        if (!n) { showToast('Bitte einen Turniernamen eingeben.'); return; }
+        if (isNaN(h)) { showToast('Bitte das gespielte HCP eingeben.'); return; }
+        if (r) {
+          r.datum = d; r.name = n; r.hcp = Math.round(h * 10) / 10;
+          if (typeof courseIn !== 'undefined' && courseIn) r.courseName = courseIn.value.trim() || undefined;
+          saveState(); showToast('Turnier aktualisiert');
+        } else {
+          addHcpRound({ datum: d, name: n, hcp: h,
+            courseName: (typeof courseIn !== 'undefined' && courseIn) ? courseIn.value.trim() : (preset && preset.courseName),
+            roundId: preset && preset.roundId });
+          showToast('Turnier gespeichert');
+        }
+        closeOverlay();
+        if (state.activeScreen === 'hcp') renderHcp();
+        else if (state.activeScreen === 'results') renderResults();
+      });
+      actions.appendChild(cancel); actions.appendChild(save);
+      content.appendChild(actions);
+      openSheet(content);
+    }
+    function openCurrentHcpSheet() {
+      const H = state.appState.hcp;
+      const content = el('div');
+      content.appendChild(el('div', { class: 'overlay-header' }, ['Aktuelles HCP']));
+      const body = el('div', { class: 'overlay-body' });
+      body.appendChild(el('div', { class: 'small', style: 'margin-bottom:8px;' }, ['Der offiziell gültige Handicap Index (−10.0 bis 54.0).']));
+      const f = el('label', { class: 'field' });
+      f.appendChild(el('span', { class: 'label' }, ['Handicap Index']));
+      const inp = el('input', Object.assign({ type: 'number', step: '0.1', inputmode: 'decimal', value: H.current == null ? '' : fmt1(H.current) }, noAutofillAttrs('hcp-index')));
+      f.appendChild(inp); body.appendChild(f);
+      content.appendChild(body);
+      const actions = el('div', { class: 'overlay-actions' });
+      const cancel = el('button', { class: 'btn', type: 'button' }, ['Abbrechen']);
+      cancel.addEventListener('click', closeOverlay);
+      const save = el('button', { class: 'btn btn-primary', type: 'button' }, ['Speichern']);
+      save.addEventListener('click', function () {
+        const v = parseFloat(inp.value);
+        if (isNaN(v)) { showToast('Bitte einen gültigen Wert eingeben.'); return; }
+        H.current = clampHcp(v); saveState(); closeOverlay(); renderHcp(); showToast('Aktuelles HCP: ' + fmt1(H.current));
+      });
+      actions.appendChild(cancel); actions.appendChild(save);
+      content.appendChild(actions);
+      openSheet(content);
+    }
+    function openHcpRowActions(id) {
+      const H = state.appState.hcp;
+      const r = H.rounds.find(function (x) { return x.id === id; });
+      if (!r) return;
+      const content = el('div');
+      content.appendChild(el('div', { class: 'overlay-header' }, [r.name]));
+      const body = el('div', { class: 'overlay-body' });
+      body.appendChild(el('div', { class: 'small' }, [deDatum(r.datum) + ' · gespieltes HCP ' + fmt1(r.hcp) + (r.courseName ? ' · ' + r.courseName : '')]));
+      const st = el('div', { class: 'stack', style: 'margin-top:10px;' });
+      const edit = el('button', { class: 'btn btn-block', type: 'button' }, ['✎ Bearbeiten']);
+      edit.addEventListener('click', function () { closeOverlay(); openHcpRoundSheet(r.id); });
+      const del = el('button', { class: 'btn btn-block btn-danger', type: 'button' }, ['🗑 Löschen']);
+      del.addEventListener('click', function () {
+        closeOverlay();
+        openDialog({
+          title: 'Turnier löschen?',
+          message: '«' + r.name + '» vom ' + deDatum(r.datum) + ' wird dauerhaft entfernt.',
+          confirmText: 'Löschen', confirmKind: 'danger',
+          onConfirm: function () {
+            H.rounds = H.rounds.filter(function (x) { return x.id !== r.id; });
+            saveState(); renderHcp(); showToast('Turnier gelöscht');
+          }
+        });
+      });
+      st.appendChild(edit); st.appendChild(del); body.appendChild(st);
+      content.appendChild(body);
+      const actions = el('div', { class: 'overlay-actions' });
+      const close = el('button', { class: 'btn', type: 'button' }, ['Schliessen']);
+      close.addEventListener('click', closeOverlay);
+      actions.appendChild(close);
+      content.appendChild(actions);
+      openSheet(content);
+    }
+    // "Das bin ich": welcher Spieler der Datenbank bin ich (fuer die Uebernahme).
+    function openMePlayerSheet() {
+      const H = state.appState.hcp;
+      const content = el('div');
+      content.appendChild(el('div', { class: 'overlay-header' }, ['Das bin ich']));
+      const body = el('div', { class: 'overlay-body' });
+      body.appendChild(el('div', { class: 'small', style: 'margin-bottom:8px;' }, ['Wähle deinen Spieler. Nach einer Runde wird dessen gespieltes HCP zur Übernahme angeboten.']));
+      const st = el('div', { class: 'stack' });
+      const players = (state.appState.players || []).slice().sort(function (a, b) { return (a.name || '').localeCompare(b.name || ''); });
+      if (players.length === 0) st.appendChild(el('div', { class: 'empty-state' }, ['Noch keine Spieler — zuerst unter Setup → Spieler anlegen.']));
+      players.forEach(function (p) {
+        const b = el('button', { class: 'btn btn-block' + (p.id === H.meId ? ' btn-primary' : ''), type: 'button' },
+          [(p.id === H.meId ? '✓ ' : '') + p.name + ' · HCP ' + (typeof p.handicapIndex === 'number' ? p.handicapIndex.toFixed(1) : '—')]);
+        b.addEventListener('click', function () {
+          H.meId = p.id; saveState(); closeOverlay();
+          if (state.activeScreen === 'hcp') renderHcp(); else rerenderPlayerAdmin();
+          showToast('Das bin ich: ' + p.name);
+        });
+        st.appendChild(b);
+      });
+      body.appendChild(st);
+      content.appendChild(body);
+      const actions = el('div', { class: 'overlay-actions' });
+      const close = el('button', { class: 'btn', type: 'button' }, ['Abbrechen']);
+      close.addEventListener('click', closeOverlay);
+      actions.appendChild(close);
+      content.appendChild(actions);
+      openSheet(content);
+    }
+    // Export/Import im Textformat des HCP-Rechners: "tt.mm.jjjj Turniername HCP"
+    function exportHcpTxt() {
+      const lines = hcpSorted().map(function (r) { return deDatum(r.datum) + ' ' + r.name + ' ' + fmt1(r.hcp); });
+      if (lines.length === 0) { showToast('Keine Turniere zum Exportieren.'); return; }
+      const blob = new Blob([lines.join('\r\n') + '\r\n'], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'handicap-runden.txt';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      showToast(lines.length + ' Zeilen exportiert');
+    }
+    function triggerHcpImport() {
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = '.txt,text/plain'; input.style.display = 'none';
+      input.addEventListener('change', function (e) {
+        const f = e.target.files && e.target.files[0];
+        if (f) importHcpTxt(f);
+        document.body.removeChild(input);
+      });
+      document.body.appendChild(input);
+      input.click();
+    }
+    function importHcpTxt(file) {
+      const rd = new FileReader();
+      rd.onload = function () {
+        const lines = String(rd.result).split(/\r?\n/);
+        const neu = []; let fehler = 0;
+        const re = /^\s*(\d{2})\.(\d{2})\.(\d{4})\s+(.+?)\s+(-?\d+(?:[.,]\d+)?)\s*$/;
+        lines.forEach(function (l) {
+          if (!l.trim()) return;
+          const m = l.match(re);
+          if (!m) { fehler++; return; }
+          neu.push({ id: uid('hcp'), datum: m[3] + '-' + m[2] + '-' + m[1], name: m[4].trim(),
+                     hcp: Math.round(parseFloat(m[5].replace(',', '.')) * 10) / 10 });
+        });
+        if (!neu.length) { showToast('Keine gültigen Zeilen gefunden.'); return; }
+        const H = state.appState.hcp;
+        const apply = function (replace) {
+          H.rounds = replace ? neu : H.rounds.concat(neu);
+          saveState(); renderHcp();
+          showToast(neu.length + ' Turniere importiert' + (fehler ? ' · ' + fehler + ' Zeilen ignoriert' : ''));
+        };
+        if (H.rounds.length === 0) { apply(true); return; }
+        openDialog({
+          title: 'Turniere importieren',
+          message: neu.length + ' Zeilen erkannt. Sollen die bestehenden ' + H.rounds.length + ' Turniere ERSETZT werden? (Abbrechen = stattdessen hinzufügen)',
+          confirmText: 'Ersetzen', confirmKind: 'danger', cancelText: 'Hinzufügen',
+          onConfirm: function () { apply(true); },
+          onCancel: function () { apply(false); }
+        });
+      };
+      rd.readAsText(file, 'utf-8');
+    }
+
+    // Gespieltes HCP (WHS Score Differential) EXAKT aus der gespielten Runde:
+    //   AGS (angepasster Bruttoscore; je Loch hoechstens Netto-Doppelbogey) =
+    //     Σ ueber gespielte Loecher (Par + erhaltene Schlaege + 2 − Stableford-Punkte)
+    //     (0 Punkte = Netto-Doppelbogey-Deckel — genau die WHS-Anpassung)
+    //   SD = (113 / Slope) × (AGS − CR − PCC), PCC = 0
+    // CR wie in calculatePlayingHandicap: bei < 18 Loechern mit 18-Loch-Rating
+    // anteilig (Lochzahl/18). Nur eingetragene Loecher zaehlen; sind nicht alle
+    // Loecher gespielt, wird das Ergebnis als Naeherung markiert.
+    function scoreDifferentialForPlayer(round, playerIdx) {
+      const course = getCourseForRound(round);
+      const pir = round && round.playersInRound ? round.playersInRound[playerIdx] : null;
+      if (!course || !pir) return null;
+      const tee = getTee(course, pir.teeColorKey);
+      if (!tee || typeof tee.slopeRating !== 'number' || tee.slopeRating <= 0 || typeof tee.courseRating !== 'number') return null;
+      const holeNums = (Array.isArray(round.holeNumbers) && round.holeNumbers.length)
+        ? round.holeNumbers : course.holes.map(function (h) { return h.holeNumber; });
+      let ags = 0, par = 0, given = 0, pts = 0, played = 0;
+      holeNums.forEach(function (hn) {
+        const hole = getHole(course, hn);
+        const strokes = getStrokesForPlayerHole(round, playerIdx, hn);
+        if (!hole || !(strokes > 0)) return;
+        const g = (pir.strokesPerHole && pir.strokesPerHole[hn - 1]) || 0;
+        const p = stablefordForHole(strokes, hole.par, g);
+        ags += hole.par + g + 2 - p;
+        par += hole.par; given += g; pts += p; played++;
+      });
+      if (played === 0) return null;
+      const n = holeNums.length;
+      let cr = tee.courseRating;
+      if (n < 18 && resolveTeeRatingHoles(tee, n) === 18) cr = tee.courseRating * (n / 18);
+      const sd = Math.round((113 / tee.slopeRating) * (ags - cr) * 10) / 10;
+      return { sd: sd, ags: ags, par: par, given: given, pts: pts, played: played, holes: n,
+               cr: cr, slope: tee.slopeRating, partial: played < n };
+    }
+
     // Nach einer Spieler-DB-Aenderung den gerade sichtbaren Verwaltungs-Screen neu
     // zeichnen: entweder den Daten-Screen ODER die Hub-Spielerverwaltung.
     function rerenderPlayerAdmin() {
@@ -5166,7 +5831,9 @@
         state.appState.players.forEach(function (p) {
           const row = el('div', { class: 'data-row' });
           const info = el('div', { class: 'grow' });
-          info.appendChild(el('div', { class: 'name' }, [p.name]));
+          const nameLine = el('div', { class: 'name' }, [p.name]);
+          if (state.appState.hcp && state.appState.hcp.meId === p.id) nameLine.appendChild(el('span', { class: 'hcp-me' }, ['Ich']));
+          info.appendChild(nameLine);
           info.appendChild(el('div', { class: 'meta' }, [
             'HCP ' + p.handicapIndex.toFixed(1) +
             (p.defaultTeeColorKey ? ' · ' + (TEE_LABELS[p.defaultTeeColorKey] || p.defaultTeeColorKey) : '')
@@ -5174,6 +5841,16 @@
           row.appendChild(info);
           const editBtn = el('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Bearbeiten' }, ['✎']);
           editBtn.addEventListener('click', function () { openEditPlayerSheet(p.id); });
+          // "Das bin ich": markiert den Spieler, dessen gespieltes HCP nach einer
+          // Runde in die HCP-Turnierliste uebernommen wird (Tab "HCP").
+          const isMe = !!(state.appState.hcp && state.appState.hcp.meId === p.id);
+          const meBtn = el('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Das bin ich', title: 'Das bin ich' }, [isMe ? '👤' : '○']);
+          meBtn.addEventListener('click', function () {
+            state.appState.hcp.meId = isMe ? null : p.id;
+            saveState();
+            rerenderPlayerAdmin();
+            showToast(isMe ? 'Markierung entfernt' : 'Das bin ich: ' + p.name);
+          });
           const delBtn = el('button', { class: 'icon-btn danger', type: 'button', 'aria-label': 'Loeschen' }, ['🗑']);
           delBtn.addEventListener('click', function () {
             openDialog({
@@ -5189,6 +5866,7 @@
             });
           });
           const actionsBox = el('div', { class: 'actions' });
+          actionsBox.appendChild(meBtn);
           actionsBox.appendChild(editBtn);
           actionsBox.appendChild(delBtn);
           row.appendChild(actionsBox);
@@ -6065,7 +6743,7 @@
     // ============================================================
     function renderAll() {
       // toggle screen visibility (local var 'screenEl' avoids shadowing 'el' helper)
-      ['setup', 'play', 'results', 'history', 'data'].forEach(function (name) {
+      ['setup', 'play', 'results', 'history', 'data', 'hcp'].forEach(function (name) {
         const screenEl = document.getElementById('screen-' + name);
         screenEl.classList.toggle('is-active', name === state.activeScreen);
       });
@@ -6076,6 +6754,7 @@
       else if (state.activeScreen === 'results') renderResults();
       else if (state.activeScreen === 'history') renderHistory();
       else if (state.activeScreen === 'data') renderData();
+      else if (state.activeScreen === 'hcp') renderHcp();
     }
 
     function bindGlobalEvents() {
@@ -6276,63 +6955,207 @@
     // Kursdaten pro Land laden: aus dem Geraete-Cache (offline/schnell), und wenn
     // online per data/index.json pruefen, ob es neuere/neue Laender-Dateien gibt
     // -> nur die geaenderten nachladen. Fuellt LOADED_COURSE_DB.
-    async function loadCourseData() {
-      const CACHE_NAME = 'course-data-v1';
-      const readJson = async function (cache, url) {
-        try { const r = cache ? await cache.match(url) : null; return r ? await r.json() : null; }
-        catch (e) { return null; }
-      };
-      let cache = null;
-      try { if (self.caches) cache = await caches.open(CACHE_NAME); } catch (e) { cache = null; }
+    // ------------------------------------------------------------
+    // Kursdaten: inkrementeller Download + Heimatland-zuerst
+    // (Regeln aus MASTER-PROMPT_App_Inkrementeller-Download.md)
+    // ------------------------------------------------------------
+    //  1. index.json immer laden (klein). Update-Erkennung NUR ueber `hash`
+    //     (nie ueber updatedAt/generatedAt).
+    //  2. version gleich wie lokal UND alle Laender vorhanden -> nichts zu tun.
+    //  3. Pro Land: lokal fehlend ODER hash abweichend -> laden, sonst skip.
+    //  4. Lokal vorhandene Laender, die nicht mehr im Manifest stehen -> loeschen.
+    //  5. hash erst NACH erfolgreichem Laden speichern; die globale version erst,
+    //     wenn ALLE noetigen Laender ok waren (sonst gilt ein abgebrochener Lauf
+    //     beim naechsten Start faelschlich als "aktuell" und ein Land fehlt).
+    // Reihenfolge: das Heimatland (HOME_COUNTRY) wird VOR der UI geladen, damit die
+    // App sofort bedienbar ist; alle uebrigen Laender laedt loadRemainingCountries()
+    // NACH dem Start im Hintergrund (bei ~37'000 Plaetzen weltweit waere das
+    // Parsen aller Laender vor der UI zu langsam).
+    const COURSE_CACHE = 'course-data-v1';
+    const LOCAL_MANIFEST = 'data/index.json';   // Cache-Key des LOKALEN Standes
+    let __courseSync = null;   // { cache, fresh, manifest, needSet, local }
+    let __bgLoad = { running: false, done: 0, total: 0, complete: false };
 
-      let stored = await readJson(cache, 'data/index.json');
+    async function cacheReadJson(cache, url) {
+      try { const r = cache ? await cache.match(url) : null; return r ? await r.json() : null; }
+      catch (e) { return null; }
+    }
+    // Ein Land aus dem Netz holen und im Cache ablegen. true = erfolgreich.
+    async function fetchCountryFile(cache, c) {
+      try {
+        const resp = await fetch('data/' + c.file, { cache: 'no-store' });
+        if (!resp || !resp.ok) return false;
+        if (cache) await cache.put('data/' + c.file, resp.clone());
+        return true;
+      } catch (e) { return false; }
+    }
+    // Lokalen Stand schreiben: NUR erfolgreich vorhandene Laender; `version` nur,
+    // wenn vollstaendig. Wird nach JEDEM erfolgreichen Land aufgerufen, damit ein
+    // Abbruch den bisherigen Fortschritt behaelt (Regel 5 / Teilerfolge).
+    async function persistLocalManifest(cache, local) {
+      if (!cache) return;
+      try {
+        await cache.put(LOCAL_MANIFEST, new Response(JSON.stringify(local),
+          { headers: { 'Content-Type': 'application/json' } }));
+      } catch (e) {}
+    }
+    function upsertLocalCountry(local, c) {
+      const entry = { iso: c.iso, file: c.file, count: c.count, hash: c.hash };
+      const i = local.countries.findIndex(function (x) { return x.file === c.file; });
+      if (i >= 0) local.countries[i] = entry; else local.countries.push(entry);
+    }
+    // Neu geladene Kurse in den Speicher uebernehmen. ZUERST in LOADED_COURSE_DB
+    // (damit slimAppStateForStorage sie sofort als "eingebettet" erkennt und NICHT
+    // in den localStorage schreibt), dann in den appState (Dubletten vermeiden).
+    function appendLoadedCourses(list) {
+      if (!Array.isArray(list) || list.length === 0) return;
+      const have = {};
+      LOADED_COURSE_DB.courses.forEach(function (c) { have[c.id] = true; });
+      const fresh = list.filter(function (c) { return c && c.id && !have[c.id]; });
+      if (fresh.length === 0) return;
+      LOADED_COURSE_DB.courses.push.apply(LOADED_COURSE_DB.courses, fresh);
+      __embeddedIdSet = null;
+      if (state.appState && Array.isArray(state.appState.courses)) {
+        const inApp = {};
+        state.appState.courses.forEach(function (c) { inApp[c.id] = true; });
+        fresh.forEach(function (c) {
+          if (!inApp[c.id]) state.appState.courses.push(JSON.parse(JSON.stringify(c)));
+        });
+      }
+    }
+
+    async function loadCourseData() {
+      let cache = null;
+      try { if (self.caches) cache = await caches.open(COURSE_CACHE); } catch (e) { cache = null; }
+
+      const stored = await cacheReadJson(cache, LOCAL_MANIFEST);   // lokaler Stand
+      // Arbeitskopie des lokalen Standes (nur erfolgreich vorhandene Laender).
+      const local = {
+        schema: 1,
+        version: (stored && stored.version) || null,
+        countries: ((stored && stored.countries) || []).map(function (c) {
+          return { iso: c.iso, file: c.file, count: c.count, hash: c.hash };
+        })
+      };
       let manifest = stored;
+      let fresh = null;
+      const needSet = new Set();   // Dateien, die (neu) geladen werden muessen
 
       if (navigator.onLine !== false) {
         try {
-          const fresh = await (await fetch('data/index.json', { cache: 'no-store' })).json();
-          if (fresh && Array.isArray(fresh.countries)) {
-            const storedHash = {};
-            ((stored && stored.countries) || []).forEach(function (c) { storedHash[c.file] = c.hash; });
-            const toFetch = [];
-            for (let i = 0; i < fresh.countries.length; i++) {
-              const c = fresh.countries[i];
-              const cached = cache ? await cache.match('data/' + c.file) : null;
-              if (!cached || storedHash[c.file] !== c.hash) toFetch.push(c);
-            }
-            for (let i = 0; i < toFetch.length; i++) {
-              const c = toFetch[i];
-              splashProgress(12 + Math.round(70 * (i + 1) / toFetch.length),
-                'Golfplätze werden geladen … ' + c.iso + ' (' + (i + 1) + '/' + toFetch.length + ')');
-              try {
-                const resp = await fetch('data/' + c.file, { cache: 'no-store' });
-                if (cache && resp && resp.ok) await cache.put('data/' + c.file, resp.clone());
-              } catch (e) { /* einzelne Datei fehlgeschlagen -> spaeter erneut */ }
-            }
-            if (cache) {
-              try { await cache.put('data/index.json', new Response(JSON.stringify(fresh),
-                { headers: { 'Content-Type': 'application/json' } })); } catch (e) {}
-            }
-            manifest = fresh;
+          const f = await (await fetch('data/index.json', { cache: 'no-store' })).json();
+          if (f && Array.isArray(f.countries)) fresh = f;
+        } catch (e) { fresh = null; /* offline/Netzfehler -> lokaler Stand */ }
+      }
+      if (fresh) {
+        const storedHash = {};
+        local.countries.forEach(function (c) { storedHash[c.file] = c.hash; });
+        for (let i = 0; i < fresh.countries.length; i++) {
+          const c = fresh.countries[i];
+          const cached = cache ? await cache.match('data/' + c.file) : null;
+          if (!cached || storedHash[c.file] !== c.hash) needSet.add(c.file);
+        }
+        // Regel 4: weggefallene Laender lokal entfernen.
+        const freshFiles = {};
+        fresh.countries.forEach(function (c) { freshFiles[c.file] = true; });
+        for (let i = local.countries.length - 1; i >= 0; i--) {
+          const c = local.countries[i];
+          if (!freshFiles[c.file]) {
+            local.countries.splice(i, 1);
+            if (cache) { try { await cache.delete('data/' + c.file); } catch (e) {} }
           }
-        } catch (e) { /* offline/Netzfehler -> gecachte Daten verwenden */ }
+        }
+        if (needSet.size === 0 && local.version === fresh.version) {
+          // Regel 2 (Schnellpfad): nichts zu tun.
+        } else if (needSet.size === 0) {
+          // Alles vorhanden, nur die Inhalts-Version nachziehen.
+          local.version = fresh.version;
+          await persistLocalManifest(cache, local);
+        } else {
+          // Unvollstaendig: version erst am Ende des Hintergrundlaufs setzen.
+          local.version = null;
+          await persistLocalManifest(cache, local);
+        }
+        manifest = fresh;
       }
 
-      splashProgress(86, 'Kursdaten werden aufbereitet …');
-      const courses = [];
+      // Heimatland sofort (vor der UI) bereitstellen.
+      let homeCourses = [];
       if (manifest && Array.isArray(manifest.countries)) {
-        for (let i = 0; i < manifest.countries.length; i++) {
-          const c = manifest.countries[i];
-          let data = await readJson(cache, 'data/' + c.file);
-          if (!data && navigator.onLine !== false) {
-            try { data = await (await fetch('data/' + c.file)).json(); } catch (e) { data = null; }
+        const home = manifest.countries.find(function (c) { return c.iso === HOME_COUNTRY; });
+        if (home) {
+          if (needSet.has(home.file)) {
+            splashProgress(30, 'Golfplätze werden geladen … ' + HOME_COUNTRY);
+            const ok = navigator.onLine !== false ? await fetchCountryFile(cache, home) : false;
+            if (ok) {
+              needSet.delete(home.file);
+              upsertLocalCountry(local, home);
+              await persistLocalManifest(cache, local);
+            }
           }
-          if (Array.isArray(data)) courses.push.apply(courses, data);
+          const data = await cacheReadJson(cache, 'data/' + home.file);
+          if (Array.isArray(data)) homeCourses = data;
         }
       }
-      LOADED_COURSE_DB = { version: (manifest && manifest.version) || null, courses: courses };
+      LOADED_COURSE_DB = { version: (manifest && manifest.version) || null, courses: homeCourses };
       __embeddedIdSet = null;   // Cache der Id-Menge neu aufbauen lassen
-      return courses.length;
+      __courseSync = { cache: cache, fresh: fresh, manifest: manifest, needSet: needSet, local: local };
+      const remaining = (manifest && Array.isArray(manifest.countries))
+        ? manifest.countries.filter(function (c) { return c.iso !== HOME_COUNTRY; }).length : 0;
+      __bgLoad = { running: false, done: 0, total: remaining, complete: remaining === 0 };
+      return homeCourses.length;
+    }
+
+    // Kursliste waehrend des Nachladens auffrischen — gedrosselt und ohne dem
+    // Nutzer den Fokus im Suchfeld zu nehmen. `final` = kompletter Neuaufbau
+    // (Laender-Dropdown), sobald alles da ist.
+    let __courseRefreshTimer = null;
+    function scheduleCourseListRefresh(final) {
+      if (__courseRefreshTimer) clearTimeout(__courseRefreshTimer);
+      __courseRefreshTimer = setTimeout(function () {
+        __courseRefreshTimer = null;
+        if (state.activeScreen !== 'setup' || state.setupSubScreen !== 'course') return;
+        const searchIn = document.querySelector('.filter-bar input');
+        const typing = !!(searchIn && document.activeElement === searchIn);
+        if (final && !typing) renderSetup();      // Dropdown mit allen Laendern
+        else renderCourseList(true);              // nur die Liste (Fokus bleibt)
+      }, final ? 0 : 700);
+    }
+    // Alle uebrigen Laender NACH dem Start nachladen: Netz nur wenn noetig
+    // (needSet), sonst aus dem Cache; laufend in den Speicher uebernehmen.
+    async function loadRemainingCountries() {
+      const S = __courseSync;
+      if (!S || !S.manifest || !Array.isArray(S.manifest.countries)) return;
+      const others = S.manifest.countries.filter(function (c) { return c.iso !== HOME_COUNTRY; });
+      __bgLoad = { running: true, done: 0, total: others.length, complete: false };
+      let allOk = true;
+      for (let i = 0; i < others.length; i++) {
+        const c = others[i];
+        let ok = true;
+        if (S.needSet.has(c.file)) {
+          ok = navigator.onLine !== false ? await fetchCountryFile(S.cache, c) : false;
+          if (ok) {
+            S.needSet.delete(c.file);
+            upsertLocalCountry(S.local, c);
+            await persistLocalManifest(S.cache, S.local);   // Teilerfolg sichern
+          } else {
+            allOk = false;   // beim naechsten Start erneut versuchen
+          }
+        }
+        if (ok) {
+          const data = await cacheReadJson(S.cache, 'data/' + c.file);
+          if (Array.isArray(data)) appendLoadedCourses(data);
+        }
+        __bgLoad.done = i + 1;
+        scheduleCourseListRefresh(false);
+      }
+      if (allOk && S.fresh) {
+        S.local.version = S.fresh.version;          // erst jetzt: alles vollstaendig
+        await persistLocalManifest(S.cache, S.local);
+      }
+      __bgLoad.running = false;
+      __bgLoad.complete = true;
+      scheduleCourseListRefresh(true);
     }
 
     async function init() {
@@ -6353,7 +7176,10 @@
       bindGlobalEvents();
       renderAll();
       armFullscreenOnFirstGesture();
-      if (loaded === 0) {
+      // Uebrige Laender im Hintergrund nachladen — der Start bleibt sofort
+      // bedienbar (Heimatland ist schon da). Fehler werden pro Land behandelt.
+      loadRemainingCountries().catch(function () {});
+      if (loaded === 0 && __bgLoad.total === 0) {
         // Erststart ohne Netz (o.ae.): App laeuft, aber ohne Kursdaten.
         splashProgress(100, 'Keine Kursdaten — bitte einmal mit Internet starten.');
         setTimeout(splashDone, 1600);
