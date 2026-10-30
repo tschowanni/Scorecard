@@ -1105,7 +1105,10 @@
     .ranking-card .rc-spark .pt.p2 { background: #DDEAE0; color: #1A1A1A; }
     .ranking-card .rc-spark .pt.p3 { background: #BFD9C5; color: #1A1A1A; }
     .ranking-card .rc-spark .pt.p4,
-    .ranking-card .rc-spark .pt.p5 { background: #2F6B3A; color: #FFFFFF; }
+    .ranking-card .rc-spark .pt.p5,
+    .ranking-card .rc-spark .pt.p6,
+    .ranking-card .rc-spark .pt.p7,
+    .ranking-card .rc-spark .pt.p8 { background: #2F6B3A; color: #FFFFFF; }
     .results-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1887,15 +1890,66 @@
 
     // ISO-3166 alpha-2 -> deutscher Anzeigename (fuer die Laender-Suche in der Platzauswahl).
     const COUNTRY_NAMES = {
-      CH: 'Schweiz', DE: 'Deutschland', AT: 'Oesterreich', LI: 'Liechtenstein',
+      CH: 'Schweiz', DE: 'Deutschland', AT: 'Österreich', LI: 'Liechtenstein',
       FR: 'Frankreich', IT: 'Italien', ES: 'Spanien', PT: 'Portugal',
       GB: 'Grossbritannien', IE: 'Irland', NL: 'Niederlande', BE: 'Belgien',
-      LU: 'Luxemburg', DK: 'Daenemark', SE: 'Schweden', NO: 'Norwegen', FI: 'Finnland',
-      US: 'USA', CA: 'Kanada'
+      LU: 'Luxemburg', DK: 'Dänemark', SE: 'Schweden', NO: 'Norwegen', FI: 'Finnland',
+      US: 'USA', CA: 'Kanada',
+      // Europa
+      AD: 'Andorra', AL: 'Albanien', AX: 'Åland', BA: 'Bosnien und Herzegowina', BG: 'Bulgarien',
+      BY: 'Belarus', CY: 'Zypern', CZ: 'Tschechien', EE: 'Estland', FO: 'Färöer', GG: 'Guernsey',
+      GI: 'Gibraltar', GR: 'Griechenland', HR: 'Kroatien', HU: 'Ungarn', IM: 'Isle of Man',
+      IS: 'Island', JE: 'Jersey', LT: 'Litauen', LV: 'Lettland', MC: 'Monaco', MD: 'Moldau',
+      ME: 'Montenegro', MK: 'Nordmazedonien', MT: 'Malta', PL: 'Polen', RO: 'Rumänien',
+      RS: 'Serbien', RU: 'Russland', SI: 'Slowenien', SK: 'Slowakei', SM: 'San Marino',
+      TR: 'Türkei', UA: 'Ukraine', XK: 'Kosovo',
+      // Amerika
+      AG: 'Antigua und Barbuda', AI: 'Anguilla', AR: 'Argentinien', AW: 'Aruba', BB: 'Barbados',
+      BM: 'Bermuda', BO: 'Bolivien', BR: 'Brasilien', BS: 'Bahamas', BZ: 'Belize', CL: 'Chile',
+      CO: 'Kolumbien', CR: 'Costa Rica', CU: 'Kuba', CW: 'Curaçao', DM: 'Dominica',
+      DO: 'Dominikanische Republik', EC: 'Ecuador', FK: 'Falklandinseln', GD: 'Grenada',
+      GF: 'Französisch-Guayana', GL: 'Grönland', GP: 'Guadeloupe', GT: 'Guatemala', GY: 'Guyana',
+      HN: 'Honduras', HT: 'Haiti', JM: 'Jamaika', KN: 'St. Kitts und Nevis', KY: 'Kaimaninseln',
+      LC: 'St. Lucia', MQ: 'Martinique', MX: 'Mexiko', NI: 'Nicaragua', PA: 'Panama', PE: 'Peru',
+      PR: 'Puerto Rico', PY: 'Paraguay', SR: 'Suriname', SV: 'El Salvador',
+      TC: 'Turks- und Caicosinseln', TT: 'Trinidad und Tobago', UY: 'Uruguay', VC: 'St. Vincent und die Grenadinen',
+      VE: 'Venezuela', VG: 'Britische Jungferninseln', VI: 'Amerikanische Jungferninseln',
+      // Afrika
+      AO: 'Angola', BF: 'Burkina Faso', BI: 'Burundi', BJ: 'Benin', BW: 'Botswana',
+      CD: 'Kongo (Dem. Rep.)', CF: 'Zentralafrikanische Republik', CG: 'Kongo (Rep.)', CI: 'Elfenbeinküste',
+      CM: 'Kamerun', CV: 'Kap Verde', DJ: 'Dschibuti', DZ: 'Algerien', EG: 'Ägypten', ER: 'Eritrea',
+      ET: 'Äthiopien', GA: 'Gabun', GH: 'Ghana', GM: 'Gambia', GN: 'Guinea', GQ: 'Äquatorialguinea',
+      GW: 'Guinea-Bissau', KE: 'Kenia', KM: 'Komoren', LR: 'Liberia', LS: 'Lesotho', LY: 'Libyen',
+      MA: 'Marokko', MG: 'Madagaskar', ML: 'Mali', MR: 'Mauretanien', MU: 'Mauritius', MW: 'Malawi',
+      MZ: 'Mosambik', NA: 'Namibia', NE: 'Niger', NG: 'Nigeria', RE: 'Réunion', RW: 'Ruanda',
+      SC: 'Seychellen', SD: 'Sudan', SH: 'St. Helena', SL: 'Sierra Leone', SN: 'Senegal', SO: 'Somalia',
+      SS: 'Südsudan', ST: 'São Tomé und Príncipe', SZ: 'Eswatini', TD: 'Tschad', TG: 'Togo',
+      TN: 'Tunesien', TZ: 'Tansania', UG: 'Uganda', YT: 'Mayotte', ZA: 'Südafrika', ZM: 'Sambia', ZW: 'Simbabwe',
+      // Asien & Naher Osten
+      AE: 'Vereinigte Arabische Emirate', AF: 'Afghanistan', AM: 'Armenien', AZ: 'Aserbaidschan',
+      BD: 'Bangladesch', BH: 'Bahrain', BN: 'Brunei', BT: 'Bhutan', CN: 'China', GE: 'Georgien',
+      HK: 'Hongkong', ID: 'Indonesien', IL: 'Israel', IN: 'Indien', IQ: 'Irak', IR: 'Iran',
+      JO: 'Jordanien', JP: 'Japan', KG: 'Kirgisistan', KH: 'Kambodscha', KR: 'Südkorea', KW: 'Kuwait',
+      KZ: 'Kasachstan', LA: 'Laos', LB: 'Libanon', LK: 'Sri Lanka', MM: 'Myanmar', MN: 'Mongolei',
+      MO: 'Macau', MV: 'Malediven', MY: 'Malaysia', NP: 'Nepal', OM: 'Oman', PH: 'Philippinen',
+      PK: 'Pakistan', PS: 'Palästina', QA: 'Katar', SA: 'Saudi-Arabien', SG: 'Singapur', SY: 'Syrien',
+      TH: 'Thailand', TJ: 'Tadschikistan', TL: 'Osttimor', TM: 'Turkmenistan', TW: 'Taiwan',
+      UZ: 'Usbekistan', VN: 'Vietnam', YE: 'Jemen',
+      // Ozeanien
+      AS: 'Amerikanisch-Samoa', AU: 'Australien', CK: 'Cookinseln', FJ: 'Fidschi', FM: 'Mikronesien',
+      GU: 'Guam', KI: 'Kiribati', MH: 'Marshallinseln', MP: 'Nördliche Marianen', NC: 'Neukaledonien',
+      NR: 'Nauru', NU: 'Niue', NZ: 'Neuseeland', PF: 'Französisch-Polynesien', PG: 'Papua-Neuguinea',
+      PW: 'Palau', SB: 'Salomonen', TO: 'Tonga', TV: 'Tuvalu', VU: 'Vanuatu', WS: 'Samoa'
     };
+    // Fallback fuer Codes ausserhalb der Tabelle: Laendername aus den Browser-
+    // Lokaldaten (Intl.DisplayNames), sonst der Code selbst.
+    var __regionDN = null;
+    try { __regionDN = new Intl.DisplayNames(['de'], { type: 'region' }); } catch (e) { __regionDN = null; }
     function countryDisplayName(iso) {
       if (!iso) return '';
-      return COUNTRY_NAMES[iso] || iso;
+      if (COUNTRY_NAMES[iso]) return COUNTRY_NAMES[iso];
+      try { const n = __regionDN && __regionDN.of(iso); if (n && n !== iso) return n; } catch (e) {}
+      return iso;
     }
     // Distinct country codes present in the loaded course DB, sorted by display name.
     function availableCountries() {
@@ -2041,7 +2095,9 @@
         });
         return null;
       }
-      const iso = src.country;
+      // Laendercode vereinheitlichen ('ch', ' CH' -> 'CH'), sonst entstuende ein
+      // zweites "Phantom-Land" im Filter.
+      const iso = (src.country == null) ? src.country : String(src.country).trim().toUpperCase();
       // Ohne Laender-Code ist ein Platz im laender-strukturierten Ablauf nicht
       // auffindbar (kein Land-Filter, meist keine Koordinaten). Ueberspringen und
       // auflisten, damit er im Dashboard Land/Clubname bekommt.
@@ -2055,10 +2111,27 @@
         });
         return null;
       }
+      // Ohne courseId kann der Platz nicht gespeichert werden (sanitizeCourse
+      // verwirft ihn) — sichtbar ueberspringen statt still verlieren.
+      if (src.courseId == null || !String(src.courseId).trim()) {
+        stats.skippedOther++;
+        stats.skippedList.push({
+          courseId: '(ohne id)',
+          courseName: courseRaw || clubRaw || '(kein Name)',
+          holes: src.holesCount,
+          reason: 'keine ID'
+        });
+        return null;
+      }
       const club = clubReal ? clubRaw : courseRaw;   // fuer den DB-Eintrag
       const label = clubReal ? gaeCombineName(clubRaw, courseReal ? courseRaw : '') : courseRaw;
 
-      const holesSrc = Array.isArray(src.holes) ? src.holes : [];
+      // null-/Nicht-Objekt-Eintraege ignorieren (sonst bricht der ganze Import ab)
+      // und Zahlen-Strings ("4") in echte Zahlen wandeln.
+      const holesSrc = (Array.isArray(src.holes) ? src.holes : []).filter(function (h) { return h && typeof h === 'object'; });
+      holesSrc.forEach(function (h) {
+        if (typeof h.strokeIndex === 'string' && h.strokeIndex.trim() !== '' && isFinite(Number(h.strokeIndex))) h.strokeIndex = Number(h.strokeIndex);
+      });
       const kept = holesSrc.slice();
       while (kept.length && gaeHoleIsEmpty(kept[kept.length - 1])) kept.pop();
       if (!kept.length) { stats.skippedOther++; warnings.push(label + ': keine Lochdaten'); return null; }
@@ -2067,8 +2140,12 @@
 
       let parEst = false;
       const pars = kept.map(function (h) {
-        if (h.par == null) { parEst = true; return gaeEstimatePar(h); }
-        return h.par;
+        const p = Number(h.par);
+        // Fehlend, kein Zahlwert oder unmoeglich (0, -4, 4.5, 12) -> schaetzen.
+        if (h.par == null || h.par === '' || !isFinite(p) || Math.floor(p) !== p || p < 1 || p > 7) {
+          parEst = true; return gaeEstimatePar(h);
+        }
+        return p;
       });
       if (parEst) warnings.push(label + ': fehlende Par-Werte geschaetzt');
 
@@ -2083,7 +2160,10 @@
       const parTotal = outHoles.reduce(function (a, h) { return a + h.par; }, 0);
       const holeCount = outHoles.length;
 
-      const srcTees = (Array.isArray(src.tees) ? src.tees.slice() : []).sort(function (a, b) {
+      // Tees ohne Farbe sind nicht zuordenbar (wuerden alle zu "Gelb" verschmelzen).
+      const srcTees = (Array.isArray(src.tees) ? src.tees : []).filter(function (t) {
+        return t && typeof t === 'object' && t.color;
+      }).sort(function (a, b) {
         const ia = TEE_ORDER.indexOf(a.color), ib = TEE_ORDER.indexOf(b.color);
         return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
       });
@@ -2143,7 +2223,7 @@
       const warnings = [];
       const stats = { skippedUnnamed: 0, skippedOther: 0, skippedList: [] };
       const out = [];
-      raw.forEach(function (src) {
+      raw.filter(function (s) { return s && typeof s === 'object'; }).forEach(function (src) {
         const c = convertGolfAppExportCourse(src, warnings, stats);
         if (c) out.push(c);
       });
@@ -2278,7 +2358,11 @@
           body.appendChild(box);
         };
         const noLand = skipped.filter(function (s) { return s.reason === 'kein Land'; });
-        const noName = skipped.filter(function (s) { return s.reason !== 'kein Land'; });
+        const noId = skipped.filter(function (s) { return s.reason === 'keine ID'; });
+        const noName = skipped.filter(function (s) { return !s.reason; });
+        renderSkipGroup('Uebersprungen (keine Platz-ID)',
+          noId.length + ' Platz/Plaetze ohne courseId — ohne ID kann ein Platz nicht gespeichert werden. Im Dashboard pruefen.',
+          noId);
         renderSkipGroup('Uebersprungen (kein Clubname)',
           noName.length + ' Platz/Plaetze wurden nicht uebernommen, weil in der Datei der Clubname ' +
           'fehlt. Im Dashboard einen Namen ergaenzen, dann kommen sie beim naechsten Import mit.',
@@ -2362,6 +2446,37 @@
     // ============================================================
     // Ensure every round references a still-existing course; drop orphans to
     // avoid crashes when render accesses course.name / course.holes.
+    // Loecher INTERN immer 1..n (Position) nummerieren. Alle positionsbasierten
+    // Arrays (strokesPerHole aus distributeStrokesPerHole, tee.holeYardage) werden
+    // ueberall mit [Lochnummer - 1] gelesen — das stimmt nur bei 1..n. Echte Daten
+    // enthalten Schleifen mit 10..18, 19..27, 2..9 oder Luecken (48 Plaetze): dort
+    // stuerzte die Spielansicht ab und Vorgabeschlaege gingen verloren. Die
+    // physische Nummer bleibt als `label` fuer die Anzeige erhalten.
+    // Rueckgabe: Map alteNummer -> neueNummer, wenn umnummeriert wurde, sonst null.
+    function normalizeCourseHoles(c) {
+      if (!c || !Array.isArray(c.holes) || c.holes.length === 0) return null;
+      let ok = true;
+      for (let i = 0; i < c.holes.length; i++) {
+        if (!c.holes[i] || c.holes[i].holeNumber !== i + 1) { ok = false; break; }
+      }
+      if (ok) return null;
+      const map = {};
+      c.holes.forEach(function (h, i) {
+        if (!h || typeof h !== 'object') return;
+        const old = h.holeNumber;
+        if (h.label == null && old != null) h.label = old;
+        if (old != null && map[old] == null) map[old] = i + 1;
+        h.holeNumber = i + 1;
+      });
+      const all = c.holes.map(function (h, i) { return i + 1; });
+      (Array.isArray(c.layouts) ? c.layouts : []).forEach(function (l) {
+        if (!l || !Array.isArray(l.holeNumbers)) return;
+        if (l.holeNumbers.length === c.holes.length) { l.holeNumbers = all.slice(); return; }
+        const m = l.holeNumbers.map(function (x) { return map[x]; }).filter(function (x) { return x != null; });
+        l.holeNumbers = m.length ? m : all.slice();
+      });
+      return map;
+    }
     function sanitizeCourse(c) {
       if (!c || typeof c !== 'object') return null;
       if (!c.id || !c.name) return null;
@@ -2369,10 +2484,31 @@
       c.tees = (Array.isArray(c.tees) ? c.tees : []).filter(function (t) {
         return t && typeof t === 'object';
       });
-      c.holes = (Array.isArray(c.holes) ? c.holes : []).filter(function (h) {
-        return h && typeof h === 'object' && typeof h.par === 'number';
+      // Zahl-Strings ("4") als Zahl uebernehmen statt das Loch zu verwerfen.
+      const rawHoles = Array.isArray(c.holes) ? c.holes : [];
+      rawHoles.forEach(function (h) {
+        if (h && typeof h === 'object' && typeof h.par === 'string' && h.par.trim() !== '' && isFinite(Number(h.par))) h.par = Number(h.par);
       });
-      if (typeof c.holeCount !== 'number' || c.holeCount <= 0) c.holeCount = c.holes.length || 18;
+      const keptIdx = [];
+      c.holes = rawHoles.filter(function (h, i) {
+        const ok = !!(h && typeof h === 'object' && typeof h.par === 'number' && isFinite(h.par));
+        if (ok) keptIdx.push(i);
+        return ok;
+      });
+      // Tee-Distanzen sind positionsbasiert: verworfene Loecher dort ebenfalls
+      // entfernen, sonst zeigte jedes Folgeloch die Distanz seines Vorgaengers.
+      if (keptIdx.length !== rawHoles.length) {
+        c.tees.forEach(function (t) {
+          if (Array.isArray(t.holeYardage) && t.holeYardage.length === rawHoles.length) {
+            t.holeYardage = keptIdx.map(function (i) { return t.holeYardage[i]; });
+          }
+        });
+      }
+      // holeCount = tatsaechliche Lochzahl (ein verworfenes Loch darf keinen
+      // "Geister"-Eintrag hinterlassen, der spaeter getHole(...) === null liefert).
+      if (c.holes.length) c.holeCount = c.holes.length;
+      else if (typeof c.holeCount !== 'number' || c.holeCount <= 0) c.holeCount = 18;
+      normalizeCourseHoles(c);
       // Tee-Zahlenfelder erzwingen: die App rechnet/rendert damit direkt
       // (.toFixed, Vorgabe-Formel). Kaputte Import-Daten -> neutrale Werte.
       const parSum = c.holes.reduce(function (a, h) { return a + h.par; }, 0) || 72;
@@ -2400,13 +2536,98 @@
         const nums = [];
         for (let i = 1; i <= c.holeCount; i++) nums.push(i);
         c.layouts = [{ id: 'standard', name: c.holeCount + ' Loch', holeNumbers: nums, isDefault: true }];
+      } else if (c.holes.length) {
+        // Layouts duerfen nur existierende Loecher referenzieren.
+        const have = {};
+        c.holes.forEach(function (h) { have[h.holeNumber] = true; });
+        c.layouts.forEach(function (l) {
+          if (!l || !Array.isArray(l.holeNumbers)) return;
+          const keep = l.holeNumbers.filter(function (x) { return have[x]; });
+          l.holeNumbers = keep.length ? keep : c.holes.map(function (h) { return h.holeNumber; });
+        });
       }
       if (!c.source) c.source = 'imported';
       return c;
     }
+    // Interne Runden-Felder absichern — genutzt beim Laden (sanitizeAppState) UND
+    // beim Einzelrunden-Import (vorher galt die Pruefung erst beim naechsten Start).
+    function sanitizeRoundShape(r, defaultStatus, courses) {
+      const findCourse = function () { return (courses || []).find(function (c) { return c.id === r.courseId; }) || null; };
+      // Snapshots mit physischer Lochnummerierung (z.B. 10..18) auf 1..n umstellen
+      // und Lochnummern/Scores der Runde mitziehen.
+      if (r.courseSnapshot && typeof r.courseSnapshot === 'object') {
+        const map = normalizeCourseHoles(r.courseSnapshot);
+        if (map) {
+          if (Array.isArray(r.holeNumbers)) {
+            const nSnap = r.courseSnapshot.holes.length;
+            const hasDup = new Set(r.holeNumbers).size !== r.holeNumbers.length;
+            // Volle Runde oder doppelte physische Nummern (z.B. 1,1,2,2,...): eine
+            // Zuordnung ueber die Nummer waere mehrdeutig -> Position 1..n.
+            if (hasDup || r.holeNumbers.length === nSnap) {
+              r.holeNumbers = r.courseSnapshot.holes.map(function (h) { return h.holeNumber; });
+            } else {
+              r.holeNumbers = r.holeNumbers.map(function (x) { return map[x]; }).filter(function (x) { return x != null; });
+            }
+          }
+          if (map[r.currentHole] != null) r.currentHole = map[r.currentHole];
+          (Array.isArray(r.holeScores) ? r.holeScores : []).forEach(function (sc) {
+            if (sc && map[sc.holeNumber] != null) sc.holeNumber = map[sc.holeNumber];
+          });
+        }
+      }
+      if (!r.courseLayoutId) r.courseLayoutId = 'standard';
+      if (!Array.isArray(r.holeNumbers) || r.holeNumbers.length === 0) {
+        const snap = (r.courseSnapshot && Array.isArray(r.courseSnapshot.holes) && r.courseSnapshot.holes.length) ? r.courseSnapshot : null;
+        const course = snap || findCourse();
+        const n = (course && ((course.holes && course.holes.length) || course.holeCount)) || 18;
+        const arr = [];
+        for (let i = 1; i <= n; i++) arr.push(i);
+        r.holeNumbers = arr;
+      }
+      if (!r.createdAt) r.createdAt = r.date || new Date().toISOString();
+      if (!r.updatedAt) r.updatedAt = r.createdAt;
+      if (!r.courseName) {
+        const course = findCourse();
+        r.courseName = course ? course.name : ((r.courseSnapshot && r.courseSnapshot.name) || 'Unbekannter Platz');
+      }
+      if (!r.courseSnapshot) {
+        const course = findCourse();
+        if (course) r.courseSnapshot = JSON.parse(JSON.stringify(course));
+      }
+      if (!r.status) r.status = defaultStatus;
+      if (!Array.isArray(r.holeScores)) r.holeScores = [];
+      if (r.holeNumbers.indexOf(r.currentHole) === -1) r.currentHole = r.holeNumbers[0] || 1;
+      // Interna absichern (v.a. importierte Einzelrunden von fremden Geraeten):
+      // jeder Spieler braucht ein strokesPerHole-Array, und holeScores duerfen nur
+      // Loecher der Runde referenzieren — sonst liefert getHole(...) null.
+      (Array.isArray(r.playersInRound) ? r.playersInRound : []).forEach(function (pir) {
+        if (!pir || typeof pir !== 'object') return;
+        if (!Array.isArray(pir.strokesPerHole)) pir.strokesPerHole = [];
+        if (typeof pir.playingHandicap !== 'number' || !isFinite(pir.playingHandicap)) pir.playingHandicap = 0;
+        if (typeof pir.handicapIndexAtRound !== 'number' || !isFinite(pir.handicapIndexAtRound)) pir.handicapIndexAtRound = 0;
+        if (typeof pir.displayName !== 'string') pir.displayName = String(pir.displayName || 'Spieler');
+      });
+      const valid = {};
+      r.holeNumbers.forEach(function (x) { valid[x] = true; });
+      r.holeScores = r.holeScores.filter(function (sc) {
+        return sc && typeof sc === 'object' &&
+               typeof sc.holeNumber === 'number' && valid[sc.holeNumber] === true &&
+               typeof sc.playerInRoundIdx === 'number' &&
+               sc.playerInRoundIdx >= 0 && sc.playerInRoundIdx < (r.playersInRound || []).length;
+      });
+    }
     function sanitizeAppState(s) {
       if (!s || typeof s !== 'object') return defaultAppState();
-      s.players = Array.isArray(s.players) ? s.players : [];
+      // Spieler absichern (v.a. aus Backups): ohne Zahl-HCP stuerzte die
+      // Spielerverwaltung bei p.handicapIndex.toFixed ab.
+      s.players = (Array.isArray(s.players) ? s.players : []).filter(function (p) {
+        return p && typeof p === 'object' && p.id;
+      });
+      s.players.forEach(function (p) {
+        p.name = String(p.name || 'Spieler');
+        const h = parseFloat(p.handicapIndex);
+        p.handicapIndex = isFinite(h) ? Math.min(54, Math.max(-10, h)) : 18;
+      });
       s.courses = Array.isArray(s.courses) ? s.courses : [];
       s.rounds  = Array.isArray(s.rounds)  ? s.rounds  : [];
       s.courses = s.courses.map(sanitizeCourse).filter(Boolean);
@@ -2454,46 +2675,7 @@
       // Legacy pointer no longer used — drop if present.
       if ('lastActiveRoundId' in s) delete s.lastActiveRoundId;
       // v1.1 migration: older rounds get default layout info + snapshot fields
-      function sanitizeRoundFields(r, defaultStatus) {
-        if (!r.courseLayoutId) r.courseLayoutId = 'standard';
-        if (!Array.isArray(r.holeNumbers) || r.holeNumbers.length === 0) {
-          const course = s.courses.find(function (c) { return c.id === r.courseId; });
-          const n = (course && course.holeCount) || 18;
-          const arr = [];
-          for (let i = 1; i <= n; i++) arr.push(i);
-          r.holeNumbers = arr;
-        }
-        if (!r.createdAt) r.createdAt = r.date || new Date().toISOString();
-        if (!r.updatedAt) r.updatedAt = r.createdAt;
-        if (!r.courseName) {
-          const course = s.courses.find(function (c) { return c.id === r.courseId; });
-          r.courseName = course ? course.name : 'Unbekannter Platz';
-        }
-        if (!r.courseSnapshot) {
-          const course = s.courses.find(function (c) { return c.id === r.courseId; });
-          if (course) r.courseSnapshot = JSON.parse(JSON.stringify(course));
-        }
-        if (!r.status) r.status = defaultStatus;
-        if (!Array.isArray(r.holeScores)) r.holeScores = [];
-        if (typeof r.currentHole !== 'number' || r.currentHole < 1) r.currentHole = 1;
-        // Interna absichern (v.a. importierte Einzelrunden von fremden
-        // Geraeten): jeder Spieler braucht ein strokesPerHole-Array, und
-        // holeScores duerfen nur Loecher der Runde referenzieren — sonst
-        // dereferenzieren computeTotals/Scorecard getHole(...) === null.
-        const maxHole = r.holeNumbers[r.holeNumbers.length - 1] || 18;
-        (Array.isArray(r.playersInRound) ? r.playersInRound : []).forEach(function (pir) {
-          if (!pir || typeof pir !== 'object') return;
-          if (!Array.isArray(pir.strokesPerHole)) pir.strokesPerHole = [];
-          if (typeof pir.playingHandicap !== 'number' || !isFinite(pir.playingHandicap)) pir.playingHandicap = 0;
-          if (typeof pir.handicapIndexAtRound !== 'number' || !isFinite(pir.handicapIndexAtRound)) pir.handicapIndexAtRound = 0;
-        });
-        r.holeScores = r.holeScores.filter(function (sc) {
-          return sc && typeof sc === 'object' &&
-                 typeof sc.holeNumber === 'number' && sc.holeNumber >= 1 && sc.holeNumber <= maxHole &&
-                 typeof sc.playerInRoundIdx === 'number' &&
-                 sc.playerInRoundIdx >= 0 && sc.playerInRoundIdx < (r.playersInRound || []).length;
-        });
-      }
+      function sanitizeRoundFields(r, defaultStatus) { sanitizeRoundShape(r, defaultStatus, s.courses); }
       s.rounds.forEach(function (r) { sanitizeRoundFields(r, 'finished'); });
       // Sanitize & defensively filter open rounds.
       s.openRounds = s.openRounds.filter(function (r) {
@@ -2512,8 +2694,12 @@
       });
       // HCP-Rechner-Daten absichern (fehlen in aelteren States / Backups).
       s.hcp = sanitizeHcpState(s.hcp);
+      if (s.hcp.meId && !s.players.some(function (p) { return p.id === s.hcp.meId; })) s.hcp.meId = null;
       if (typeof s.version !== 'number') s.version = SCHEMA_VERSION;
       if (!s.gps || typeof s.gps !== 'object') s.gps = defaultGpsState();
+      // Eine GPS-Anfrage ueberlebt keinen Neustart: ein gespeichertes 'requesting'
+      // haette den GPS-Knopf sonst dauerhaft gesperrt.
+      else if (s.gps.status === 'requesting') { s.gps.status = 'idle'; s.gps.lastError = null; }
       return s;
     }
 
@@ -2531,9 +2717,13 @@
     // zusammenfuehren (eingebettete zuerst, dann Extras, ohne Dubletten).
     function reconstituteCourses(extra) {
       const merged = buildEmbeddedCourses();
-      const seen = {};
-      merged.forEach(function (c) { seen[c.id] = true; });
-      (extra || []).forEach(function (c) { if (c && c.id && !seen[c.id]) { seen[c.id] = true; merged.push(c); } });
+      const at = {};
+      merged.forEach(function (c, i) { at[c.id] = i; });
+      (extra || []).forEach(function (c) {
+        if (!c || !c.id) return;
+        if (at[c.id] == null) { at[c.id] = merged.length; merged.push(c); }
+        else if (userImportWins(c)) merged[at[c.id]] = c;   // eigener Import ersetzt DB-Stand
+      });
       return merged;
     }
     function loadState() {
@@ -2581,14 +2771,32 @@
       for (const k in state.appState) {
         if (Object.prototype.hasOwnProperty.call(state.appState, k)) slim[k] = state.appState[k];
       }
-      slim.courses = (state.appState.courses || []).filter(function (c) { return !embIds.has(c.id); });
+      // DB-Plaetze nicht speichern (kommen aus data/), eigene Importe aber schon —
+      // auch wenn sie einen DB-Platz ersetzen (sonst waere der Import nach dem
+      // naechsten Start still verschwunden).
+      slim.courses = (state.appState.courses || []).filter(function (c) { return !embIds.has(c.id) || c.userOverride === true; });
       return slim;
     }
+    let __quotaWarned = false;
     function saveState() {
       if (!state.storageAvailable) return;
+      const slim = slimAppStateForStorage();
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(slimAppStateForStorage()));
-      } catch (e) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
+        return;
+      } catch (e) { /* evtl. Speicher voll -> unten ohne importierte Plaetze erneut */ }
+      // Spieler, Runden und HCP-Daten haben Vorrang: lieber importierte Plaetze
+      // nicht dauerhaft speichern als GAR NICHTS mehr zu speichern.
+      try {
+        const lean = Object.assign({}, slim, {
+          courses: (slim.courses || []).filter(function (c) { return c.source === 'UserDefined'; })
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(lean));
+        if (!__quotaWarned) {
+          __quotaWarned = true;
+          showToast('Speicher voll: importierte Plätze werden nicht dauerhaft gespeichert.');
+        }
+      } catch (e2) {
         state.storageAvailable = false;
         renderTopbar();
       }
@@ -2694,6 +2902,49 @@
     //    ist (confirmedAt-Vergleich). Verhindert, dass ein aelterer HTML-Stand
     //    einen neueren Laufzeit-Import wieder zuruecksetzt.
     //  - source==='UserDefined' (selbst erfasste Plaetze) wird nie angefasst.
+    // Eigener Kurs-Import (Daten -> Kursdaten importieren): wird gespeichert und
+    // ersetzt einen gleichnamigen DB-Platz, solange der DB-Stand derselbe ist. Kommt
+    // ein NEUERER DB-Stand, gewinnt wieder die DB (autoritativ). Plaetze, die es in
+    // der DB gar nicht gibt, bleiben dauerhaft erhalten.
+    function markUserImport(c) {
+      c.userOverride = true;
+      c.importDbVersion = LOADED_COURSE_DB.version || (state.appState && state.appState.embeddedDbVersion) || null;
+    }
+    function userImportWins(c) {
+      if (!c || c.userOverride !== true) return false;
+      const v = LOADED_COURSE_DB.version || null;
+      // Unbekannter DB-Stand (z.B. Offline-Start nach unvollstaendigem Download)
+      // ist KEIN neuerer Stand -> der eigene Import bleibt.
+      if (v === null || c.importDbVersion == null) return true;
+      return c.importDbVersion === v;
+    }
+    // Fachlich relevante Platzdaten fuer "weicht der Import von der DB ab?".
+    function courseFingerprint(c) {
+      return JSON.stringify({ n: c.name, cc: c.country,
+        h: (c.holes || []).map(function (h) { return [h.par, h.strokeIndex]; }),
+        t: (c.tees || []).map(function (t) { return [t.colorKey, t.courseRating, t.slopeRating, t.par, (t.holeYardage || []).join(',')]; }) });
+    }
+    let __dbById = null, __dbByIdLen = -1;
+    function dbCourseById(id) {
+      const list = LOADED_COURSE_DB.courses || [];
+      if (!__dbById || __dbByIdLen !== list.length) {
+        __dbById = {};
+        list.forEach(function (c) { __dbById[c.id] = c; });
+        __dbByIdLen = list.length;
+      }
+      return __dbById[id] || null;
+    }
+    // Nur ECHTE Abweichungen von der DB als eigenen Import speichern. Ein Import
+    // der kompletten Kursdatei (identisch mit der DB) wuerde sonst alle Plaetze in
+    // den Handyspeicher schreiben -> Speicher voll -> gar nichts mehr gespeichert.
+    function markUserImportIfChanged(c) {
+      const db = dbCourseById(c.id);
+      if (db && courseFingerprint(db) === courseFingerprint(c)) {
+        delete c.userOverride; delete c.importDbVersion;
+        return;
+      }
+      markUserImport(c);
+    }
     function mergeCoursesIntoAppState(incomingCourses, opts) {
       const mode = (opts && opts.mode) || 'import';
       const stats = { added: 0, updated: 0, skipped: 0, unchanged: 0 };
@@ -2727,8 +2978,10 @@
           c.regionTags = merged;
           Object.keys(existing).forEach(function (k) { if (!(k in c)) delete existing[k]; });
           Object.keys(c).forEach(function (k) { existing[k] = c[k]; });
+          if (mode === 'import') markUserImportIfChanged(existing);
           stats.updated++;
         } else {
+          if (mode === 'import') markUserImportIfChanged(c);
           state.appState.courses.push(c);
           byId[c.id] = c;
           stats.added++;
@@ -2764,11 +3017,17 @@
       });
       // Nur selbst erfasste Plaetze bleiben erhalten; alles andere wird durch die
       // eingebettete DB ersetzt. Bei Id-Kollision gewinnt die eingebettete Quelle.
-      const userDefined = state.appState.courses.filter(function (c) { return c.source === 'UserDefined'; });
-      const byId = {};
-      const merged = [];
-      buildEmbeddedCourses().concat(userDefined).forEach(function (c) {
-        if (!byId[c.id]) { byId[c.id] = c; merged.push(c); }
+      // Selbst erfasste Plaetze und eigene Importe bleiben; ein Import ersetzt den
+      // DB-Platz nur, wenn er zum aktuellen DB-Stand gehoert (userImportWins).
+      // Importe zu Laendern, die erst im Hintergrund geladen werden, entscheidet
+      // appendLoadedCourses.
+      const keep = state.appState.courses.filter(function (c) { return c.source === 'UserDefined' || c.userOverride === true; });
+      const merged = buildEmbeddedCourses();
+      const at = {};
+      merged.forEach(function (c, i) { at[c.id] = i; });
+      keep.forEach(function (c) {
+        if (at[c.id] == null) { at[c.id] = merged.length; merged.push(c); }
+        else if (userImportWins(c)) merged[at[c.id]] = c;
       });
       state.appState.courses = merged;
       state.appState.embeddedDbVersion = LOADED_COURSE_DB.version;
@@ -2813,7 +3072,7 @@
           state.appState.courses.forEach(function (c) { idsNow[c.id] = c; });
           const seenAudit = {};
           const report = auditCourses(importedCourses
-            .map(function (c) { return idsNow[c.id]; })
+            .map(function (c) { return (c && c.id) ? idsNow[c.id] : null; })
             .filter(function (c) {   // pro courseId nur einmal pruefen (Datei-Duplikate)
               if (!c || seenAudit[c.id]) return false;
               seenAudit[c.id] = 1; return true;
@@ -2945,6 +3204,9 @@
             openRounds: Array.isArray(parsed.openRounds) ? parsed.openRounds : [],
             // HCP-Rechner (aktuelles HCP + Turnierliste + Ich-Spieler) gehoert zum Backup.
             hcp: parsed.hcp,
+            // DB-Stempel mitnehmen: ohne ihn hielte syncEmbeddedCourses das Backup
+            // fuer "veraltet" und wuerde alle importierten Plaetze daraus loeschen.
+            embeddedDbVersion: (typeof parsed.embeddedDbVersion === 'string') ? parsed.embeddedDbVersion : null,
             // Legacy-Backups (v1.4 und aelter): einzelner Runden-Entwurf.
             currentRoundDraft: (parsed.currentRoundDraft && typeof parsed.currentRoundDraft === 'object')
               ? parsed.currentRoundDraft : undefined
@@ -3001,14 +3263,22 @@
     // disagree. Prefers the stored ratingHoles; falls back to a CR-vs-par heuristic
     // for tees imported without it (hand-edited / legacy data).
     function resolveTeeRatingHoles(tee, holeCount) {
+      // Mehr als 18 Loecher (zusammengefasste Schleifen): liegt das CR naeher am
+      // Par ALLER Loecher (z.B. geschaetztes CR = Par) als am 18-Loch-Anteil, gilt
+      // es fuer alle Loecher -> nicht hochskalieren (sonst viel zu hohe Vorgabe).
+      if (holeCount > 18 && tee && typeof tee.courseRating === 'number' && typeof tee.par === 'number' && tee.par > 0 &&
+          Math.abs(tee.courseRating - tee.par) < Math.abs(tee.courseRating - tee.par * 18 / holeCount)) return holeCount;
       // Gespeicherter Wert gewinnt (6, 9 oder 18 — je nach Platz).
       if (tee && (tee.ratingHoles === 6 || tee.ratingHoles === 9 || tee.ratingHoles === 18)) {
         return tee.ratingHoles;
       }
-      // Fallback-Heuristik fuer Daten ohne ratingHoles: ein CR weit ueber dem
-      // Par der gespielten Loecher ist ein 18-Loch-Rating.
-      if (holeCount < 18 && tee && typeof tee.courseRating === 'number' &&
-          typeof tee.par === 'number' && tee.courseRating > tee.par * 1.5) return 18;
+      // Fallback ohne gespeicherten 6/9/18-Wert: liegt das CR naeher am auf 18
+      // Loecher hochgerechneten Par als am Par der gespielten Loecher, ist es ein
+      // 18-Loch-Rating (z.B. 17 Loch, Par 68, CR 72.0; 12 Loch, Par 45, CR 64.4).
+      // Die fruehere Regel "CR > 1.5 x Par" verpasste diese Faelle (47 Abschlaege).
+      if (holeCount < 18 && tee && typeof tee.courseRating === 'number' && typeof tee.par === 'number' && tee.par > 0) {
+        if (Math.abs(tee.courseRating - tee.par * 18 / holeCount) < Math.abs(tee.courseRating - tee.par)) return 18;
+      }
       return holeCount < 18 ? holeCount : 18;
     }
     // Kurzrunden (< 18 Loch) anteilig: Faktor = Lochzahl/18.
@@ -3016,7 +3286,7 @@
     function calculatePlayingHandicap(handicapIndex, slopeRating, courseRating, par, holeCount, ratingHoles) {
       let hi = handicapIndex;
       let cr = courseRating;
-      if (holeCount && holeCount < 18) {
+      if (holeCount && holeCount !== 18) {
         const f = holeCount / 18;
         hi = handicapIndex * f;
         // ratingHoles resolved by the caller via resolveTeeRatingHoles(); the
@@ -3026,8 +3296,8 @@
           : (courseRating > par * 1.5 ? 18 : holeCount);
         if (rh === 18) cr = courseRating * f;
       }
-      const ph = Math.round(hi * (slopeRating / 113) + (cr - par));
-      return Math.max(0, ph);
+      // Negativ = Plus-Handicap: Schlaege werden zurueckgegeben (WHS Rule 6.1).
+      return Math.round(hi * (slopeRating / 113) + (cr - par));
     }
     // Distribute playingHandicap strokes across 18 holes in order of lowest
     // Stroke Index first. If PH > 18, second pass awards an additional stroke
@@ -3044,12 +3314,23 @@
       // so behaviour is unchanged.
       const n = (holes && holes.length) || 18;
       const result = new Array(n).fill(0);
-      if (playingHandicap <= 0) return result;
+      if (!playingHandicap || !holes || !holes.length) return result;
       // Build mapping: SI rank -> hole index
       const order = holes
         .map(function (h, i) { return { i: i, si: h.strokeIndex }; })
         .sort(function (a, b) { return a.si - b.si; })
         .map(function (x) { return x.i; });
+      if (playingHandicap < 0) {
+        // Plus-Handicap: je Einheit einen Schlag ZURUECKgeben, beginnend beim
+        // hoechsten Stroke Index (leichtestes Loch).
+        const rev = order.slice().reverse();
+        let back = -playingHandicap, guard = 0;
+        while (back > 0 && guard < 200) {
+          for (let k = 0; k < n && back > 0; k++) { result[rev[k]]--; back--; }
+          guard++;
+        }
+        return result;
+      }
       let remaining = playingHandicap;
       let safety = 0;
       while (remaining > 0 && safety < 200) {
@@ -3085,7 +3366,9 @@
       if (diff === 0) return 2;
       if (diff === -1) return 3;
       if (diff === -2) return 4;
-      return 5; // diff <= -3
+      // R&A Regel 21.1b: 3 unter = 5, 4 unter = 6 usw. (mit Vorgabeschlaegen
+      // bei hohen Handicaps erreichbar, z.B. Ass auf Par 4 mit 1 Schlag).
+      return 2 - diff; // diff <= -3
     }
     function getCourse(courseId) {
       return state.appState.courses.find(function (c) { return c.id === courseId; }) || null;
@@ -3107,6 +3390,10 @@
       if (!course || !Array.isArray(course.holes)) return null;
       return course.holes.find(function (h) { return h.holeNumber === holeNumber; }) || null;
     }
+    // Anzeige-Nummer eines Lochs: die physische Nummer (label), falls die Loecher
+    // intern auf 1..n umnummeriert wurden (z.B. Back-Nine-Schleife 10..18).
+    function holeLabel(hole) { return hole ? (hole.label != null ? hole.label : hole.holeNumber) : ''; }
+    function holeLabelFor(course, holeNumber) { const h = getHole(course, holeNumber); return h ? holeLabel(h) : holeNumber; }
     function getStrokesForPlayerHole(round, playerIdx, holeNumber) {
       const score = round.holeScores.find(function (s) {
         return s.playerInRoundIdx === playerIdx && s.holeNumber === holeNumber;
@@ -3149,16 +3436,20 @@
         anyEntered: false
       };
       const course = getCourseForRound(round);
-      for (let h = 1; h <= 18; h++) {
+      // Loecher der Runde in Spielreihenfolge; OUT = erste 9, IN = Rest.
+      const nums = (Array.isArray(round.holeNumbers) && round.holeNumbers.length)
+        ? round.holeNumbers : ((course && course.holes) || []).map(function (x) { return x.holeNumber; });
+      const pir = round.playersInRound[playerIdx];
+      nums.forEach(function (h, pos) {
         const strokes = getStrokesForPlayerHole(round, playerIdx, h);
         const hole = getHole(course, h);
-        const pir = round.playersInRound[playerIdx];
+        if (!hole) return;
         const given = pir.strokesPerHole[h - 1] || 0;
         if (strokes > 0) {
           totals.anyEntered = true;
           const net = strokes - given;
           const stbl = stablefordForHole(strokes, hole.par, given);
-          if (h <= 9) {
+          if (pos < 9) {
             totals.grossOut += strokes;
             totals.netOut += net;
             totals.stablefordOut += stbl;
@@ -3170,7 +3461,7 @@
             totals.parPlayedIn += hole.par;
           }
         }
-      }
+      });
       totals.grossTotal = totals.grossOut + totals.grossIn;
       totals.netTotal = totals.netOut + totals.netIn;
       totals.stablefordTotal = totals.stablefordOut + totals.stablefordIn;
@@ -3307,10 +3598,18 @@
     }
 
     function slashChars(n) {
-      if (n <= 0) return '';
+      if (n < 0) return '+';   // Plus-Handicap: Schlag wird zurueckgegeben
+      if (n === 0) return '';
       if (n === 1) return '/';
       if (n === 2) return '//';
       return '///';
+    }
+    // Spielvorgabe anzeigen: Plus-Handicaps wie ueblich mit "+" (-1 -> "+1").
+    function fmtPH(ph) { return (typeof ph === 'number' && ph < 0) ? ('+' + (-ph)) : String(ph); }
+    // Handicap Index anzeigen: Plus-Handicaps mit "+" (-2.0 -> "+2.0"), sonst 1 Dezimale.
+    function fmtHI(v) {
+      if (typeof v !== 'number' || !isFinite(v)) return '—';
+      return v < 0 ? ('+' + fmt1(-v)) : fmt1(v);
     }
     function formatToPar(n) {
       if (n === 0) return 'E';
@@ -3421,7 +3720,7 @@
         createdAt: now,
         updatedAt: now,
         playersInRound: playersInRound,
-        currentHole: 1,
+        currentHole: holeNumbers[0] || 1,
         status: 'draft', // new round is always a draft until finished
         holeScores: []
       };
@@ -3929,7 +4228,7 @@
       const names = (r.playersInRound || []).map(function (p) { return p.displayName; }).join(', ');
       const line2bits = [];
       if (names) line2bits.push(names);
-      if (r.currentHole) line2bits.push('Loch ' + r.currentHole);
+      if (r.currentHole) line2bits.push('Loch ' + holeLabelFor(getCourseForRound(r), r.currentHole));
       const saved = r.updatedAt ? ('zuletzt ' + formatTime(r.updatedAt)) : null;
       if (saved) line2bits.push(saved);
       if (line2bits.length) card.appendChild(el('div', { class: 'or-line2' }, [line2bits.join(' · ')]));
@@ -4301,7 +4600,7 @@
       }
       holes.forEach(function (h, i) {
         const tr = el('tr');
-        tr.appendChild(el('td', {}, [String(h.holeNumber)]));
+        tr.appendChild(el('td', {}, [String(holeLabel(h))]));
         tr.appendChild(el('td', {}, [String(h.par)]));
         tr.appendChild(el('td', {}, [String(h.strokeIndex)]));
         tees.forEach(function (t, ti) {
@@ -4314,9 +4613,9 @@
         });
         if (typeof h.par === 'number') { if (i < 9) parOut += h.par; else parIn += h.par; }
         tbody.appendChild(tr);
-        if (n >= 18 && i === 8) tbody.appendChild(sumRow('OUT', parOut, teeOut));
+        if (n === 18 && i === 8) tbody.appendChild(sumRow('OUT', parOut, teeOut));
       });
-      if (n >= 18) tbody.appendChild(sumRow('IN', parIn, teeIn));
+      if (n === 18) tbody.appendChild(sumRow('IN', parIn, teeIn));
       // Fehlen die Loch-Laengen fuer ein Tee (Summe 0), aber die Gesamtlaenge ist
       // bekannt, dann diese in der Total-Zeile zeigen statt "–".
       const teeTotDisplay = tees.map(function (t, ti) {
@@ -4331,13 +4630,19 @@
       crRow.appendChild(el('td', { colspan: '3' }, ['CR / SR']));
       tees.forEach(function (t) {
         crRow.appendChild(el('td', {}, [
-          (typeof t.courseRating === 'number' ? t.courseRating.toFixed(1) : '–') + ' / ' + (t.slopeRating != null ? t.slopeRating : '–')
+          (typeof t.courseRating === 'number' ? t.courseRating.toFixed(1) : '–') + ' / ' + (t.slopeRating != null ? t.slopeRating : '–') +
+          (ratingImplausible(t, n) ? ' ⚠' : '') + (t.ratingEstimated ? ' (geschätzt)' : '')
         ]));
       });
       tfoot.appendChild(crRow);
       table.appendChild(tfoot);
       wrap.appendChild(table);
 
+      if (tees.some(function (t) { return ratingImplausible(t, n); })) {
+        wrap.appendChild(el('div', { class: 'small', style: 'margin-top:6px; color:#B3261E; font-weight:600;' }, [
+          '⚠ Mindestens ein Course Rating passt nicht zur Par-Zahl (Datenfehler, z.B. 9-Loch-Wert im 18-Loch-Datensatz). Spielvorgabe auf diesem Abschlag nicht verlässlich.'
+        ]));
+      }
       const anyYard = tees.some(function (t) { return (t.holeYardage || []).some(function (v) { return typeof v === 'number' && v > 0; }); });
       if (!anyYard) {
         const totals = tees.map(function (t) {
@@ -4389,7 +4694,7 @@
       const hcpStepper = el('div', { class: 'stepper' });
       const hcpMinus = el('button', { type: 'button', 'aria-label': 'HCP minus' }, ['−']);
       const hcpVal = el('span', { class: 'value' }, [
-        (typeof p.handicapIndex === 'number' && !isNaN(p.handicapIndex)) ? p.handicapIndex.toFixed(1) : '—'
+        fmtHI(p.handicapIndex)
       ]);
       const hcpPlus = el('button', { type: 'button', 'aria-label': 'HCP plus' }, ['+']);
       hcpMinus.addEventListener('click', function () {
@@ -4467,7 +4772,7 @@
           rowLbl.appendChild(cb);
           rowLbl.appendChild(el('span', { class: 'cr-name' }, [p.name]));
           rowLbl.appendChild(el('span', { class: 'small' }, [
-            'HCP ' + (typeof p.handicapIndex === 'number' ? p.handicapIndex.toFixed(1) : '—')
+            'HCP ' + fmtHI(p.handicapIndex)
           ]));
           list.appendChild(rowLbl);
           checkboxes.push({ id: p.id, name: p.name, hcp: p.handicapIndex, defaultTeeColorKey: p.defaultTeeColorKey, input: cb });
@@ -4520,6 +4825,7 @@
         const newHcp = parseFloat(hcpIn.value);
         if (picked.length === 0 && !newName) { showToast('Bitte Spieler waehlen oder anlegen.'); return; }
         if (newName && isNaN(newHcp)) { showToast('Bitte HCP fuer den neuen Spieler eingeben.'); return; }
+        if (newName && (newHcp < -10 || newHcp > 54)) { showToast('HCP muss zwischen -10 und 54 liegen.'); return; }
 
         let skipped = 0;
         const hasRoom = function () { return state.setupDraft.players.length < 4; };
@@ -4569,7 +4875,7 @@
       body.appendChild(f1);
       const f2 = el('label', { class: 'field' });
       f2.appendChild(el('span', { class: 'label' }, ['Handicap-Index']));
-      const hcpIn = el('input', Object.assign({ type: 'number', step: '0.1', inputmode: 'decimal', value: String(p.handicapIndex || 18.0) }, noAutofillAttrs('spieler-hcp')));
+      const hcpIn = el('input', Object.assign({ type: 'number', step: '0.1', inputmode: 'decimal', value: String((typeof p.handicapIndex === 'number' && isFinite(p.handicapIndex)) ? p.handicapIndex : 18.0) }, noAutofillAttrs('spieler-hcp')));
       f2.appendChild(hcpIn);
       body.appendChild(f2);
       const f3 = el('div', { class: 'field' });
@@ -4605,6 +4911,7 @@
         const hcp = parseFloat(hcpIn.value);
         if (!name) { showToast('Bitte Namen eingeben.'); return; }
         if (isNaN(hcp)) { showToast('Bitte HCP eingeben.'); return; }
+        if (hcp < -10 || hcp > 54) { showToast('HCP muss zwischen -10 und 54 liegen.'); return; }
         p.displayName = name;
         p.handicapIndex = hcp;
         p.teeColorKey = chosen;
@@ -4700,14 +5007,23 @@
       root.appendChild(body);
     }
     function renderLivePane(pane, round, course) {
-      // Last playable hole of this round (9 for a 9-hole course, 18 for 18).
-      const lastHole = (Array.isArray(round.holeNumbers) && round.holeNumbers.length)
-        ? round.holeNumbers[round.holeNumbers.length - 1]
-        : (course.holeCount || (course.holes && course.holes.length) || 18);
+      // Loecher der Runde in Spielreihenfolge. Navigation ueber die POSITION in
+      // dieser Liste (nicht currentHole +/- 1), damit auch Layouts mit Luecken
+      // oder anderer Startnummer funktionieren.
+      const numsRaw = (Array.isArray(round.holeNumbers) && round.holeNumbers.length)
+        ? round.holeNumbers : (course.holes || []).map(function (x) { return x.holeNumber; });
+      const nums = numsRaw.filter(function (x, i) { return numsRaw.indexOf(x) === i; });   // ohne Doppelte
+      let pos = nums.indexOf(round.currentHole);
+      if (pos < 0) { pos = 0; round.currentHole = nums[0]; }
       const hole = getHole(course, round.currentHole);
+      if (!hole) {
+        pane.appendChild(el('div', { class: 'empty-state padded' }, ['Lochdaten für diese Runde fehlen.']));
+        return;
+      }
+      const labelAt = function (p) { return holeLabelFor(course, nums[p]); };
       // Hole header
       const hdr = el('div', { class: 'hole-header' });
-      hdr.appendChild(el('div', { class: 'hole-num' }, ['Loch ' + hole.holeNumber]));
+      hdr.appendChild(el('div', { class: 'hole-num' }, ['Loch ' + holeLabel(hole)]));
       const meta = el('div', { class: 'hole-meta' });
       meta.appendChild(el('span', {}, ['Par ' + hole.par]));
       meta.appendChild(el('span', {}, ['SI ' + hole.strokeIndex]));
@@ -4724,22 +5040,23 @@
       // Hole nav
       const nav = el('div', { class: 'hole-nav' });
       const prev = el('button', {
-        class: 'btn' + (round.currentHole === 1 ? ' is-disabled' : ''),
+        class: 'btn' + (pos === 0 ? ' is-disabled' : ''),
         type: 'button'
-      }, ['‹ Loch ' + Math.max(1, round.currentHole - 1)]);
-      if (round.currentHole === 1) prev.disabled = true;
+      }, ['‹ Loch ' + labelAt(Math.max(0, pos - 1))]);
+      if (pos === 0) prev.disabled = true;
       prev.addEventListener('click', function () {
-        if (round.currentHole > 1) {
-          round.currentHole--;
+        if (pos > 0) {
+          round.currentHole = nums[pos - 1];
           scheduleAutosave();
           renderPlay();
         }
       });
-      const nextLabel = round.currentHole >= lastHole ? 'Runde abschliessen' : ('Loch ' + (round.currentHole + 1) + ' ›');
+      const isLast = pos >= nums.length - 1;
+      const nextLabel = isLast ? 'Runde abschliessen' : ('Loch ' + labelAt(pos + 1) + ' ›');
       const next = el('button', { class: 'btn btn-primary', type: 'button' }, [nextLabel]);
       next.addEventListener('click', function () {
-        if (round.currentHole < lastHole) {
-          round.currentHole++;
+        if (!isLast) {
+          round.currentHole = nums[pos + 1];
           scheduleAutosave();
           renderPlay();
         } else {
@@ -4784,7 +5101,7 @@
 
       const row1 = el('div', { class: 'pb-row1' });
       row1.appendChild(el('span', { class: 'pb-name' }, [pir.displayName]));
-      row1.appendChild(el('span', { class: 'pb-hcp' }, ['(HCP ' + pir.handicapIndexAtRound.toFixed(1) + ', SPH ' + pir.playingHandicap + ')']));
+      row1.appendChild(el('span', { class: 'pb-hcp' }, ['(HCP ' + fmtHI(pir.handicapIndexAtRound) + ', SPH ' + fmtPH(pir.playingHandicap) + ')']));
       const slash = slashChars(given);
       if (slash) row1.appendChild(el('span', { class: 'pb-slash', 'aria-label': 'Vorgabeschlaege' }, [slash]));
       block.appendChild(row1);
@@ -4915,7 +5232,9 @@
       const teeColLabel = domTee ? (domTee.colorLabel || TEE_LABELS[domTee.colorKey] || 'Tee') : 'Tee';
       function yardFor(h) {
         if (!teeHasYards) return '–';
-        const y = domTee.holeYardage[h - 1];
+        // holeYardage ist positionsbasiert (ein Eintrag je course.holes-Element).
+        const ix = (course.holes || []).findIndex(function (x) { return x.holeNumber === h; });
+        const y = ix >= 0 ? domTee.holeYardage[ix] : null;
         return (typeof y === 'number' && y > 0) ? String(y) : '–';
       }
 
@@ -4958,8 +5277,9 @@
       // Build one hole row: Loch | SI | Par | Gelb | per player (Schl | / | Stbf)
       function buildHoleRow(h, altClass) {
         const hole = getHole(course, h);
+        if (!hole) return null;
         const tr = el('tr', { class: 'row-hole ' + altClass + (h === round.currentHole ? ' is-active' : '') });
-        tr.appendChild(el('th', { class: 'col-loch' }, [String(h)]));
+        tr.appendChild(el('th', { class: 'col-loch' }, [String(holeLabel(hole))]));
         tr.appendChild(el('td', { class: 'col-si'   }, [String(hole.strokeIndex)]));
         tr.appendChild(el('td', { class: 'col-par'  }, [String(hole.par)]));
         tr.appendChild(el('td', { class: 'col-gelb' }, [yardFor(h)]));
@@ -4995,6 +5315,7 @@
       // Accumulate per-player OUT / IN from actual entries
       function accumulateHole(h, accArr) {
         const hole = getHole(course, h);
+        if (!hole) return 0;
         round.playersInRound.forEach(function (pir, idx) {
           const given = pir.strokesPerHole[h - 1] || 0;
           const strokes = getStrokesForPlayerHole(round, idx, h);
@@ -5007,16 +5328,17 @@
         return hole.par;
       }
 
-      // How many holes this course actually has (9 or 18). Drives whether the
-      // IN block (holes 10+) is rendered at all — a 9-hole course would
-      // otherwise deref getHole(course,10..18) === null and crash the pane.
-      const nHoles = course.holeCount || (course.holes && course.holes.length) || 18;
+      // Loecher der Runde in Spielreihenfolge (Layout): OUT = erste 9, IN = Rest.
+      const nums = (Array.isArray(round.holeNumbers) && round.holeNumbers.length)
+        ? round.holeNumbers : (course.holes || []).map(function (x) { return x.holeNumber; });
+      const frontNums = nums.slice(0, 9), backNums = nums.slice(9);
 
-      // --- Front holes (1 .. min(9, nHoles)), alternating row A/B ---
-      for (let h = 1; h <= Math.min(9, nHoles); h++) {
+      // --- Front holes, alternating row A/B ---
+      frontNums.forEach(function (h, i) {
         parOut += accumulateHole(h, outAcc);
-        tbody.appendChild(buildHoleRow(h, (h % 2 === 1) ? 'row-a' : 'row-b'));
-      }
+        const row = buildHoleRow(h, (i % 2 === 0) ? 'row-a' : 'row-b');
+        if (row) tbody.appendChild(row);
+      });
 
       // --- OUT summary row ---
       const outRow = el('tr', { class: 'row-summary row-out' });
@@ -5032,12 +5354,13 @@
       });
       tbody.appendChild(outRow);
 
-      // --- Back holes (10 .. nHoles) + IN summary — only for >9-hole courses ---
-      if (nHoles > 9) {
-        for (let h = 10; h <= nHoles; h++) {
+      // --- Back holes + IN summary — only when the round has more than 9 holes ---
+      if (backNums.length) {
+        backNums.forEach(function (h, i) {
           parIn += accumulateHole(h, inAcc);
-          tbody.appendChild(buildHoleRow(h, (h % 2 === 1) ? 'row-a' : 'row-b'));
-        }
+          const row = buildHoleRow(h, ((9 + i) % 2 === 0) ? 'row-a' : 'row-b');
+          if (row) tbody.appendChild(row);
+        });
 
         const inRow = el('tr', { class: 'row-summary row-in' });
         inRow.appendChild(el('th', { class: 'col-loch' }, ['IN']));
@@ -5201,8 +5524,8 @@
       card.appendChild(top);
       card.appendChild(el('div', { class: 'rc-name' }, [entry.pir.displayName]));
       card.appendChild(el('div', { class: 'rc-hcp' }, [
-        'HCP ' + entry.pir.handicapIndexAtRound.toFixed(1) +
-        ' · SPH ' + entry.pir.playingHandicap +
+        'HCP ' + fmtHI(entry.pir.handicapIndexAtRound) +
+        ' · SPH ' + fmtPH(entry.pir.playingHandicap) +
         ' · ' + (TEE_LABELS[entry.pir.teeColorKey] || entry.pir.teeColorKey)
       ]));
       const stats = el('div', { class: 'rc-stats' });
@@ -5219,21 +5542,44 @@
       if (round.status === 'finished') {
         const sdr = scoreDifferentialForPlayer(round, entry.idx);
         const box = el('div', { class: 'rc-sd' });
-        if (!sdr) {
-          box.appendChild(el('span', { class: 'small' }, ['Gespieltes HCP: nicht berechenbar (keine Schläge oder kein Slope/CR).']));
+        if (!sdr || sdr.error) {
+          box.appendChild(el('span', { class: 'small' }, ['Gespieltes HCP: nicht berechenbar' + (sdr && sdr.error ? ' — ' + sdr.error : '') + '.']));
         } else {
           box.appendChild(el('span', {}, ['Gespieltes HCP (Score Diff.): ', el('strong', {}, [fmt1(sdr.sd)])]));
           box.appendChild(el('span', { class: 'small' }, [
-            'Par ' + sdr.par + ' + Vorgabe ' + sdr.given + ' + ' + (2 * sdr.played) + ' − ' + sdr.pts + ' Pkt = ' + sdr.ags +
-            ' · CR ' + fmt1(sdr.cr) + ' · Slope ' + sdr.slope +
-            (sdr.partial ? ' · nur ' + sdr.played + ' von ' + sdr.holes + ' Löchern (Näherung)' : '')
+            'Brutto ' + sdr.gross + ' → angepasst ' + sdr.ags +
+            (sdr.capped ? ' (' + sdr.capped + (sdr.capped === 1 ? ' Loch' : ' Löcher') + ' auf Netto-Doppelbogey gedeckelt)' : '') +
+            ' · CR ' + fmt1(sdr.cr) + ' · Slope ' + sdr.slope + ' · ' + sdr.pts + ' Pkt'
           ]));
+          if (sdr.nine) {
+            box.appendChild(el('span', { class: 'small' }, [
+              '9-Loch-Runde (WHS 2024): 9-Loch-Differential ' + fmt1(sdr.nineSd) + ' + erwartetes Differential der fehlenden 9 Löcher ' +
+              fmt1(sdr.expected9) + ' (bei HCP ' + fmtHI(entry.pir.handicapIndexAtRound) + ') = ' + fmt1(sdr.sd) +
+              ' — Erwartungswert ist eine Näherung (offizielle Tabelle nicht veröffentlicht).'
+            ]));
+          }
+          if (sdr.partial) {
+            box.appendChild(el('span', { class: 'small' }, [
+              'Näherung: ' + (sdr.holes - sdr.played) + ' nicht gespielte Löcher als Netto-Par gewertet.'
+            ]));
+          }
+          if (sdr.implausible) {
+            box.appendChild(el('span', { class: 'small', style: 'color:#B3261E; font-weight:600;' }, [
+              '⚠ Course Rating (' + fmt1(sdr.cr) + ') passt nicht zu Par ' + sdr.par + ' — die Platzdaten sind vermutlich fehlerhaft. Spielvorgabe und gespieltes HCP sind nicht verlässlich; bitte Platzdaten im Dashboard prüfen.'
+            ]));
+          }
+          if (sdr.estimated) {
+            box.appendChild(el('span', { class: 'small', style: 'color:#B3261E; font-weight:600;' }, [
+              '⚠ Course Rating / Slope dieses Abschlags sind geschätzt (keine offiziellen Werte) — Ergebnis nur bedingt aussagekräftig.'
+            ]));
+          }
           const H = state.appState.hcp || defaultHcpState();
           const isMe = !!(H.meId && entry.pir.playerId === H.meId);
+          const meExists = !!(H.meId && (state.appState.players || []).some(function (p) { return p.id === H.meId; }));
           const already = (H.rounds || []).some(function (x) { return x.roundId === round.id; });
           if (already) {
             box.appendChild(el('span', { class: 'small', style: 'color:#2F6B3A; font-weight:600;' }, ['✓ In der HCP-Turnierliste']));
-          } else if (isMe || !H.meId) {
+          } else if (isMe || !meExists) {
             const btn = el('button', { class: 'btn' + (isMe ? ' btn-primary' : ''), type: 'button', style: 'margin-top:6px;' },
               [isMe ? 'In HCP-Liste übernehmen' : 'Als mein Ergebnis in HCP-Liste übernehmen']);
             btn.addEventListener('click', function () {
@@ -5244,22 +5590,24 @@
               });
             });
             box.appendChild(btn);
-            if (!H.meId) box.appendChild(el('span', { class: 'small' }, ['Tipp: unter HCP → «Das bin ich» deinen Spieler wählen — dann erscheint der Button nur bei dir.']));
+            if (!meExists) box.appendChild(el('span', { class: 'small' }, ['Tipp: unter HCP → «Das bin ich» deinen Spieler wählen — dann erscheint der Button nur bei dir.']));
           }
         }
         card.appendChild(box);
       }
       // Spark
       const spark = el('div', { class: 'rc-spark' });
-      const nSparkHoles = course.holeCount || (course.holes && course.holes.length) || 18;
-      for (let h = 1; h <= nSparkHoles; h++) {
-        const s = getStrokesForPlayerHole(round, entry.idx, h);
+      const sparkNums = (Array.isArray(round.holeNumbers) && round.holeNumbers.length)
+        ? round.holeNumbers : (course.holes || []).map(function (x) { return x.holeNumber; });
+      sparkNums.forEach(function (h) {
         const hole = getHole(course, h);
+        if (!hole) return;
+        const s = getStrokesForPlayerHole(round, entry.idx, h);
         const given = entry.pir.strokesPerHole[h - 1] || 0;
         const pts = s > 0 ? stablefordForHole(s, hole.par, given) : null;
         const cls = pts === null ? 'pt empty' : ('pt p' + pts);
-        spark.appendChild(el('div', { class: cls, title: 'Loch ' + h }, [pts === null ? '·' : String(pts)]));
-      }
+        spark.appendChild(el('div', { class: cls, title: 'Loch ' + holeLabel(hole) }, [pts === null ? '·' : String(pts)]));
+      });
       card.appendChild(spark);
       return card;
     }
@@ -5280,7 +5628,17 @@
     function defaultHcpState() {
       return { current: null, rounds: [], meId: null, showOld: true };
     }
-    function clampHcp(v) { return Math.min(54, Math.max(-10, Math.round(v * 10) / 10)); }
+    // Auf eine Dezimale runden wie WHS ("x.x5 wird aufgerundet"). Math.round(x*10)/10
+    // rundet Werte aus Divisionen falsch ab (z.B. (10.1+10.2)/2 = 10.149999999999999
+    // -> 10.1 statt 10.2). Der Zuschlag 1e-7 (auf Zehntel) ist weit kleiner als jeder
+    // echte Abstand zur .x5-Grenze (>= 1e-4 bei den hier moeglichen Eingaben) und
+    // gleicht nur den Gleitkomma-Fehler aus. Negative Werte symmetrisch (-0.95 -> -1.0).
+    function round1(x) {
+      if (typeof x !== 'number' || !isFinite(x)) return x;
+      const s = x < 0 ? -1 : 1;
+      return s * (Math.round(Math.abs(x) * 10 + 1e-7) / 10);
+    }
+    function clampHcp(v) { return Math.min(54, Math.max(-10, round1(v))); }
     function sanitizeHcpState(h) {
       if (!h || typeof h !== 'object') return defaultHcpState();
       const out = {
@@ -5301,7 +5659,7 @@
       });
       return out;
     }
-    function fmt1(n) { return (Math.round(n * 10) / 10).toFixed(1); }
+    function fmt1(n) { return round1(n).toFixed(1); }
     function isoFromAny(v) {   // Zeitstempel/Date -> 'YYYY-MM-DD' (lokal)
       const d = v ? new Date(v) : new Date();
       const x = isNaN(d.getTime()) ? new Date() : d;
@@ -5335,14 +5693,14 @@
       const sortiert = letzte20.slice().sort(function (a, b) { return a.hcp - b.hcp || a.datum.localeCompare(b.datum); });
       const zaehlend = sortiert.slice(0, regel.anzahl);
       const summe = zaehlend.reduce(function (s, r) { return s + r.hcp; }, 0);
-      const hcp = Math.min(54, Math.max(-10, summe / regel.anzahl + regel.anpassung));
-      return { hcp: Math.round(hcp * 10) / 10, zaehlendeIds: zaehlend.map(function (r) { return r.id; }),
+      const hcp = Math.min(54, Math.max(-10, round1(summe / regel.anzahl + regel.anpassung)));
+      return { hcp: hcp, zaehlendeIds: zaehlend.map(function (r) { return r.id; }),
                regel: regel, basis: letzte20.length };
     }
     // Score Differential aus Brutto-Score: (113 / Slope) x (Score - CR - PCC)
     function scoreDifferential(score, cr, slope, pcc) {
       if (!(slope > 0) || !isFinite(score) || !isFinite(cr)) return null;
-      return Math.round((113 / slope) * (score - cr - (pcc || 0)) * 10) / 10;
+      return round1((113 / slope) * (score - cr - (pcc || 0)));
     }
     // Eintrag in die Turnierliste (auch aus der gespielten Runde genutzt).
     function addHcpRound(e) {
@@ -5371,12 +5729,12 @@
       const hero = el('div', { class: 'hcp-hero' });
       const tNow = el('button', { class: 'hcp-tile', type: 'button', 'aria-label': 'Aktuelles HCP aendern' });
       tNow.appendChild(el('div', { class: 'lab' }, ['Aktuelles HCP  ✎']));
-      tNow.appendChild(el('span', { class: 'val' }, [H.current == null ? '–' : fmt1(H.current)]));
+      tNow.appendChild(el('span', { class: 'val' }, [H.current == null ? '–' : fmtHI(H.current)]));
       tNow.appendChild(el('span', { class: 'sub' }, ['Tippen zum Ändern']));
       tNow.addEventListener('click', openCurrentHcpSheet);
       const tNew = el('div', { class: 'hcp-tile calc' });
       tNew.appendChild(el('div', { class: 'lab' }, ['Neu berechnet']));
-      tNew.appendChild(el('span', { class: 'val' }, [res.hcp == null ? '–' : fmt1(res.hcp)]));
+      tNew.appendChild(el('span', { class: 'val' }, [res.hcp == null ? '–' : fmtHI(res.hcp)]));
       if (res.hcp == null) {
         tNew.appendChild(el('span', { class: 'sub' }, ['Mindestens 3 Runden nötig']));
       } else if (H.current != null) {
@@ -5392,9 +5750,9 @@
       padded.appendChild(hero);
       if (res.hcp != null && res.hcp !== H.current) {
         const adopt = el('button', { class: 'btn btn-primary btn-block', type: 'button' },
-          ['Berechnetes HCP übernehmen (' + fmt1(res.hcp) + ')']);
+          ['Berechnetes HCP übernehmen (' + fmtHI(res.hcp) + ')']);
         adopt.addEventListener('click', function () {
-          H.current = res.hcp; saveState(); renderHcp(); showToast('Aktuelles HCP: ' + fmt1(res.hcp));
+          H.current = res.hcp; saveState(); renderHcp(); showToast('Aktuelles HCP: ' + fmtHI(res.hcp));
         });
         padded.appendChild(adopt);
       }
@@ -5548,7 +5906,7 @@
         const ly = y(res.hcp);
         s += '<line x1="' + padL + '" y1="' + ly.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + ly.toFixed(1) + '" stroke="#2F6B3A" stroke-width="1.6" stroke-dasharray="4 4" opacity=".85"/>';
         s += '<rect x="' + (W - padR - 40) + '" y="' + (ly - 9.5).toFixed(1) + '" width="40" height="19" rx="9.5" fill="#2F6B3A"/>';
-        s += '<text x="' + (W - padR - 20) + '" y="' + (ly + 4).toFixed(1) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">' + fmt1(res.hcp) + '</text>';
+        s += '<text x="' + (W - padR - 20) + '" y="' + (ly + 4).toFixed(1) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">' + fmtHI(res.hcp) + '</text>';
       }
       return s + '</svg>';
     }
@@ -5654,7 +6012,7 @@
       save.addEventListener('click', function () {
         const v = parseFloat(inp.value);
         if (isNaN(v)) { showToast('Bitte einen gültigen Wert eingeben.'); return; }
-        H.current = clampHcp(v); saveState(); closeOverlay(); renderHcp(); showToast('Aktuelles HCP: ' + fmt1(H.current));
+        H.current = clampHcp(v); saveState(); closeOverlay(); renderHcp(); showToast('Aktuelles HCP: ' + fmtHI(H.current));
       });
       actions.appendChild(cancel); actions.appendChild(save);
       content.appendChild(actions);
@@ -5705,7 +6063,7 @@
       if (players.length === 0) st.appendChild(el('div', { class: 'empty-state' }, ['Noch keine Spieler — zuerst unter Setup → Spieler anlegen.']));
       players.forEach(function (p) {
         const b = el('button', { class: 'btn btn-block' + (p.id === H.meId ? ' btn-primary' : ''), type: 'button' },
-          [(p.id === H.meId ? '✓ ' : '') + p.name + ' · HCP ' + (typeof p.handicapIndex === 'number' ? p.handicapIndex.toFixed(1) : '—')]);
+          [(p.id === H.meId ? '✓ ' : '') + p.name + ' · HCP ' + fmtHI(p.handicapIndex)]);
         b.addEventListener('click', function () {
           H.meId = p.id; saveState(); closeOverlay();
           if (state.activeScreen === 'hcp') renderHcp(); else rerenderPlayerAdmin();
@@ -5777,39 +6135,77 @@
       rd.readAsText(file, 'utf-8');
     }
 
-    // Gespieltes HCP (WHS Score Differential) EXAKT aus der gespielten Runde:
-    //   AGS (angepasster Bruttoscore; je Loch hoechstens Netto-Doppelbogey) =
-    //     Σ ueber gespielte Loecher (Par + erhaltene Schlaege + 2 − Stableford-Punkte)
-    //     (0 Punkte = Netto-Doppelbogey-Deckel — genau die WHS-Anpassung)
-    //   SD = (113 / Slope) × (AGS − CR − PCC), PCC = 0
-    // CR wie in calculatePlayingHandicap: bei < 18 Loechern mit 18-Loch-Rating
-    // anteilig (Lochzahl/18). Nur eingetragene Loecher zaehlen; sind nicht alle
-    // Loecher gespielt, wird das Ergebnis als Naeherung markiert.
+    // Erwartetes Score Differential fuer 9 NICHT gespielte Loecher (WHS 2024,
+    // Rule 5.1b: 18-Loch-SD = 9-Loch-SD + erwartetes 9-Loch-SD zum Handicap Index
+    // der Runde, gerundet erst am Schluss). Die offizielle Erwartungswert-Tabelle
+    // ist nicht veroeffentlicht; 0.52 x HI + 1.2 reproduziert das offizielle
+    // MGA-Beispiel (HI 14.0, 9-Loch-SD 7.2 -> 15.7) exakt -> als Naeherung markiert.
+    // Course Rating unplausibel? Bei regulaeren Plaetzen liegt das CR einige
+    // Schlaege um Par (auch Pitch & Putt). Weicht es um mehr als 15 Schlaege ab,
+    // ist der Datensatz fehlerhaft (z.B. 9-Loch-Rating in einem 18-Loch-Satz) —
+    // Spielvorgabe und Score Differential waeren dann unsinnig.
+    function ratingImplausible(tee, holeCount) {
+      if (!tee || typeof tee.courseRating !== 'number' || typeof tee.par !== 'number') return false;
+      const rh = resolveTeeRatingHoles(tee, holeCount);
+      const parForRating = (rh === 18 && holeCount !== 18) ? tee.par * (18 / holeCount) : tee.par;
+      return Math.abs(tee.courseRating - parForRating) > 15;
+    }
+    function expectedNineHoleDiff(hi) { return 0.52 * (typeof hi === 'number' && isFinite(hi) ? hi : 0) + 1.2; }
+
+    // Gespieltes HCP (WHS Score Differential) aus der gespielten Runde:
+    //   AGS (Adjusted Gross Score) = Σ je Loch min(Schlaege, Par + Vorgabe + 2)
+    //     (Netto-Doppelbogey-Deckel, WHS Rule 3.1; nie hoeher als der Brutto-Score)
+    //   nicht gespielte Loecher zaehlen als Netto-Par (Par + Vorgabe) -> Naeherung
+    //   18 Loch: SD = (113 / Slope) x (AGS - CR - PCC), PCC = 0
+    //   9 Loch:  9-Loch-SD (CR anteilig) + erwartetes SD der fehlenden 9 Loecher
+    // Rueckgabe: Ergebnisobjekt oder { error: 'Grund' } (nicht berechenbar).
     function scoreDifferentialForPlayer(round, playerIdx) {
       const course = getCourseForRound(round);
       const pir = round && round.playersInRound ? round.playersInRound[playerIdx] : null;
       if (!course || !pir) return null;
       const tee = getTee(course, pir.teeColorKey);
-      if (!tee || typeof tee.slopeRating !== 'number' || tee.slopeRating <= 0 || typeof tee.courseRating !== 'number') return null;
+      if (!tee || typeof tee.slopeRating !== 'number' || tee.slopeRating <= 0 || typeof tee.courseRating !== 'number') {
+        return { error: 'kein Course Rating / Slope für diesen Abschlag' };
+      }
       const holeNums = (Array.isArray(round.holeNumbers) && round.holeNumbers.length)
         ? round.holeNumbers : course.holes.map(function (h) { return h.holeNumber; });
-      let ags = 0, par = 0, given = 0, pts = 0, played = 0;
+      const n = holeNums.length;
+      if (n !== 9 && n !== 18) return { error: 'nur für 9- oder 18-Loch-Runden (diese Runde: ' + n + ' Löcher)' };
+      let ags = 0, gross = 0, par = 0, given = 0, pts = 0, played = 0, capped = 0;
       holeNums.forEach(function (hn) {
         const hole = getHole(course, hn);
-        const strokes = getStrokesForPlayerHole(round, playerIdx, hn);
-        if (!hole || !(strokes > 0)) return;
+        if (!hole) return;
         const g = (pir.strokesPerHole && pir.strokesPerHole[hn - 1]) || 0;
-        const p = stablefordForHole(strokes, hole.par, g);
-        ags += hole.par + g + 2 - p;
-        par += hole.par; given += g; pts += p; played++;
+        const strokes = getStrokesForPlayerHole(round, playerIdx, hn);
+        par += hole.par; given += g;
+        if (strokes > 0) {
+          const cap = hole.par + g + 2;            // Netto-Doppelbogey
+          ags += Math.min(strokes, cap);
+          if (strokes > cap) capped++;
+          gross += strokes;
+          pts += stablefordForHole(strokes, hole.par, g);
+          played++;
+        } else {
+          ags += hole.par + g;                     // nicht gespielt: Netto-Par
+        }
       });
-      if (played === 0) return null;
-      const n = holeNums.length;
+      if (played === 0) return { error: 'keine Schläge erfasst' };
+      if (n === 18 && played < 10) return { error: 'zu wenige Löcher gespielt (WHS: mindestens 10 von 18)' };
       let cr = tee.courseRating;
       if (n < 18 && resolveTeeRatingHoles(tee, n) === 18) cr = tee.courseRating * (n / 18);
-      const sd = Math.round((113 / tee.slopeRating) * (ags - cr) * 10) / 10;
-      return { sd: sd, ags: ags, par: par, given: given, pts: pts, played: played, holes: n,
-               cr: cr, slope: tee.slopeRating, partial: played < n };
+      const diffRaw = (113 / tee.slopeRating) * (ags - cr);
+      const res = { ags: ags, gross: gross, par: par, given: given, pts: pts, played: played, holes: n, capped: capped,
+                    cr: cr, slope: tee.slopeRating, partial: played < n, nine: n === 9,
+                    estimated: tee.ratingEstimated === true, implausible: ratingImplausible(tee, n) };
+      if (n === 9) {
+        const exp9 = expectedNineHoleDiff(pir.handicapIndexAtRound);
+        res.nineSd = round1(diffRaw);
+        res.expected9 = round1(exp9);
+        res.sd = round1(diffRaw + exp9);           // erst am Schluss runden
+      } else {
+        res.sd = round1(diffRaw);
+      }
+      return res;
     }
 
     // Nach einer Spieler-DB-Aenderung den gerade sichtbaren Verwaltungs-Screen neu
@@ -5835,7 +6231,7 @@
           if (state.appState.hcp && state.appState.hcp.meId === p.id) nameLine.appendChild(el('span', { class: 'hcp-me' }, ['Ich']));
           info.appendChild(nameLine);
           info.appendChild(el('div', { class: 'meta' }, [
-            'HCP ' + p.handicapIndex.toFixed(1) +
+            'HCP ' + fmtHI(p.handicapIndex) +
             (p.defaultTeeColorKey ? ' · ' + (TEE_LABELS[p.defaultTeeColorKey] || p.defaultTeeColorKey) : '')
           ]));
           row.appendChild(info);
@@ -5860,6 +6256,7 @@
               confirmKind: 'danger',
               onConfirm: function () {
                 state.appState.players = state.appState.players.filter(function (x) { return x.id !== p.id; });
+                if (state.appState.hcp && state.appState.hcp.meId === p.id) state.appState.hcp.meId = null;
                 saveState();
                 rerenderPlayerAdmin();
               }
@@ -6106,6 +6503,7 @@
         const hcp = parseFloat(hcpIn.value);
         if (!name) { showToast('Bitte Namen eingeben.'); return; }
         if (isNaN(hcp)) { showToast('Bitte HCP eingeben.'); return; }
+        if (hcp < -10 || hcp > 54) { showToast('HCP muss zwischen -10 und 54 liegen.'); return; }
         p.name = name;
         p.handicapIndex = hcp;
         p.defaultTeeColorKey = chosen;
@@ -6163,6 +6561,7 @@
         const hcp = parseFloat(hcpIn.value);
         if (!name) { showToast('Bitte Namen eingeben.'); return; }
         if (isNaN(hcp)) { showToast('Bitte HCP eingeben.'); return; }
+        if (hcp < -10 || hcp > 54) { showToast('HCP muss zwischen -10 und 54 liegen.'); return; }
         state.appState.players.push({
           id: uid('player'),
           name: name,
@@ -6242,23 +6641,20 @@
       if (!Array.isArray(r.playersInRound) || r.playersInRound.length === 0) {
         return { ok: false, reason: 'Runde ohne Spieler' };
       }
+      if (r.playersInRound.some(function (p) { return !p || typeof p !== 'object'; })) {
+        return { ok: false, reason: 'Ungueltige Spielerdaten' };
+      }
+      // Ohne Platzdaten (weder Snapshot noch lokal bekannter Platz) waere die Runde
+      // nicht anzeigbar und wuerde beim naechsten Start still verworfen.
+      const snapOk = !!(r.courseSnapshot && Array.isArray(r.courseSnapshot.holes) && r.courseSnapshot.holes.length > 0);
+      if (!snapOk && !getCourse(r.courseId)) return { ok: false, reason: 'Runde ohne Platzdaten (Platz auf diesem Geraet unbekannt)' };
       return { ok: true, round: r };
     }
 
     // Fill in any fields an imported round may be missing, purely defensively.
     function ensureImportedRoundShape(r) {
-      if (!r.courseLayoutId) r.courseLayoutId = 'standard';
-      if (!Array.isArray(r.holeNumbers) || r.holeNumbers.length === 0) {
-        const n = (r.courseSnapshot && r.courseSnapshot.holeCount) || 18;
-        const arr = [];
-        for (let i = 1; i <= n; i++) arr.push(i);
-        r.holeNumbers = arr;
-      }
-      if (!r.createdAt) r.createdAt = r.date || new Date().toISOString();
-      if (!r.updatedAt) r.updatedAt = r.createdAt;
-      if (!r.courseName) r.courseName = (r.courseSnapshot && r.courseSnapshot.name) || 'Unbekannter Platz';
-      if (!Array.isArray(r.holeScores)) r.holeScores = [];
-      if (typeof r.currentHole !== 'number' || r.currentHole < 1) r.currentHole = 1;
+      // Dieselbe Absicherung wie beim Laden (Lochnummern, Spielerfelder, Scores).
+      sanitizeRoundShape(r, 'finished', state.appState.courses);
       // Imported rounds are archival — always finished in the receiving device.
       r.status = 'finished';
       return r;
@@ -6327,6 +6723,8 @@
             onConfirm: function () {
               const idx = state.appState.rounds.findIndex(function (x) { return x.id === r.id; });
               if (idx >= 0) state.appState.rounds[idx] = r;
+              // Wird die ersetzte Runde gerade angezeigt, auf die neue Fassung umhaengen.
+              if (state.activeRound && state.activeRound.id === r.id) { state.activeRound = r; renderBottomNav(); }
               saveState();
               renderHistory();
               showToast('Runde ersetzt');
@@ -6985,8 +7383,10 @@
       try {
         const resp = await fetch('data/' + c.file, { cache: 'no-store' });
         if (!resp || !resp.ok) return false;
-        if (cache) await cache.put('data/' + c.file, resp.clone());
-        return true;
+        if (cache) { await cache.put('data/' + c.file, resp.clone()); return true; }
+        // Ohne Cache API (z.B. http im LAN): Daten direkt zurueckgeben — sonst
+        // gingen sie verloren, weil sonst aus dem Cache gelesen wird.
+        try { const data = await resp.json(); return Array.isArray(data) ? data : false; } catch (e) { return false; }
       } catch (e) { return false; }
     }
     // Lokalen Stand schreiben: NUR erfolgreich vorhandene Laender; `version` nur,
@@ -7009,6 +7409,7 @@
     // in den localStorage schreibt), dann in den appState (Dubletten vermeiden).
     function appendLoadedCourses(list) {
       if (!Array.isArray(list) || list.length === 0) return;
+      list.forEach(normalizeCourseHoles);
       const have = {};
       LOADED_COURSE_DB.courses.forEach(function (c) { have[c.id] = true; });
       const fresh = list.filter(function (c) { return c && c.id && !have[c.id]; });
@@ -7016,10 +7417,18 @@
       LOADED_COURSE_DB.courses.push.apply(LOADED_COURSE_DB.courses, fresh);
       __embeddedIdSet = null;
       if (state.appState && Array.isArray(state.appState.courses)) {
-        const inApp = {};
-        state.appState.courses.forEach(function (c) { inApp[c.id] = true; });
+        const at = {};
+        state.appState.courses.forEach(function (c, i) { at[c.id] = i; });
         fresh.forEach(function (c) {
-          if (!inApp[c.id]) state.appState.courses.push(JSON.parse(JSON.stringify(c)));
+          const i = at[c.id];
+          if (i == null) { state.appState.courses.push(JSON.parse(JSON.stringify(c))); return; }
+          // Eigener Import aus einem AELTEREN DB-Stand: jetzt gewinnt die DB.
+          const cur = state.appState.courses[i];
+          if (cur && cur.userOverride === true) {
+            if (!userImportWins(cur)) state.appState.courses[i] = JSON.parse(JSON.stringify(c));
+            // Import identisch mit der (jetzt geladenen) DB -> nicht mehr eigens speichern.
+            else if (courseFingerprint(cur) === courseFingerprint(c)) { delete cur.userOverride; delete cur.importDbVersion; }
+          }
         });
       }
     }
@@ -7084,17 +7493,19 @@
       if (manifest && Array.isArray(manifest.countries)) {
         const home = manifest.countries.find(function (c) { return c.iso === HOME_COUNTRY; });
         if (home) {
+          let direct = null;
           if (needSet.has(home.file)) {
             splashProgress(30, 'Golfplätze werden geladen … ' + HOME_COUNTRY);
             const ok = navigator.onLine !== false ? await fetchCountryFile(cache, home) : false;
             if (ok) {
+              if (Array.isArray(ok)) direct = ok;
               needSet.delete(home.file);
               upsertLocalCountry(local, home);
               await persistLocalManifest(cache, local);
             }
           }
-          const data = await cacheReadJson(cache, 'data/' + home.file);
-          if (Array.isArray(data)) homeCourses = data;
+          const data = direct || await cacheReadJson(cache, 'data/' + home.file);
+          if (Array.isArray(data)) { data.forEach(normalizeCourseHoles); homeCourses = data; }
         }
       }
       LOADED_COURSE_DB = { version: (manifest && manifest.version) || null, courses: homeCourses };
@@ -7131,10 +7542,11 @@
       let allOk = true;
       for (let i = 0; i < others.length; i++) {
         const c = others[i];
-        let ok = true;
+        let direct = null;
         if (S.needSet.has(c.file)) {
-          ok = navigator.onLine !== false ? await fetchCountryFile(S.cache, c) : false;
+          const ok = navigator.onLine !== false ? await fetchCountryFile(S.cache, c) : false;
           if (ok) {
+            if (Array.isArray(ok)) direct = ok;
             S.needSet.delete(c.file);
             upsertLocalCountry(S.local, c);
             await persistLocalManifest(S.cache, S.local);   // Teilerfolg sichern
@@ -7142,10 +7554,10 @@
             allOk = false;   // beim naechsten Start erneut versuchen
           }
         }
-        if (ok) {
-          const data = await cacheReadJson(S.cache, 'data/' + c.file);
-          if (Array.isArray(data)) appendLoadedCourses(data);
-        }
+        // Auch bei fehlgeschlagenem Download den (aelteren) Cache-Stand verwenden,
+        // statt das Land fuer diese Sitzung ganz wegzulassen.
+        const data = direct || await cacheReadJson(S.cache, 'data/' + c.file);
+        if (Array.isArray(data)) appendLoadedCourses(data);
         __bgLoad.done = i + 1;
         scheduleCourseListRefresh(false);
       }
@@ -7196,7 +7608,7 @@
       const names = (draft.playersInRound || []).map(function (p) { return p.displayName; }).join(', ');
       const savedDate = formatDate(draft.updatedAt);
       const savedTime = formatTime(draft.updatedAt);
-      const holeInfo = draft.currentHole ? ('Loch ' + draft.currentHole) : '';
+      const holeInfo = draft.currentHole ? ('Loch ' + holeLabelFor(course, draft.currentHole)) : '';
 
       const content = el('div');
       content.appendChild(el('div', { class: 'overlay-header' }, ['Laufende Runde gefunden']));
@@ -7250,7 +7662,14 @@
       importDataFromFile: importDataFromFile,
       sanitizeAppState: sanitizeAppState,
       getState: function () { return state; },
-      saveState: saveState
+      saveState: saveState,
+      // HCP-/WHS-Rechenkern (fuer Referenz-Testfaelle)
+      berechneHcp: berechneHcp,
+      scoreDifferential: scoreDifferential,
+      scoreDifferentialForPlayer: scoreDifferentialForPlayer,
+      distributeStrokesPerHole: distributeStrokesPerHole,
+      stablefordForHole: stablefordForHole,
+      computeTotals: computeTotals
     };
 
     // Script is at end of <body>, so DOM is typically already parsed here.
