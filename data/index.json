@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "2026-10-30T09:38:36.782328+00:00",
-  "generatedAt": "2026-10-30T09:38:36.782328+00:00",
-  "totalCourses": 25171,
+  "version": "2026-10-30T17:05:30.610754+00:00",
+  "generatedAt": "2026-10-30T17:05:30.610754+00:00",
+  "totalCourses": 25170,
   "countries": [
     {
       "iso": "AD",
@@ -182,9 +182,9 @@
     {
       "iso": "CH",
       "file": "courses-CH.json",
-      "count": 133,
-      "hash": "49d5feadee3ae4f6",
-      "updatedAt": "2026-10-28T18:25:52.793074+00:00"
+      "count": 132,
+      "hash": "2c3e8152eac97cb5",
+      "updatedAt": "2026-10-30T17:05:30.610754+00:00"
     },
     {
       "iso": "CI",
